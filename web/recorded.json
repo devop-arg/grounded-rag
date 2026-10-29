@@ -1,0 +1,414 @@
+{
+  "generated_at": "2026-10-29T02:08:01Z",
+  "report": null,
+  "entries": [
+    {
+      "id": "a01",
+      "lang": "en",
+      "question": "How do I build an index without blocking writes on the table?",
+      "recorded_at": "2026-10-29T02:08:01Z",
+      "source": "retrieval-only",
+      "status": "retrieval_only",
+      "sources": [
+        {
+          "n": 1,
+          "url": "https://www.postgresql.org/docs/17/sql-createindex.html#SQL-CREATEINDEX-CONCURRENTLY",
+          "title": "CREATE INDEX"
+        },
+        {
+          "n": 2,
+          "url": "https://www.postgresql.org/docs/17/indexes-intro.html#INDEXES-INTRO",
+          "title": "11.1. Introduction"
+        },
+        {
+          "n": 3,
+          "url": "https://www.postgresql.org/docs/17/progress-reporting.html#CREATE-INDEX-PROGRESS-REPORTING",
+          "title": "27.4. Progress Reporting"
+        },
+        {
+          "n": 4,
+          "url": "https://www.postgresql.org/docs/17/sql-reindex.html#id-1.9.3.163.5",
+          "title": "REINDEX"
+        },
+        {
+          "n": 5,
+          "url": "https://www.postgresql.org/docs/17/gist.html#GIST-IMPLEMENTATION",
+          "title": "64.2. GiST Indexes"
+        },
+        {
+          "n": 6,
+          "url": "https://www.postgresql.org/docs/17/index-functions.html#INDEX-FUNCTIONS",
+          "title": "62.2. Index Access Method Functions"
+        },
+        {
+          "n": 7,
+          "url": "https://www.postgresql.org/docs/17/runtime-config-wal.html#RUNTIME-CONFIG-WAL-RECOVERY",
+          "title": "19.5. Write Ahead Log"
+        },
+        {
+          "n": 8,
+          "url": "https://www.postgresql.org/docs/17/bloom.html#BLOOM-EXAMPLES",
+          "title": "F.6. bloom — bloom filter index access method"
+        }
+      ],
+      "answer": null
+    },
+    {
+      "id": "a15",
+      "lang": "en",
+      "question": "What is the difference between json and jsonb?",
+      "recorded_at": "2026-10-29T02:08:01Z",
+      "source": "retrieval-only",
+      "status": "retrieval_only",
+      "sources": [
+        {
+          "n": 1,
+          "url": "https://www.postgresql.org/docs/17/datatype-json.html#DATATYPE-JSON",
+          "title": "8.14. JSON Types"
+        },
+        {
+          "n": 2,
+          "url": "https://www.postgresql.org/docs/17/functions-json.html#FUNCTIONS-JSON-PROCESSING",
+          "title": "9.16. JSON Functions and Operators"
+        },
+        {
+          "n": 3,
+          "url": "https://www.postgresql.org/docs/17/functions-textsearch.html#FUNCTIONS-TEXTSEARCH",
+          "title": "9.13. Text Search Functions and Operators"
+        },
+        {
+          "n": 4,
+          "url": "https://www.postgresql.org/docs/17/hstore.html#HSTORE-OPS-FUNCS",
+          "title": "F.17. hstore — hstore key/value datatype"
+        },
+        {
+          "n": 5,
+          "url": "https://www.postgresql.org/docs/17/functions-aggregate.html#FUNCTIONS-AGGREGATE",
+          "title": "9.21. Aggregate Functions"
+        },
+        {
+          "n": 6,
+          "url": "https://www.postgresql.org/docs/17/features-sql-standard.html#FEATURES-SQL-STANDARD",
+          "title": "D.1. Supported Features"
+        },
+        {
+          "n": 7,
+          "url": "https://www.postgresql.org/docs/17/sql-keywords-appendix.html#SQL-KEYWORDS-APPENDIX",
+          "title": "Appendix C. SQL Key Words"
+        },
+        {
+          "n": 8,
+          "url": "https://www.postgresql.org/docs/17/unsupported-features-sql-standard.html#UNSUPPORTED-FEATURES-SQL-STANDARD",
+          "title": "D.2. Unsupported Features"
+        }
+      ],
+      "answer": null
+    },
+    {
+      "id": "a16",
+      "lang": "es",
+      "question": "¿Cómo convierto un documento JSON en filas y columnas con JSON_TABLE?",
+      "recorded_at": "2026-10-29T02:08:01Z",
+      "source": "retrieval-only",
+      "status": "retrieval_only",
+      "sources": [
+        {
+          "n": 1,
+          "url": "https://www.postgresql.org/docs/17/functions-json.html#FUNCTIONS-SQLJSON-TABLE",
+          "title": "9.16. JSON Functions and Operators"
+        },
+        {
+          "n": 2,
+          "url": "https://www.postgresql.org/docs/17/sql-keywords-appendix.html#SQL-KEYWORDS-APPENDIX",
+          "title": "Appendix C. SQL Key Words"
+        },
+        {
+          "n": 3,
+          "url": "https://www.postgresql.org/docs/17/functions-aggregate.html#FUNCTIONS-AGGREGATE",
+          "title": "9.21. Aggregate Functions"
+        },
+        {
+          "n": 4,
+          "url": "https://www.postgresql.org/docs/17/unsupported-features-sql-standard.html#UNSUPPORTED-FEATURES-SQL-STANDARD",
+          "title": "D.2. Unsupported Features"
+        },
+        {
+          "n": 5,
+          "url": "https://www.postgresql.org/docs/17/errcodes-appendix.html#ERRCODES-APPENDIX",
+          "title": "Appendix A. PostgreSQL Error Codes"
+        },
+        {
+          "n": 6,
+          "url": "https://www.postgresql.org/docs/17/datatype-json.html#DATATYPE-JSON",
+          "title": "8.14. JSON Types"
+        },
+        {
+          "n": 7,
+          "url": "https://www.postgresql.org/docs/17/release-17.html#RELEASE-17",
+          "title": "E.12. Release 17"
+        },
+        {
+          "n": 8,
+          "url": "https://www.postgresql.org/docs/17/features-sql-standard.html#FEATURES-SQL-STANDARD",
+          "title": "D.1. Supported Features"
+        }
+      ],
+      "answer": null
+    },
+    {
+      "id": "a06",
+      "lang": "es",
+      "question": "¿Qué diferencia hay entre VACUUM y VACUUM FULL?",
+      "recorded_at": "2026-10-29T02:08:01Z",
+      "source": "retrieval-only",
+      "status": "retrieval_only",
+      "sources": [
+        {
+          "n": 1,
+          "url": "https://www.postgresql.org/docs/17/routine-vacuuming.html#VACUUM-FOR-SPACE-RECOVERY",
+          "title": "24.1. Routine Vacuuming"
+        },
+        {
+          "n": 2,
+          "url": "https://www.postgresql.org/docs/17/sql-vacuum.html#id-1.9.3.184.7",
+          "title": "VACUUM"
+        },
+        {
+          "n": 3,
+          "url": "https://www.postgresql.org/docs/17/app-vacuumdb.html#id-1.9.4.23.6",
+          "title": "vacuumdb"
+        },
+        {
+          "n": 4,
+          "url": "https://www.postgresql.org/docs/17/runtime-config-client.html#RUNTIME-CONFIG-CLIENT-STATEMENT",
+          "title": "19.11. Client Connection Defaults"
+        },
+        {
+          "n": 5,
+          "url": "https://www.postgresql.org/docs/17/runtime-config-resource.html#RUNTIME-CONFIG-RESOURCE-VACUUM-COST",
+          "title": "19.4. Resource Consumption"
+        },
+        {
+          "n": 6,
+          "url": "https://www.postgresql.org/docs/17/sql-createtable.html#SQL-CREATETABLE-STORAGE-PARAMETERS",
+          "title": "CREATE TABLE"
+        },
+        {
+          "n": 7,
+          "url": "https://www.postgresql.org/docs/17/runtime-config-autovacuum.html#RUNTIME-CONFIG-AUTOVACUUM",
+          "title": "19.10. Automatic Vacuuming"
+        },
+        {
+          "n": 8,
+          "url": "https://www.postgresql.org/docs/17/progress-reporting.html#VACUUM-PROGRESS-REPORTING",
+          "title": "27.4. Progress Reporting"
+        }
+      ],
+      "answer": null
+    },
+    {
+      "id": "a33",
+      "lang": "en",
+      "question": "How do I rank full-text search results by relevance?",
+      "recorded_at": "2026-10-29T02:08:01Z",
+      "source": "retrieval-only",
+      "status": "retrieval_only",
+      "sources": [
+        {
+          "n": 1,
+          "url": "https://www.postgresql.org/docs/17/textsearch-controls.html#TEXTSEARCH-RANKING",
+          "title": "12.3. Controlling Text Search"
+        },
+        {
+          "n": 2,
+          "url": "https://www.postgresql.org/docs/17/textsearch-intro.html#TEXTSEARCH-INTRO",
+          "title": "12.1. Introduction"
+        },
+        {
+          "n": 3,
+          "url": "https://www.postgresql.org/docs/17/textsearch-dictionaries.html#TEXTSEARCH-STOPWORDS",
+          "title": "12.6. Dictionaries"
+        },
+        {
+          "n": 4,
+          "url": "https://www.postgresql.org/docs/17/functions-textsearch.html#FUNCTIONS-TEXTSEARCH",
+          "title": "9.13. Text Search Functions and Operators"
+        },
+        {
+          "n": 5,
+          "url": "https://www.postgresql.org/docs/17/textsearch-indexes.html#TEXTSEARCH-INDEXES",
+          "title": "12.9. Preferred Index Types for Text Search"
+        },
+        {
+          "n": 6,
+          "url": "https://www.postgresql.org/docs/17/textsearch-tables.html#TEXTSEARCH-TABLES",
+          "title": "12.2. Tables and Indexes"
+        },
+        {
+          "n": 7,
+          "url": "https://www.postgresql.org/docs/17/dict-int.html#DICT-INT",
+          "title": "F.12. dict_int — example full-text search dictionary for integers"
+        },
+        {
+          "n": 8,
+          "url": "https://www.postgresql.org/docs/17/ltree.html#LTREE-DEFINITIONS",
+          "title": "F.22. ltree — hierarchical tree-like data type"
+        }
+      ],
+      "answer": null
+    },
+    {
+      "id": "a42",
+      "lang": "es",
+      "question": "¿Qué diferencia hay entre timestamp y timestamptz?",
+      "recorded_at": "2026-10-29T02:08:01Z",
+      "source": "retrieval-only",
+      "status": "retrieval_only",
+      "sources": [
+        {
+          "n": 1,
+          "url": "https://www.postgresql.org/docs/17/functions-datetime.html#FUNCTIONS-DATETIME",
+          "title": "9.9. Date/Time Functions and Operators"
+        },
+        {
+          "n": 2,
+          "url": "https://www.postgresql.org/docs/17/release-17-1.html#RELEASE-17-1-CHANGES",
+          "title": "E.11. Release 17.1"
+        },
+        {
+          "n": 3,
+          "url": "https://www.postgresql.org/docs/17/datetime-invalid-input.html#DATETIME-INVALID-INPUT",
+          "title": "B.2. Handling of Invalid or Ambiguous Timestamps"
+        },
+        {
+          "n": 4,
+          "url": "https://www.postgresql.org/docs/17/ecpg-pgtypes.html#ECPG-PGTYPES-TIMESTAMP",
+          "title": "34.6. pgtypes Library"
+        },
+        {
+          "n": 5,
+          "url": "https://www.postgresql.org/docs/17/functions-json.html#FUNCTIONS-SQLJSON-PATH",
+          "title": "9.16. JSON Functions and Operators"
+        },
+        {
+          "n": 6,
+          "url": "https://www.postgresql.org/docs/17/datatype-datetime.html#DATATYPE-DATETIME",
+          "title": "8.5. Date/Time Types"
+        },
+        {
+          "n": 7,
+          "url": "https://www.postgresql.org/docs/17/functions-formatting.html#FUNCTIONS-FORMATTING",
+          "title": "9.8. Data Type Formatting Functions"
+        },
+        {
+          "n": 8,
+          "url": "https://www.postgresql.org/docs/17/functions-admin.html#FUNCTIONS-ADMIN-GENFILE",
+          "title": "9.28. System Administration Functions"
+        }
+      ],
+      "answer": null
+    },
+    {
+      "id": "u01",
+      "lang": "en",
+      "question": "How do I enable the query cache in PostgreSQL 17?",
+      "recorded_at": "2026-10-29T02:08:01Z",
+      "source": "retrieval-only",
+      "status": "retrieval_only",
+      "sources": [
+        {
+          "n": 1,
+          "url": "https://www.postgresql.org/docs/17/runtime-config-developer.html#RUNTIME-CONFIG-DEVELOPER",
+          "title": "19.17. Developer Options"
+        },
+        {
+          "n": 2,
+          "url": "https://www.postgresql.org/docs/17/monitoring-stats.html#MONITORING-PG-STAT-DATABASE-VIEW",
+          "title": "27.2. The Cumulative Statistics System"
+        },
+        {
+          "n": 3,
+          "url": "https://www.postgresql.org/docs/17/runtime-config-resource.html#RUNTIME-CONFIG-RESOURCE-BACKGROUND-WRITER",
+          "title": "19.4. Resource Consumption"
+        },
+        {
+          "n": 4,
+          "url": "https://www.postgresql.org/docs/17/release-17-11.html#RELEASE-17-11-CHANGES",
+          "title": "E.1. Release 17.11"
+        },
+        {
+          "n": 5,
+          "url": "https://www.postgresql.org/docs/17/runtime-config-query.html#RUNTIME-CONFIG-QUERY-CONSTANTS",
+          "title": "19.7. Query Planning"
+        },
+        {
+          "n": 6,
+          "url": "https://www.postgresql.org/docs/17/installation-platform-notes.html#INSTALLATION-PLATFORM-NOTES",
+          "title": "17.7. Platform-Specific Notes"
+        },
+        {
+          "n": 7,
+          "url": "https://www.postgresql.org/docs/17/release-17.html#RELEASE-17",
+          "title": "E.12. Release 17"
+        },
+        {
+          "n": 8,
+          "url": "https://www.postgresql.org/docs/17/release-17-9.html#RELEASE-17-9",
+          "title": "E.3. Release 17.9"
+        }
+      ],
+      "answer": null
+    },
+    {
+      "id": "u30",
+      "lang": "es",
+      "question": "¿Cuándo sale PostgreSQL 19 y qué funciones trae?",
+      "recorded_at": "2026-10-29T02:08:01Z",
+      "source": "retrieval-only",
+      "status": "retrieval_only",
+      "sources": [
+        {
+          "n": 1,
+          "url": "https://www.postgresql.org/docs/17/release-17.html#RELEASE-17",
+          "title": "E.12. Release 17"
+        },
+        {
+          "n": 2,
+          "url": "https://www.postgresql.org/docs/17/release-17-1.html#RELEASE-17-1-CHANGES",
+          "title": "E.11. Release 17.1"
+        },
+        {
+          "n": 3,
+          "url": "https://www.postgresql.org/docs/17/release-17-11.html#RELEASE-17-11-CHANGES",
+          "title": "E.1. Release 17.11"
+        },
+        {
+          "n": 4,
+          "url": "https://www.postgresql.org/docs/17/runtime-config-compatible.html#RUNTIME-CONFIG-COMPATIBLE-VERSION",
+          "title": "19.13. Version and Platform Compatibility"
+        },
+        {
+          "n": 5,
+          "url": "https://www.postgresql.org/docs/17/config-setting.html#CONFIG-SETTING-CONFIGURATION-FILE",
+          "title": "19.1. Setting Parameters"
+        },
+        {
+          "n": 6,
+          "url": "https://www.postgresql.org/docs/17/runtime-config-resource.html#RUNTIME-CONFIG-RESOURCE-ASYNC-BEHAVIOR",
+          "title": "19.4. Resource Consumption"
+        },
+        {
+          "n": 7,
+          "url": "https://www.postgresql.org/docs/17/runtime-config-preset.html#RUNTIME-CONFIG-PRESET",
+          "title": "19.15. Preset Options"
+        },
+        {
+          "n": 8,
+          "url": "https://www.postgresql.org/docs/17/runtime-config-error-handling.html#RUNTIME-CONFIG-ERROR-HANDLING",
+          "title": "19.14. Error Handling"
+        }
+      ],
+      "answer": null
+    }
+  ]
+}

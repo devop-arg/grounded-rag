@@ -150,6 +150,22 @@ def run_generate(
             "llm_ms": answer["llm_ms"],
             "signals": {name: round(value, 6) for name, value in answer["signals"].items()},
             "cited_urls": [source["url"] for source in answer["sources"]],
+            # Kept per question so ``web.record`` can replay a real answer
+            # (never a mock one) without calling the model again.
+            "sentences": [
+                {
+                    "text": sentence["text"],
+                    "citations": [
+                        {"n": int(citation["n"]), "quote": citation["quote"]}
+                        for citation in sentence["citations"]
+                    ],
+                }
+                for sentence in answer["sentences"]
+            ],
+            "sources": [
+                {"n": int(source["n"]), "url": source["url"], "title": source["title"]}
+                for source in answer["sources"]
+            ],
         }
         rows.append(row)
         if log:

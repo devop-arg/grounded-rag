@@ -1,11 +1,11 @@
-"""Hybrid search tests with an in-memory store: URL grouping and fusion policies."""
+"""Hybrid search tests with an in-memory store: page grouping and fusion policies."""
 
 from __future__ import annotations
 
 import numpy as np
 import pytest
 
-from retrieval.search import POLICIES, group_by_url, hybrid_search, resolve_policy
+from retrieval.search import POLICIES, group_by_page, hybrid_search, resolve_policy
 
 ES_QUERY = "¿cómo configuro la replicación lógica?"
 EN_QUERY = "how do I create a partial index"
@@ -21,24 +21,27 @@ def make_row(chunk_id: str, url: str) -> dict:
     }
 
 
+DEFAULT_URLS = {
+    "a1": "https://example.test/a.html#A",
+    "a2": "https://example.test/a.html#A",  # same page: fragments must group
+    "a3": "https://example.test/a.html#A",
+    "b1": "https://example.test/b.html#B",
+    "c1": "https://example.test/c.html#C",
+    "lex1": "https://example.test/lex.html#L",
+    "vec1": "https://example.test/vec.html#V",
+    "vec2": "https://example.test/vec2.html#V",
+}
+
+
 class FakeStore:
     """Minimal :class:`retrieval.store.Store` with scripted rankings."""
 
-    def __init__(self, lexical: list[str], vector: list[str]) -> None:
+    def __init__(self, lexical: list[str], vector: list[str], urls: dict[str, str] | None = None) -> None:
         self.lexical_hits = lexical
         self.vector_hits = vector
         self.modes: list[str] = []
         self.lexical_queries: list[str] = []
-        urls = {
-            "a1": "https://example.test/a.html#A",
-            "a2": "https://example.test/a.html#A",  # same URL: fragments must group
-            "a3": "https://example.test/a.html#A",
-            "b1": "https://example.test/b.html#B",
-            "c1": "https://example.test/c.html#C",
-            "lex1": "https://example.test/lex.html#L",
-            "vec1": "https://example.test/vec.html#V",
-            "vec2": "https://example.test/vec2.html#V",
-        }
+        urls = urls or DEFAULT_URLS
         self.rows = {chunk_id: make_row(chunk_id, url) for chunk_id, url in urls.items()}
 
     def lexical(self, query: str, k: int, mode: str = "stem") -> list[tuple[str, float]]:
@@ -64,11 +67,11 @@ def search(store: FakeStore, query: str = ES_QUERY, policy: str = "baseline", **
     return hybrid_search(query, policy=policy, store=store, embedder=FakeEmbedder(), **kwargs)
 
 
-def test_group_by_url_keeps_the_best_fragment_as_representative() -> None:
+def test_group_by_page_keeps_the_best_fragment_as_representative() -> None:
     rows = {chunk_id: make_row(chunk_id, url) for chunk_id, url in (("a1", "u/a"), ("a2", "u/a"), ("b1", "u/b"))}
     fused = [("b1", 1 / 61), ("a1", 1 / 62), ("a2", 1 / 63)]
 
-    groups = group_by_url(fused, rows)
+    groups = group_by_page(fused, rows)
 
     assert [group["url"] for group in groups] == ["u/b", "u/a"]
     assert groups[1]["id"] == "a1"
@@ -76,11 +79,48 @@ def test_group_by_url_keeps_the_best_fragment_as_representative() -> None:
     assert groups[1]["n_chunks"] == 2
 
 
+def test_two_anchors_of_one_page_become_one_result_with_the_best_anchor() -> None:
+    """A page reached through two anchors is one result, not two."""
+    rows = {
+        "c1": make_row("c1", "https://example.test/createindex.html#id-1.9.3.69.7"),
+        "c2": make_row("c2", "https://example.test/createindex.html#SQL-CREATEINDEX-CONCURRENTLY"),
+        "d1": make_row("d1", "https://example.test/other.html#D"),
+    }
+    fused = [("c2", 1 / 61), ("c1", 1 / 62), ("d1", 1 / 63)]
+
+    groups = group_by_page(fused, rows)
+
+    assert len(groups) == 2
+    page = groups[0]
+    assert page["page_url"] == "https://example.test/createindex.html"
+    assert page["url"] == "https://example.test/createindex.html#SQL-CREATEINDEX-CONCURRENTLY"
+    assert page["id"] == "c2"
+    assert page["chunk_ids"] == ["c2", "c1"]
+    assert page["urls"] == [
+        "https://example.test/createindex.html#SQL-CREATEINDEX-CONCURRENTLY",
+        "https://example.test/createindex.html#id-1.9.3.69.7",
+    ]
+    assert page["rrf"] == pytest.approx(1 / 61)
+
+
+def test_search_returns_eight_distinct_pages() -> None:
+    urls = {f"c{index}": f"https://example.test/page{index // 2}.html#anchor{index}" for index in range(20)}
+    store = FakeStore(lexical=[f"c{index}" for index in range(20)], vector=[], urls=urls)
+
+    results = search(store, k=8)
+
+    pages = [result["page_url"] for result in results]
+    assert len(results) == 8
+    assert len(set(pages)) == 8
+    assert pages == [f"https://example.test/page{index}.html" for index in range(8)]
+    assert all(len(result["chunk_ids"]) == 2 for result in results)  # both fragments kept
+
+
 def test_group_score_is_the_best_fragment_not_the_sum() -> None:
     rows = {chunk_id: make_row(chunk_id, "u/a") for chunk_id in ["a1", "a2", "a3"]}
     fused = [("a1", 1 / 61), ("a2", 1 / 63), ("a3", 1 / 64)]
 
-    (group,) = group_by_url(fused, rows)
+    (group,) = group_by_page(fused, rows)
 
     assert group["rrf"] == pytest.approx(1 / 61)
     assert group["rrf"] != pytest.approx(1 / 61 + 1 / 63 + 1 / 64)
