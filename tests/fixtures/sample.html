@@ -1,0 +1,94 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en">
+<head>
+  <meta charset="utf-8" />
+  <title>PostgreSQL: Documentation: 17: Test Page</title>
+</head>
+<body>
+<div class="container-fluid">
+  <div class="row justify-content-md-center">
+    <div class="col">
+      <nav class="navbar navbar-expand-lg navbar-light bg-light">
+        <ul class="navbar-nav mr-auto">
+          <li class="nav-item"><a href="/" title="Home">Home</a></li>
+          <li class="nav-item"><a href="/about/" title="About">About</a></li>
+          <li class="nav-item"><a href="/download/" title="Download">Download</a></li>
+        </ul>
+      </nav>
+      <div id="pgContentWrap">
+        <div id="docContent">
+          <div class="navheader">
+            <table width="100%" summary="Navigation header">
+              <tr><th colspan="3" align="center">Test Section</th></tr>
+              <tr>
+                <td width="20%" align="left">Previous</td>
+                <td width="60%" align="center">Up</td>
+                <td width="20%" align="right">Next</td>
+              </tr>
+            </table>
+          </div>
+
+          <div class="sect1" id="TEST-SECT1">
+            <div class="titlepage">
+              <div><div><h2 class="title">1.&nbsp;Test Section</h2></div></div>
+            </div>
+            <p>
+              This paragraph explains the first behaviour. It also mentions a partial
+              index so that lexical search has something to match.
+            </p>
+            <div class="toc">
+              <p><strong>Table of Contents</strong></p>
+              <ul>
+                <li><a href="#TEST-SECT2">1.1. Small Sub</a></li>
+              </ul>
+            </div>
+            <pre class="programlisting">
+CREATE INDEX test_idx ON test_table (id)
+    WHERE id &gt; 100;
+</pre>
+            <table class="table" summary="Sample table">
+              <tr><th>Column</th><th>Meaning</th></tr>
+              <tr><td>id</td><td>row identifier</td></tr>
+            </table>
+            <div class="sect2" id="TEST-SECT2">
+              <div class="titlepage">
+                <div><div><h3 class="title">1.1.&nbsp;Small Sub</h3></div></div>
+              </div>
+              <p>Small subsection text that is merged with its parent.</p>
+              <div class="sect3" id="TEST-SECT3">
+                <div class="titlepage">
+                  <div><div><h4 class="title">1.1.1.&nbsp;Deep Sub</h4></div></div>
+                </div>
+                <p>Deeply nested text stays inside the h3 chunk.</p>
+              </div>
+            </div>
+          </div>
+
+          <div class="navfooter">
+            <hr />
+            <table width="100%" summary="Navigation footer">
+              <tr>
+                <td width="40%" align="left">Previous</td>
+                <td width="20%" align="center"><a accesskey="h" href="index.html">Home</a></td>
+                <td width="40%" align="right">Next</td>
+              </tr>
+            </table>
+          </div>
+        </div>
+        <div id="docComments">
+          <h2>Submit correction</h2>
+          <p>If you see anything in the documentation that is not correct, please use this form to report a documentation issue.</p>
+        </div>
+      </div>
+      <footer id="footer">
+        <div class="container">
+          <a href="/about/policies/">Policies</a> |
+          <a href="/about/">About PostgreSQL</a><br />
+          <p>Copyright &copy; 1996-2026 The PostgreSQL Global Development Group</p>
+        </div>
+      </footer>
+    </div>
+  </div>
+</div>
+</body>
+</html>
