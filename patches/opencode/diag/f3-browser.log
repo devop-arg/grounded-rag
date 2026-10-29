@@ -73,3 +73,23 @@ screenshot: f3-mobile.png (full page {"width":360,"height":2714})  [was 360x2706
 console errors: 0
 failed requests (fonts included): 0
 app stopped: 2026-10-29T02:02Z - port 8792 after shutdown: free (ss -ltnp)
+
+== desktop re-run after brief 10 (results grouped by page)
+setup: 1366x900, dark, ?lang=en, English example, same app (generation off, port 8792)
+page state: {"lang":"en","background":"rgb(10, 18, 25)","subtitle":"Answers from the PostgreSQL 17 docs, with verifiable citations","banner":"Recorded mode: the live model is not available. Answers come from the recorded set."}
+result: {"resultClass":"result abstain","badge":"Recorded answer (no live model)","heading":"Answer","sources":8,"distinctPages":8,"createIndexOccurrences":1}
+sources (8 distinct pages):
+  1. https://www.postgresql.org/docs/17/sql-createindex.html#SQL-CREATEINDEX-CONCURRENTLY
+  2. https://www.postgresql.org/docs/17/indexes-intro.html#INDEXES-INTRO
+  3. https://www.postgresql.org/docs/17/progress-reporting.html#CREATE-INDEX-PROGRESS-REPORTING
+  4. https://www.postgresql.org/docs/17/sql-reindex.html#id-1.9.3.163.5
+  5. https://www.postgresql.org/docs/17/gist.html#GIST-IMPLEMENTATION
+  6. https://www.postgresql.org/docs/17/index-functions.html#INDEX-FUNCTIONS
+  7. https://www.postgresql.org/docs/17/runtime-config-wal.html#RUNTIME-CONFIG-WAL-RECOVERY
+  8. https://www.postgresql.org/docs/17/bloom.html#BLOOM-EXAMPLES
+sql-createindex.html appears once (it appeared 3 times in the previous shot: #SQL-CREATEINDEX-CONCURRENTLY, #id-1.9.3.69.7, #id-1.9.3.69.6)
+horizontal scroll: no (1366 = 1366)
+screenshot: f3-desktop.png (1366x900)
+console errors: 0
+failed requests (fonts included): 0
+app stopped: 2026-10-29T02:14Z - port 8792 after shutdown: free (ss -ltnp)

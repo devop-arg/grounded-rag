@@ -7,8 +7,8 @@
     "excluded": 0,
     "recall@5": 0.88,
     "mrr@8": 0.7336,
-    "seconds": 8.39,
-    "mean_ms_per_question": 104.9
+    "seconds": 6.1,
+    "mean_ms_per_question": 76.3
   },
   "rows": [
     {
@@ -23,12 +23,41 @@
       ],
       "invalid_urls": [],
       "hit_rank": 1,
+      "hit_url": "https://www.postgresql.org/docs/17/sql-createindex.html#SQL-CREATEINDEX-CONCURRENTLY",
       "top_urls": [
         "https://www.postgresql.org/docs/17/sql-createindex.html#SQL-CREATEINDEX-CONCURRENTLY",
-        "https://www.postgresql.org/docs/17/sql-createindex.html#id-1.9.3.69.7",
         "https://www.postgresql.org/docs/17/indexes-intro.html#INDEXES-INTRO",
         "https://www.postgresql.org/docs/17/progress-reporting.html#CREATE-INDEX-PROGRESS-REPORTING",
-        "https://www.postgresql.org/docs/17/sql-createindex.html#id-1.9.3.69.6"
+        "https://www.postgresql.org/docs/17/sql-reindex.html#id-1.9.3.163.5",
+        "https://www.postgresql.org/docs/17/gist.html#GIST-IMPLEMENTATION"
+      ],
+      "top_group_urls": [
+        [
+          "https://www.postgresql.org/docs/17/sql-createindex.html#SQL-CREATEINDEX-CONCURRENTLY",
+          "https://www.postgresql.org/docs/17/sql-createindex.html#id-1.9.3.69.7",
+          "https://www.postgresql.org/docs/17/sql-createindex.html#id-1.9.3.69.6",
+          "https://www.postgresql.org/docs/17/sql-createindex.html#SQL-CREATEINDEX-STORAGE-PARAMETERS",
+          "https://www.postgresql.org/docs/17/sql-createindex.html#id-1.9.3.69.8",
+          "https://www.postgresql.org/docs/17/sql-createindex.html#id-1.9.3.69.5"
+        ],
+        [
+          "https://www.postgresql.org/docs/17/indexes-intro.html#INDEXES-INTRO"
+        ],
+        [
+          "https://www.postgresql.org/docs/17/progress-reporting.html#CREATE-INDEX-PROGRESS-REPORTING",
+          "https://www.postgresql.org/docs/17/progress-reporting.html#CLUSTER-PROGRESS-REPORTING",
+          "https://www.postgresql.org/docs/17/progress-reporting.html#VACUUM-PROGRESS-REPORTING"
+        ],
+        [
+          "https://www.postgresql.org/docs/17/sql-reindex.html#id-1.9.3.163.5",
+          "https://www.postgresql.org/docs/17/sql-reindex.html#SQL-REINDEX-CONCURRENTLY",
+          "https://www.postgresql.org/docs/17/sql-reindex.html#id-1.9.3.163.7",
+          "https://www.postgresql.org/docs/17/sql-reindex.html#id-1.9.3.163.8"
+        ],
+        [
+          "https://www.postgresql.org/docs/17/gist.html#GIST-IMPLEMENTATION",
+          "https://www.postgresql.org/docs/17/gist.html#GIST-EXTENSIBILITY"
+        ]
       ]
     },
     {
@@ -43,12 +72,34 @@
       ],
       "invalid_urls": [],
       "hit_rank": null,
+      "hit_url": null,
       "top_urls": [
         "https://www.postgresql.org/docs/17/indexes-index-only-scans.html#INDEXES-INDEX-ONLY-SCANS",
         "https://www.postgresql.org/docs/17/indexes-bitmap-scans.html#INDEXES-BITMAP-SCANS",
         "https://www.postgresql.org/docs/17/sql-createindex.html#id-1.9.3.69.8",
         "https://www.postgresql.org/docs/17/indexes-unique.html#INDEXES-UNIQUE",
-        "https://www.postgresql.org/docs/17/sql-createindex.html#SQL-CREATEINDEX-STORAGE-PARAMETERS"
+        "https://www.postgresql.org/docs/17/monitoring-stats.html#MONITORING-PG-STAT-ALL-INDEXES-VIEW"
+      ],
+      "top_group_urls": [
+        [
+          "https://www.postgresql.org/docs/17/indexes-index-only-scans.html#INDEXES-INDEX-ONLY-SCANS"
+        ],
+        [
+          "https://www.postgresql.org/docs/17/indexes-bitmap-scans.html#INDEXES-BITMAP-SCANS"
+        ],
+        [
+          "https://www.postgresql.org/docs/17/sql-createindex.html#id-1.9.3.69.8",
+          "https://www.postgresql.org/docs/17/sql-createindex.html#SQL-CREATEINDEX-STORAGE-PARAMETERS",
+          "https://www.postgresql.org/docs/17/sql-createindex.html#id-1.9.3.69.6",
+          "https://www.postgresql.org/docs/17/sql-createindex.html#id-1.9.3.69.7"
+        ],
+        [
+          "https://www.postgresql.org/docs/17/indexes-unique.html#INDEXES-UNIQUE"
+        ],
+        [
+          "https://www.postgresql.org/docs/17/monitoring-stats.html#MONITORING-PG-STAT-ALL-INDEXES-VIEW",
+          "https://www.postgresql.org/docs/17/monitoring-stats.html#MONITORING-PG-STATIO-ALL-INDEXES-VIEW"
+        ]
       ]
     },
     {
@@ -63,12 +114,33 @@
       ],
       "invalid_urls": [],
       "hit_rank": 2,
+      "hit_url": "https://www.postgresql.org/docs/17/indexes-expressional.html#INDEXES-EXPRESSIONAL",
       "top_urls": [
         "https://www.postgresql.org/docs/17/citext.html#CITEXT",
         "https://www.postgresql.org/docs/17/indexes-expressional.html#INDEXES-EXPRESSIONAL",
-        "https://www.postgresql.org/docs/17/citext.html#CITEXT-LIMITATIONS",
         "https://www.postgresql.org/docs/17/indexes-intro.html#INDEXES-INTRO",
-        "https://www.postgresql.org/docs/17/indexes-partial.html#INDEXES-PARTIAL"
+        "https://www.postgresql.org/docs/17/indexes-partial.html#INDEXES-PARTIAL",
+        "https://www.postgresql.org/docs/17/sql-createindex.html#id-1.9.3.69.8"
+      ],
+      "top_group_urls": [
+        [
+          "https://www.postgresql.org/docs/17/citext.html#CITEXT",
+          "https://www.postgresql.org/docs/17/citext.html#CITEXT-LIMITATIONS"
+        ],
+        [
+          "https://www.postgresql.org/docs/17/indexes-expressional.html#INDEXES-EXPRESSIONAL"
+        ],
+        [
+          "https://www.postgresql.org/docs/17/indexes-intro.html#INDEXES-INTRO"
+        ],
+        [
+          "https://www.postgresql.org/docs/17/indexes-partial.html#INDEXES-PARTIAL"
+        ],
+        [
+          "https://www.postgresql.org/docs/17/sql-createindex.html#id-1.9.3.69.8",
+          "https://www.postgresql.org/docs/17/sql-createindex.html#SQL-CREATEINDEX-STORAGE-PARAMETERS",
+          "https://www.postgresql.org/docs/17/sql-createindex.html#id-1.9.3.69.7"
+        ]
       ]
     },
     {
@@ -84,12 +156,34 @@
       ],
       "invalid_urls": [],
       "hit_rank": null,
+      "hit_url": null,
       "top_urls": [
         "https://www.postgresql.org/docs/17/sql-createindex.html#id-1.9.3.69.8",
         "https://www.postgresql.org/docs/17/indexes-index-only-scans.html#INDEXES-INDEX-ONLY-SCANS",
         "https://www.postgresql.org/docs/17/indexes-multicolumn.html#INDEXES-MULTICOLUMN",
         "https://www.postgresql.org/docs/17/indexes-bitmap-scans.html#INDEXES-BITMAP-SCANS",
         "https://www.postgresql.org/docs/17/amcheck.html#AMCHECK-OPTIONAL-HEAPALLINDEXED-VERIFICATION"
+      ],
+      "top_group_urls": [
+        [
+          "https://www.postgresql.org/docs/17/sql-createindex.html#id-1.9.3.69.8",
+          "https://www.postgresql.org/docs/17/sql-createindex.html#SQL-CREATEINDEX-STORAGE-PARAMETERS",
+          "https://www.postgresql.org/docs/17/sql-createindex.html#id-1.9.3.69.6"
+        ],
+        [
+          "https://www.postgresql.org/docs/17/indexes-index-only-scans.html#INDEXES-INDEX-ONLY-SCANS"
+        ],
+        [
+          "https://www.postgresql.org/docs/17/indexes-multicolumn.html#INDEXES-MULTICOLUMN"
+        ],
+        [
+          "https://www.postgresql.org/docs/17/indexes-bitmap-scans.html#INDEXES-BITMAP-SCANS"
+        ],
+        [
+          "https://www.postgresql.org/docs/17/amcheck.html#AMCHECK-OPTIONAL-HEAPALLINDEXED-VERIFICATION",
+          "https://www.postgresql.org/docs/17/amcheck.html#AMCHECK-USING-AMCHECK-EFFECTIVELY",
+          "https://www.postgresql.org/docs/17/amcheck.html#AMCHECK-FUNCTIONS"
+        ]
       ]
     },
     {
@@ -106,12 +200,38 @@
       ],
       "invalid_urls": [],
       "hit_rank": 1,
+      "hit_url": "https://www.postgresql.org/docs/17/datatype-json.html#JSON-INDEXING",
       "top_urls": [
         "https://www.postgresql.org/docs/17/datatype-json.html#JSON-INDEXING",
-        "https://www.postgresql.org/docs/17/datatype-json.html#JSON-CONTAINMENT",
-        "https://www.postgresql.org/docs/17/datatype-json.html#DATATYPE-JSON",
-        "https://www.postgresql.org/docs/17/datatype-json.html#JSONB-SUBSCRIPTING",
-        "https://www.postgresql.org/docs/17/functions-json.html#FUNCTIONS-JSON-PROCESSING"
+        "https://www.postgresql.org/docs/17/functions-json.html#FUNCTIONS-JSON-PROCESSING",
+        "https://www.postgresql.org/docs/17/indexes-collations.html#INDEXES-COLLATIONS",
+        "https://www.postgresql.org/docs/17/indexes-index-only-scans.html#INDEXES-INDEX-ONLY-SCANS",
+        "https://www.postgresql.org/docs/17/btree.html#BTREE-IMPLEMENTATION"
+      ],
+      "top_group_urls": [
+        [
+          "https://www.postgresql.org/docs/17/datatype-json.html#JSON-INDEXING",
+          "https://www.postgresql.org/docs/17/datatype-json.html#JSON-CONTAINMENT",
+          "https://www.postgresql.org/docs/17/datatype-json.html#DATATYPE-JSON",
+          "https://www.postgresql.org/docs/17/datatype-json.html#JSONB-SUBSCRIPTING",
+          "https://www.postgresql.org/docs/17/datatype-json.html#DATATYPE-JSON-TRANSFORMS",
+          "https://www.postgresql.org/docs/17/datatype-json.html#DATATYPE-JSONPATH",
+          "https://www.postgresql.org/docs/17/datatype-json.html#JSON-KEYS-ELEMENTS"
+        ],
+        [
+          "https://www.postgresql.org/docs/17/functions-json.html#FUNCTIONS-JSON-PROCESSING",
+          "https://www.postgresql.org/docs/17/functions-json.html#SQLJSON-QUERY-FUNCTIONS",
+          "https://www.postgresql.org/docs/17/functions-json.html#FUNCTIONS-SQLJSON-PATH"
+        ],
+        [
+          "https://www.postgresql.org/docs/17/indexes-collations.html#INDEXES-COLLATIONS"
+        ],
+        [
+          "https://www.postgresql.org/docs/17/indexes-index-only-scans.html#INDEXES-INDEX-ONLY-SCANS"
+        ],
+        [
+          "https://www.postgresql.org/docs/17/btree.html#BTREE-IMPLEMENTATION"
+        ]
       ]
     },
     {
@@ -127,12 +247,40 @@
       ],
       "invalid_urls": [],
       "hit_rank": 1,
+      "hit_url": "https://www.postgresql.org/docs/17/routine-vacuuming.html#VACUUM-FOR-SPACE-RECOVERY",
       "top_urls": [
         "https://www.postgresql.org/docs/17/routine-vacuuming.html#VACUUM-FOR-SPACE-RECOVERY",
         "https://www.postgresql.org/docs/17/sql-vacuum.html#id-1.9.3.184.7",
-        "https://www.postgresql.org/docs/17/sql-vacuum.html#id-1.9.3.184.5",
-        "https://www.postgresql.org/docs/17/sql-vacuum.html#id-1.9.3.184.6",
-        "https://www.postgresql.org/docs/17/routine-vacuuming.html#ROUTINE-VACUUMING"
+        "https://www.postgresql.org/docs/17/app-vacuumdb.html#id-1.9.4.23.6",
+        "https://www.postgresql.org/docs/17/runtime-config-client.html#RUNTIME-CONFIG-CLIENT-STATEMENT",
+        "https://www.postgresql.org/docs/17/runtime-config-resource.html#RUNTIME-CONFIG-RESOURCE-VACUUM-COST"
+      ],
+      "top_group_urls": [
+        [
+          "https://www.postgresql.org/docs/17/routine-vacuuming.html#VACUUM-FOR-SPACE-RECOVERY",
+          "https://www.postgresql.org/docs/17/routine-vacuuming.html#ROUTINE-VACUUMING",
+          "https://www.postgresql.org/docs/17/routine-vacuuming.html#VACUUM-FOR-WRAPAROUND",
+          "https://www.postgresql.org/docs/17/routine-vacuuming.html#AUTOVACUUM",
+          "https://www.postgresql.org/docs/17/routine-vacuuming.html#VACUUM-FOR-VISIBILITY-MAP",
+          "https://www.postgresql.org/docs/17/routine-vacuuming.html#VACUUM-FOR-STATISTICS"
+        ],
+        [
+          "https://www.postgresql.org/docs/17/sql-vacuum.html#id-1.9.3.184.7",
+          "https://www.postgresql.org/docs/17/sql-vacuum.html#id-1.9.3.184.5",
+          "https://www.postgresql.org/docs/17/sql-vacuum.html#id-1.9.3.184.6"
+        ],
+        [
+          "https://www.postgresql.org/docs/17/app-vacuumdb.html#id-1.9.4.23.6",
+          "https://www.postgresql.org/docs/17/app-vacuumdb.html#id-1.9.4.23.5",
+          "https://www.postgresql.org/docs/17/app-vacuumdb.html#id-1.9.4.23.7"
+        ],
+        [
+          "https://www.postgresql.org/docs/17/runtime-config-client.html#RUNTIME-CONFIG-CLIENT-STATEMENT"
+        ],
+        [
+          "https://www.postgresql.org/docs/17/runtime-config-resource.html#RUNTIME-CONFIG-RESOURCE-VACUUM-COST",
+          "https://www.postgresql.org/docs/17/runtime-config-resource.html#RUNTIME-CONFIG-RESOURCE-MEMORY"
+        ]
       ]
     },
     {
@@ -147,12 +295,35 @@
       ],
       "invalid_urls": [],
       "hit_rank": 1,
+      "hit_url": "https://www.postgresql.org/docs/17/routine-vacuuming.html#VACUUM-FOR-WRAPAROUND",
       "top_urls": [
         "https://www.postgresql.org/docs/17/routine-vacuuming.html#VACUUM-FOR-WRAPAROUND",
         "https://www.postgresql.org/docs/17/runtime-config-autovacuum.html#RUNTIME-CONFIG-AUTOVACUUM",
-        "https://www.postgresql.org/docs/17/routine-vacuuming.html#ROUTINE-VACUUMING",
         "https://www.postgresql.org/docs/17/runtime-config-client.html#RUNTIME-CONFIG-CLIENT-STATEMENT",
-        "https://www.postgresql.org/docs/17/routine-vacuuming.html#VACUUM-FOR-VISIBILITY-MAP"
+        "https://www.postgresql.org/docs/17/transaction-id.html#TRANSACTION-ID",
+        "https://www.postgresql.org/docs/17/logicaldecoding-explanation.html#LOGICALDECODING-REPLICATION-SLOTS"
+      ],
+      "top_group_urls": [
+        [
+          "https://www.postgresql.org/docs/17/routine-vacuuming.html#VACUUM-FOR-WRAPAROUND",
+          "https://www.postgresql.org/docs/17/routine-vacuuming.html#ROUTINE-VACUUMING",
+          "https://www.postgresql.org/docs/17/routine-vacuuming.html#VACUUM-FOR-VISIBILITY-MAP",
+          "https://www.postgresql.org/docs/17/routine-vacuuming.html#VACUUM-FOR-SPACE-RECOVERY",
+          "https://www.postgresql.org/docs/17/routine-vacuuming.html#AUTOVACUUM",
+          "https://www.postgresql.org/docs/17/routine-vacuuming.html#VACUUM-FOR-STATISTICS"
+        ],
+        [
+          "https://www.postgresql.org/docs/17/runtime-config-autovacuum.html#RUNTIME-CONFIG-AUTOVACUUM"
+        ],
+        [
+          "https://www.postgresql.org/docs/17/runtime-config-client.html#RUNTIME-CONFIG-CLIENT-STATEMENT"
+        ],
+        [
+          "https://www.postgresql.org/docs/17/transaction-id.html#TRANSACTION-ID"
+        ],
+        [
+          "https://www.postgresql.org/docs/17/logicaldecoding-explanation.html#LOGICALDECODING-REPLICATION-SLOTS"
+        ]
       ]
     },
     {
@@ -168,12 +339,35 @@
       ],
       "invalid_urls": [],
       "hit_rank": 2,
+      "hit_url": "https://www.postgresql.org/docs/17/using-explain.html#USING-EXPLAIN-BASICS",
       "top_urls": [
         "https://www.postgresql.org/docs/17/explicit-joins.html#EXPLICIT-JOINS",
         "https://www.postgresql.org/docs/17/using-explain.html#USING-EXPLAIN-BASICS",
         "https://www.postgresql.org/docs/17/sql-explain.html#id-1.9.3.148.7",
         "https://www.postgresql.org/docs/17/plperl-builtins.html#PLPERL-DATABASE",
         "https://www.postgresql.org/docs/17/fdw-planning.html#FDW-PLANNING"
+      ],
+      "top_group_urls": [
+        [
+          "https://www.postgresql.org/docs/17/explicit-joins.html#EXPLICIT-JOINS"
+        ],
+        [
+          "https://www.postgresql.org/docs/17/using-explain.html#USING-EXPLAIN-BASICS",
+          "https://www.postgresql.org/docs/17/using-explain.html#USING-EXPLAIN-CAVEATS",
+          "https://www.postgresql.org/docs/17/using-explain.html#USING-EXPLAIN-ANALYZE"
+        ],
+        [
+          "https://www.postgresql.org/docs/17/sql-explain.html#id-1.9.3.148.7",
+          "https://www.postgresql.org/docs/17/sql-explain.html#id-1.9.3.148.11",
+          "https://www.postgresql.org/docs/17/sql-explain.html#id-1.9.3.148.8",
+          "https://www.postgresql.org/docs/17/sql-explain.html#id-1.9.3.148.9"
+        ],
+        [
+          "https://www.postgresql.org/docs/17/plperl-builtins.html#PLPERL-DATABASE"
+        ],
+        [
+          "https://www.postgresql.org/docs/17/fdw-planning.html#FDW-PLANNING"
+        ]
       ]
     },
     {
@@ -188,12 +382,35 @@
       ],
       "invalid_urls": [],
       "hit_rank": 1,
+      "hit_url": "https://www.postgresql.org/docs/17/transaction-iso.html#XACT-SERIALIZABLE",
       "top_urls": [
         "https://www.postgresql.org/docs/17/transaction-iso.html#XACT-SERIALIZABLE",
-        "https://www.postgresql.org/docs/17/transaction-iso.html#XACT-REPEATABLE-READ",
-        "https://www.postgresql.org/docs/17/transaction-iso.html#TRANSACTION-ISO",
         "https://www.postgresql.org/docs/17/mvcc-caveats.html#MVCC-CAVEATS",
-        "https://www.postgresql.org/docs/17/mvcc-serialization-failure-handling.html#MVCC-SERIALIZATION-FAILURE-HANDLING"
+        "https://www.postgresql.org/docs/17/mvcc-serialization-failure-handling.html#MVCC-SERIALIZATION-FAILURE-HANDLING",
+        "https://www.postgresql.org/docs/17/applevel-consistency.html#APPLEVEL-CONSISTENCY",
+        "https://www.postgresql.org/docs/17/sql-set-transaction.html#id-1.9.3.178.8"
+      ],
+      "top_group_urls": [
+        [
+          "https://www.postgresql.org/docs/17/transaction-iso.html#XACT-SERIALIZABLE",
+          "https://www.postgresql.org/docs/17/transaction-iso.html#XACT-REPEATABLE-READ",
+          "https://www.postgresql.org/docs/17/transaction-iso.html#TRANSACTION-ISO",
+          "https://www.postgresql.org/docs/17/transaction-iso.html#XACT-READ-COMMITTED"
+        ],
+        [
+          "https://www.postgresql.org/docs/17/mvcc-caveats.html#MVCC-CAVEATS"
+        ],
+        [
+          "https://www.postgresql.org/docs/17/mvcc-serialization-failure-handling.html#MVCC-SERIALIZATION-FAILURE-HANDLING"
+        ],
+        [
+          "https://www.postgresql.org/docs/17/applevel-consistency.html#APPLEVEL-CONSISTENCY",
+          "https://www.postgresql.org/docs/17/applevel-consistency.html#NON-SERIALIZABLE-CONSISTENCY"
+        ],
+        [
+          "https://www.postgresql.org/docs/17/sql-set-transaction.html#id-1.9.3.178.8",
+          "https://www.postgresql.org/docs/17/sql-set-transaction.html#id-1.9.3.178.9"
+        ]
       ]
     },
     {
@@ -208,12 +425,33 @@
       ],
       "invalid_urls": [],
       "hit_rank": 2,
+      "hit_url": "https://www.postgresql.org/docs/17/transaction-iso.html#TRANSACTION-ISO",
       "top_urls": [
         "https://www.postgresql.org/docs/17/release-17-11.html#RELEASE-17-11-CHANGES",
         "https://www.postgresql.org/docs/17/transaction-iso.html#TRANSACTION-ISO",
         "https://www.postgresql.org/docs/17/installation-platform-notes.html#INSTALLATION-PLATFORM-NOTES",
-        "https://www.postgresql.org/docs/17/transaction-iso.html#XACT-REPEATABLE-READ",
-        "https://www.postgresql.org/docs/17/infoschema-user-defined-types.html#INFOSCHEMA-USER-DEFINED-TYPES"
+        "https://www.postgresql.org/docs/17/infoschema-user-defined-types.html#INFOSCHEMA-USER-DEFINED-TYPES",
+        "https://www.postgresql.org/docs/17/view-pg-shadow.html#VIEW-PG-SHADOW"
+      ],
+      "top_group_urls": [
+        [
+          "https://www.postgresql.org/docs/17/release-17-11.html#RELEASE-17-11-CHANGES"
+        ],
+        [
+          "https://www.postgresql.org/docs/17/transaction-iso.html#TRANSACTION-ISO",
+          "https://www.postgresql.org/docs/17/transaction-iso.html#XACT-REPEATABLE-READ",
+          "https://www.postgresql.org/docs/17/transaction-iso.html#XACT-SERIALIZABLE"
+        ],
+        [
+          "https://www.postgresql.org/docs/17/installation-platform-notes.html#INSTALLATION-PLATFORM-NOTES",
+          "https://www.postgresql.org/docs/17/installation-platform-notes.html#INSTALLATION-NOTES-VISUAL-STUDIO"
+        ],
+        [
+          "https://www.postgresql.org/docs/17/infoschema-user-defined-types.html#INFOSCHEMA-USER-DEFINED-TYPES"
+        ],
+        [
+          "https://www.postgresql.org/docs/17/view-pg-shadow.html#VIEW-PG-SHADOW"
+        ]
       ]
     },
     {
@@ -229,12 +467,36 @@
       ],
       "invalid_urls": [],
       "hit_rank": 3,
+      "hit_url": "https://www.postgresql.org/docs/17/explicit-locking.html#LOCKING-ROWS",
       "top_urls": [
         "https://www.postgresql.org/docs/17/transaction-iso.html#XACT-REPEATABLE-READ",
         "https://www.postgresql.org/docs/17/applevel-consistency.html#NON-SERIALIZABLE-CONSISTENCY",
         "https://www.postgresql.org/docs/17/explicit-locking.html#LOCKING-ROWS",
         "https://www.postgresql.org/docs/17/plpython-transactions.html#PLPYTHON-TRANSACTIONS",
         "https://www.postgresql.org/docs/17/pltcl-transactions.html#PLTCL-TRANSACTIONS"
+      ],
+      "top_group_urls": [
+        [
+          "https://www.postgresql.org/docs/17/transaction-iso.html#XACT-REPEATABLE-READ",
+          "https://www.postgresql.org/docs/17/transaction-iso.html#XACT-READ-COMMITTED",
+          "https://www.postgresql.org/docs/17/transaction-iso.html#XACT-SERIALIZABLE"
+        ],
+        [
+          "https://www.postgresql.org/docs/17/applevel-consistency.html#NON-SERIALIZABLE-CONSISTENCY",
+          "https://www.postgresql.org/docs/17/applevel-consistency.html#APPLEVEL-CONSISTENCY"
+        ],
+        [
+          "https://www.postgresql.org/docs/17/explicit-locking.html#LOCKING-ROWS",
+          "https://www.postgresql.org/docs/17/explicit-locking.html#LOCKING-PAGES",
+          "https://www.postgresql.org/docs/17/explicit-locking.html#LOCKING-TABLES",
+          "https://www.postgresql.org/docs/17/explicit-locking.html#ADVISORY-LOCKS"
+        ],
+        [
+          "https://www.postgresql.org/docs/17/plpython-transactions.html#PLPYTHON-TRANSACTIONS"
+        ],
+        [
+          "https://www.postgresql.org/docs/17/pltcl-transactions.html#PLTCL-TRANSACTIONS"
+        ]
       ]
     },
     {
@@ -249,12 +511,38 @@
       ],
       "invalid_urls": [],
       "hit_rank": 3,
+      "hit_url": "https://www.postgresql.org/docs/17/ddl-partitioning.html#DDL-PARTITIONING",
       "top_urls": [
         "https://www.postgresql.org/docs/17/release-17-7.html#RELEASE-17-7-CHANGES",
         "https://www.postgresql.org/docs/17/sql-createtable.html#SQL-CREATETABLE-EXAMPLES",
         "https://www.postgresql.org/docs/17/ddl-partitioning.html#DDL-PARTITIONING",
         "https://www.postgresql.org/docs/17/sql-altertable.html#id-1.9.3.35.8",
-        "https://www.postgresql.org/docs/17/ddl-partitioning.html#DDL-PARTITIONING-DECLARATIVE-BEST-PRACTICES"
+        "https://www.postgresql.org/docs/17/release-17-11.html#RELEASE-17-11-CHANGES"
+      ],
+      "top_group_urls": [
+        [
+          "https://www.postgresql.org/docs/17/release-17-7.html#RELEASE-17-7-CHANGES"
+        ],
+        [
+          "https://www.postgresql.org/docs/17/sql-createtable.html#SQL-CREATETABLE-EXAMPLES",
+          "https://www.postgresql.org/docs/17/sql-createtable.html#id-1.9.3.85.6"
+        ],
+        [
+          "https://www.postgresql.org/docs/17/ddl-partitioning.html#DDL-PARTITIONING",
+          "https://www.postgresql.org/docs/17/ddl-partitioning.html#DDL-PARTITIONING-DECLARATIVE-BEST-PRACTICES",
+          "https://www.postgresql.org/docs/17/ddl-partitioning.html#DDL-PARTITIONING-DECLARATIVE",
+          "https://www.postgresql.org/docs/17/ddl-partitioning.html#DDL-PARTITIONING-USING-INHERITANCE",
+          "https://www.postgresql.org/docs/17/ddl-partitioning.html#DDL-PARTITION-PRUNING",
+          "https://www.postgresql.org/docs/17/ddl-partitioning.html#DDL-PARTITIONING-CONSTRAINT-EXCLUSION"
+        ],
+        [
+          "https://www.postgresql.org/docs/17/sql-altertable.html#id-1.9.3.35.8",
+          "https://www.postgresql.org/docs/17/sql-altertable.html#id-1.9.3.35.5",
+          "https://www.postgresql.org/docs/17/sql-altertable.html#id-1.9.3.35.6"
+        ],
+        [
+          "https://www.postgresql.org/docs/17/release-17-11.html#RELEASE-17-11-CHANGES"
+        ]
       ]
     },
     {
@@ -269,12 +557,33 @@
       ],
       "invalid_urls": [],
       "hit_rank": 3,
+      "hit_url": "https://www.postgresql.org/docs/17/queries-with.html#QUERIES-WITH-RECURSIVE",
       "top_urls": [
         "https://www.postgresql.org/docs/17/sql-analyze.html#id-1.9.3.46.8",
         "https://www.postgresql.org/docs/17/ddl-inherit.html#DDL-INHERIT-CAVEATS",
         "https://www.postgresql.org/docs/17/queries-with.html#QUERIES-WITH-RECURSIVE",
-        "https://www.postgresql.org/docs/17/ddl-inherit.html#DDL-INHERIT",
-        "https://www.postgresql.org/docs/17/queries-with.html#QUERIES-WITH-CTE-MATERIALIZATION"
+        "https://www.postgresql.org/docs/17/sql-select.html#SQL-WITH",
+        "https://www.postgresql.org/docs/17/catalog-pg-inherits.html#CATALOG-PG-INHERITS"
+      ],
+      "top_group_urls": [
+        [
+          "https://www.postgresql.org/docs/17/sql-analyze.html#id-1.9.3.46.8"
+        ],
+        [
+          "https://www.postgresql.org/docs/17/ddl-inherit.html#DDL-INHERIT-CAVEATS",
+          "https://www.postgresql.org/docs/17/ddl-inherit.html#DDL-INHERIT"
+        ],
+        [
+          "https://www.postgresql.org/docs/17/queries-with.html#QUERIES-WITH-RECURSIVE",
+          "https://www.postgresql.org/docs/17/queries-with.html#QUERIES-WITH-CTE-MATERIALIZATION"
+        ],
+        [
+          "https://www.postgresql.org/docs/17/sql-select.html#SQL-WITH",
+          "https://www.postgresql.org/docs/17/sql-select.html#id-1.9.3.172.9"
+        ],
+        [
+          "https://www.postgresql.org/docs/17/catalog-pg-inherits.html#CATALOG-PG-INHERITS"
+        ]
       ]
     },
     {
@@ -290,12 +599,33 @@
       ],
       "invalid_urls": [],
       "hit_rank": 3,
+      "hit_url": "https://www.postgresql.org/docs/17/tutorial-window.html#TUTORIAL-WINDOW",
       "top_urls": [
         "https://www.postgresql.org/docs/17/pgstattuple.html#PGSTATTUPLE-FUNCS",
         "https://www.postgresql.org/docs/17/pgstatstatements.html#PGSTATSTATEMENTS-SAMPLE-OUTPUT",
         "https://www.postgresql.org/docs/17/tutorial-window.html#TUTORIAL-WINDOW",
         "https://www.postgresql.org/docs/17/sql-expressions.html#SYNTAX-WINDOW-FUNCTIONS",
         "https://www.postgresql.org/docs/17/functions-window.html#FUNCTIONS-WINDOW"
+      ],
+      "top_group_urls": [
+        [
+          "https://www.postgresql.org/docs/17/pgstattuple.html#PGSTATTUPLE-FUNCS",
+          "https://www.postgresql.org/docs/17/pgstattuple.html#PGSTATTUPLE"
+        ],
+        [
+          "https://www.postgresql.org/docs/17/pgstatstatements.html#PGSTATSTATEMENTS-SAMPLE-OUTPUT",
+          "https://www.postgresql.org/docs/17/pgstatstatements.html#PGSTATSTATEMENTS-PG-STAT-STATEMENTS"
+        ],
+        [
+          "https://www.postgresql.org/docs/17/tutorial-window.html#TUTORIAL-WINDOW"
+        ],
+        [
+          "https://www.postgresql.org/docs/17/sql-expressions.html#SYNTAX-WINDOW-FUNCTIONS",
+          "https://www.postgresql.org/docs/17/sql-expressions.html#SYNTAX-AGGREGATES"
+        ],
+        [
+          "https://www.postgresql.org/docs/17/functions-window.html#FUNCTIONS-WINDOW"
+        ]
       ]
     },
     {
@@ -310,12 +640,40 @@
       ],
       "invalid_urls": [],
       "hit_rank": 1,
+      "hit_url": "https://www.postgresql.org/docs/17/datatype-json.html#DATATYPE-JSON",
       "top_urls": [
         "https://www.postgresql.org/docs/17/datatype-json.html#DATATYPE-JSON",
         "https://www.postgresql.org/docs/17/functions-json.html#FUNCTIONS-JSON-PROCESSING",
-        "https://www.postgresql.org/docs/17/datatype-json.html#DATATYPE-JSON-TRANSFORMS",
-        "https://www.postgresql.org/docs/17/datatype-json.html#JSON-INDEXING",
-        "https://www.postgresql.org/docs/17/functions-json.html#SQLJSON-QUERY-FUNCTIONS"
+        "https://www.postgresql.org/docs/17/functions-textsearch.html#FUNCTIONS-TEXTSEARCH",
+        "https://www.postgresql.org/docs/17/hstore.html#HSTORE-OPS-FUNCS",
+        "https://www.postgresql.org/docs/17/functions-aggregate.html#FUNCTIONS-AGGREGATE"
+      ],
+      "top_group_urls": [
+        [
+          "https://www.postgresql.org/docs/17/datatype-json.html#DATATYPE-JSON",
+          "https://www.postgresql.org/docs/17/datatype-json.html#DATATYPE-JSON-TRANSFORMS",
+          "https://www.postgresql.org/docs/17/datatype-json.html#JSON-INDEXING",
+          "https://www.postgresql.org/docs/17/datatype-json.html#JSON-KEYS-ELEMENTS",
+          "https://www.postgresql.org/docs/17/datatype-json.html#JSON-CONTAINMENT",
+          "https://www.postgresql.org/docs/17/datatype-json.html#JSONB-SUBSCRIPTING",
+          "https://www.postgresql.org/docs/17/datatype-json.html#DATATYPE-JSONPATH"
+        ],
+        [
+          "https://www.postgresql.org/docs/17/functions-json.html#FUNCTIONS-JSON-PROCESSING",
+          "https://www.postgresql.org/docs/17/functions-json.html#SQLJSON-QUERY-FUNCTIONS",
+          "https://www.postgresql.org/docs/17/functions-json.html#FUNCTIONS-SQLJSON-PATH",
+          "https://www.postgresql.org/docs/17/functions-json.html#FUNCTIONS-SQLJSON-TABLE",
+          "https://www.postgresql.org/docs/17/functions-json.html#FUNCTIONS-JSON"
+        ],
+        [
+          "https://www.postgresql.org/docs/17/functions-textsearch.html#FUNCTIONS-TEXTSEARCH"
+        ],
+        [
+          "https://www.postgresql.org/docs/17/hstore.html#HSTORE-OPS-FUNCS"
+        ],
+        [
+          "https://www.postgresql.org/docs/17/functions-aggregate.html#FUNCTIONS-AGGREGATE"
+        ]
       ]
     },
     {
@@ -330,12 +688,34 @@
       ],
       "invalid_urls": [],
       "hit_rank": 1,
+      "hit_url": "https://www.postgresql.org/docs/17/functions-json.html#FUNCTIONS-SQLJSON-TABLE",
       "top_urls": [
         "https://www.postgresql.org/docs/17/functions-json.html#FUNCTIONS-SQLJSON-TABLE",
         "https://www.postgresql.org/docs/17/sql-keywords-appendix.html#SQL-KEYWORDS-APPENDIX",
-        "https://www.postgresql.org/docs/17/functions-json.html#FUNCTIONS-SQLJSON-PATH",
-        "https://www.postgresql.org/docs/17/functions-json.html#FUNCTIONS-JSON-PROCESSING",
-        "https://www.postgresql.org/docs/17/functions-aggregate.html#FUNCTIONS-AGGREGATE"
+        "https://www.postgresql.org/docs/17/functions-aggregate.html#FUNCTIONS-AGGREGATE",
+        "https://www.postgresql.org/docs/17/unsupported-features-sql-standard.html#UNSUPPORTED-FEATURES-SQL-STANDARD",
+        "https://www.postgresql.org/docs/17/errcodes-appendix.html#ERRCODES-APPENDIX"
+      ],
+      "top_group_urls": [
+        [
+          "https://www.postgresql.org/docs/17/functions-json.html#FUNCTIONS-SQLJSON-TABLE",
+          "https://www.postgresql.org/docs/17/functions-json.html#FUNCTIONS-SQLJSON-PATH",
+          "https://www.postgresql.org/docs/17/functions-json.html#FUNCTIONS-JSON-PROCESSING",
+          "https://www.postgresql.org/docs/17/functions-json.html#FUNCTIONS-JSON",
+          "https://www.postgresql.org/docs/17/functions-json.html#SQLJSON-QUERY-FUNCTIONS"
+        ],
+        [
+          "https://www.postgresql.org/docs/17/sql-keywords-appendix.html#SQL-KEYWORDS-APPENDIX"
+        ],
+        [
+          "https://www.postgresql.org/docs/17/functions-aggregate.html#FUNCTIONS-AGGREGATE"
+        ],
+        [
+          "https://www.postgresql.org/docs/17/unsupported-features-sql-standard.html#UNSUPPORTED-FEATURES-SQL-STANDARD"
+        ],
+        [
+          "https://www.postgresql.org/docs/17/errcodes-appendix.html#ERRCODES-APPENDIX"
+        ]
       ]
     },
     {
@@ -350,12 +730,38 @@
       ],
       "invalid_urls": [],
       "hit_rank": 1,
+      "hit_url": "https://www.postgresql.org/docs/17/sql-merge.html#id-1.9.3.156.7",
       "top_urls": [
         "https://www.postgresql.org/docs/17/sql-merge.html#id-1.9.3.156.7",
-        "https://www.postgresql.org/docs/17/sql-merge.html#id-1.9.3.156.5",
         "https://www.postgresql.org/docs/17/functions-merge-support.html#FUNCTIONS-MERGE-SUPPORT",
         "https://www.postgresql.org/docs/17/sql-insert.html#id-1.9.3.152.7",
-        "https://www.postgresql.org/docs/17/dml-returning.html#DML-RETURNING"
+        "https://www.postgresql.org/docs/17/dml-returning.html#DML-RETURNING",
+        "https://www.postgresql.org/docs/17/sql-createview.html#SQL-CREATEVIEW-UPDATABLE-VIEWS"
+      ],
+      "top_group_urls": [
+        [
+          "https://www.postgresql.org/docs/17/sql-merge.html#id-1.9.3.156.7",
+          "https://www.postgresql.org/docs/17/sql-merge.html#id-1.9.3.156.5",
+          "https://www.postgresql.org/docs/17/sql-merge.html#id-1.9.3.156.9",
+          "https://www.postgresql.org/docs/17/sql-merge.html#id-1.9.3.156.8",
+          "https://www.postgresql.org/docs/17/sql-merge.html#id-1.9.3.156.6"
+        ],
+        [
+          "https://www.postgresql.org/docs/17/functions-merge-support.html#FUNCTIONS-MERGE-SUPPORT"
+        ],
+        [
+          "https://www.postgresql.org/docs/17/sql-insert.html#id-1.9.3.152.7",
+          "https://www.postgresql.org/docs/17/sql-insert.html#id-1.9.3.152.5",
+          "https://www.postgresql.org/docs/17/sql-insert.html#id-1.9.3.152.10",
+          "https://www.postgresql.org/docs/17/sql-insert.html#SQL-ON-CONFLICT"
+        ],
+        [
+          "https://www.postgresql.org/docs/17/dml-returning.html#DML-RETURNING"
+        ],
+        [
+          "https://www.postgresql.org/docs/17/sql-createview.html#SQL-CREATEVIEW-UPDATABLE-VIEWS",
+          "https://www.postgresql.org/docs/17/sql-createview.html#id-1.9.3.97.6"
+        ]
       ]
     },
     {
@@ -370,12 +776,34 @@
       ],
       "invalid_urls": [],
       "hit_rank": 1,
+      "hit_url": "https://www.postgresql.org/docs/17/sql-insert.html#SQL-ON-CONFLICT",
       "top_urls": [
         "https://www.postgresql.org/docs/17/sql-insert.html#SQL-ON-CONFLICT",
-        "https://www.postgresql.org/docs/17/sql-insert.html#id-1.9.3.152.5",
-        "https://www.postgresql.org/docs/17/sql-insert.html#id-1.9.3.152.10",
-        "https://www.postgresql.org/docs/17/sql-insert.html#id-1.9.3.152.6.2",
-        "https://www.postgresql.org/docs/17/logical-replication-conflicts.html#LOGICAL-REPLICATION-CONFLICTS"
+        "https://www.postgresql.org/docs/17/logical-replication-conflicts.html#LOGICAL-REPLICATION-CONFLICTS",
+        "https://www.postgresql.org/docs/17/sql-createpolicy.html#id-1.9.3.75.6.3",
+        "https://www.postgresql.org/docs/17/plpgsql-implementation.html#PLPGSQL-VAR-SUBST",
+        "https://www.postgresql.org/docs/17/sql-createview.html#SQL-CREATEVIEW-UPDATABLE-VIEWS"
+      ],
+      "top_group_urls": [
+        [
+          "https://www.postgresql.org/docs/17/sql-insert.html#SQL-ON-CONFLICT",
+          "https://www.postgresql.org/docs/17/sql-insert.html#id-1.9.3.152.5",
+          "https://www.postgresql.org/docs/17/sql-insert.html#id-1.9.3.152.10",
+          "https://www.postgresql.org/docs/17/sql-insert.html#id-1.9.3.152.6.2",
+          "https://www.postgresql.org/docs/17/sql-insert.html#id-1.9.3.152.9"
+        ],
+        [
+          "https://www.postgresql.org/docs/17/logical-replication-conflicts.html#LOGICAL-REPLICATION-CONFLICTS"
+        ],
+        [
+          "https://www.postgresql.org/docs/17/sql-createpolicy.html#id-1.9.3.75.6.3"
+        ],
+        [
+          "https://www.postgresql.org/docs/17/plpgsql-implementation.html#PLPGSQL-VAR-SUBST"
+        ],
+        [
+          "https://www.postgresql.org/docs/17/sql-createview.html#SQL-CREATEVIEW-UPDATABLE-VIEWS"
+        ]
       ]
     },
     {
@@ -390,12 +818,37 @@
       ],
       "invalid_urls": [],
       "hit_rank": 3,
+      "hit_url": "https://www.postgresql.org/docs/17/sql-copy.html#id-1.9.3.55.8",
       "top_urls": [
         "https://www.postgresql.org/docs/17/populate.html#POPULATE",
         "https://www.postgresql.org/docs/17/progress-reporting.html#COPY-PROGRESS-REPORTING",
         "https://www.postgresql.org/docs/17/sql-copy.html#id-1.9.3.55.8",
         "https://www.postgresql.org/docs/17/release-17.html#RELEASE-17-CHANGES",
-        "https://www.postgresql.org/docs/17/sql-copy.html#id-1.9.3.55.6"
+        "https://www.postgresql.org/docs/17/sql-vacuum.html#id-1.9.3.184.6"
+      ],
+      "top_group_urls": [
+        [
+          "https://www.postgresql.org/docs/17/populate.html#POPULATE",
+          "https://www.postgresql.org/docs/17/populate.html#POPULATE-RM-FKEYS"
+        ],
+        [
+          "https://www.postgresql.org/docs/17/progress-reporting.html#COPY-PROGRESS-REPORTING",
+          "https://www.postgresql.org/docs/17/progress-reporting.html#VACUUM-PROGRESS-REPORTING"
+        ],
+        [
+          "https://www.postgresql.org/docs/17/sql-copy.html#id-1.9.3.55.8",
+          "https://www.postgresql.org/docs/17/sql-copy.html#id-1.9.3.55.6",
+          "https://www.postgresql.org/docs/17/sql-copy.html#id-1.9.3.55.9.2",
+          "https://www.postgresql.org/docs/17/sql-copy.html#id-1.9.3.55.5",
+          "https://www.postgresql.org/docs/17/sql-copy.html#id-1.9.3.55.7",
+          "https://www.postgresql.org/docs/17/sql-copy.html#id-1.9.3.55.9.3"
+        ],
+        [
+          "https://www.postgresql.org/docs/17/release-17.html#RELEASE-17-CHANGES"
+        ],
+        [
+          "https://www.postgresql.org/docs/17/sql-vacuum.html#id-1.9.3.184.6"
+        ]
       ]
     },
     {
@@ -410,12 +863,40 @@
       ],
       "invalid_urls": [],
       "hit_rank": 1,
+      "hit_url": "https://www.postgresql.org/docs/17/sql-copy.html#id-1.9.3.55.11",
       "top_urls": [
         "https://www.postgresql.org/docs/17/sql-copy.html#id-1.9.3.55.11",
-        "https://www.postgresql.org/docs/17/sql-copy.html#id-1.9.3.55.9.3",
-        "https://www.postgresql.org/docs/17/sql-copy.html#id-1.9.3.55.6",
         "https://www.postgresql.org/docs/17/runtime-config-logging.html#RUNTIME-CONFIG-LOGGING-CSVLOG",
-        "https://www.postgresql.org/docs/17/sql-copy.html#id-1.9.3.55.5"
+        "https://www.postgresql.org/docs/17/file-fdw.html#FILE-FDW",
+        "https://www.postgresql.org/docs/17/progress-reporting.html#COPY-PROGRESS-REPORTING",
+        "https://www.postgresql.org/docs/17/libpq-copy.html#LIBPQ-COPY"
+      ],
+      "top_group_urls": [
+        [
+          "https://www.postgresql.org/docs/17/sql-copy.html#id-1.9.3.55.11",
+          "https://www.postgresql.org/docs/17/sql-copy.html#id-1.9.3.55.9.3",
+          "https://www.postgresql.org/docs/17/sql-copy.html#id-1.9.3.55.6",
+          "https://www.postgresql.org/docs/17/sql-copy.html#id-1.9.3.55.5",
+          "https://www.postgresql.org/docs/17/sql-copy.html#id-1.9.3.55.9.2",
+          "https://www.postgresql.org/docs/17/sql-copy.html#id-1.9.3.55.8",
+          "https://www.postgresql.org/docs/17/sql-copy.html#id-1.9.3.55.10",
+          "https://www.postgresql.org/docs/17/sql-copy.html#id-1.9.3.55.7",
+          "https://www.postgresql.org/docs/17/sql-copy.html#id-1.9.3.55.9.4"
+        ],
+        [
+          "https://www.postgresql.org/docs/17/runtime-config-logging.html#RUNTIME-CONFIG-LOGGING-CSVLOG",
+          "https://www.postgresql.org/docs/17/runtime-config-logging.html#RUNTIME-CONFIG-LOGGING-WHERE"
+        ],
+        [
+          "https://www.postgresql.org/docs/17/file-fdw.html#FILE-FDW"
+        ],
+        [
+          "https://www.postgresql.org/docs/17/progress-reporting.html#COPY-PROGRESS-REPORTING"
+        ],
+        [
+          "https://www.postgresql.org/docs/17/libpq-copy.html#LIBPQ-COPY",
+          "https://www.postgresql.org/docs/17/libpq-copy.html#LIBPQ-COPY-RECEIVE"
+        ]
       ]
     },
     {
@@ -430,12 +911,40 @@
       ],
       "invalid_urls": [],
       "hit_rank": 3,
+      "hit_url": "https://www.postgresql.org/docs/17/wal-intro.html#WAL-INTRO",
       "top_urls": [
         "https://www.postgresql.org/docs/17/functions-admin.html#FUNCTIONS-ADMIN-BACKUP",
         "https://www.postgresql.org/docs/17/wal-for-extensions.html#WAL-FOR-EXTENSIONS",
         "https://www.postgresql.org/docs/17/wal-intro.html#WAL-INTRO",
         "https://www.postgresql.org/docs/17/runtime-config-wal.html#RUNTIME-CONFIG-WAL",
         "https://www.postgresql.org/docs/17/app-pgbasebackup.html#id-1.9.4.10.6"
+      ],
+      "top_group_urls": [
+        [
+          "https://www.postgresql.org/docs/17/functions-admin.html#FUNCTIONS-ADMIN-BACKUP",
+          "https://www.postgresql.org/docs/17/functions-admin.html#FUNCTIONS-RECOVERY-CONTROL",
+          "https://www.postgresql.org/docs/17/functions-admin.html#FUNCTIONS-ADMIN-GENFILE",
+          "https://www.postgresql.org/docs/17/functions-admin.html#FUNCTIONS-ADMIN-SIGNAL"
+        ],
+        [
+          "https://www.postgresql.org/docs/17/wal-for-extensions.html#WAL-FOR-EXTENSIONS"
+        ],
+        [
+          "https://www.postgresql.org/docs/17/wal-intro.html#WAL-INTRO"
+        ],
+        [
+          "https://www.postgresql.org/docs/17/runtime-config-wal.html#RUNTIME-CONFIG-WAL",
+          "https://www.postgresql.org/docs/17/runtime-config-wal.html#RUNTIME-CONFIG-WAL-SETTINGS",
+          "https://www.postgresql.org/docs/17/runtime-config-wal.html#RUNTIME-CONFIG-WAL-RECOVERY-TARGET",
+          "https://www.postgresql.org/docs/17/runtime-config-wal.html#RUNTIME-CONFIG-WAL-ARCHIVE-RECOVERY",
+          "https://www.postgresql.org/docs/17/runtime-config-wal.html#RUNTIME-CONFIG-WAL-ARCHIVING",
+          "https://www.postgresql.org/docs/17/runtime-config-wal.html#RUNTIME-CONFIG-WAL-CHECKPOINTS",
+          "https://www.postgresql.org/docs/17/runtime-config-wal.html#RUNTIME-CONFIG-WAL-RECOVERY",
+          "https://www.postgresql.org/docs/17/runtime-config-wal.html#RUNTIME-CONFIG-WAL-SUMMARIZATION"
+        ],
+        [
+          "https://www.postgresql.org/docs/17/app-pgbasebackup.html#id-1.9.4.10.6"
+        ]
       ]
     },
     {
@@ -450,12 +959,43 @@
       ],
       "invalid_urls": [],
       "hit_rank": 1,
+      "hit_url": "https://www.postgresql.org/docs/17/continuous-archiving.html#BACKUP-PITR-RECOVERY",
       "top_urls": [
         "https://www.postgresql.org/docs/17/continuous-archiving.html#BACKUP-PITR-RECOVERY",
-        "https://www.postgresql.org/docs/17/continuous-archiving.html#CONTINUOUS-ARCHIVING-CAVEATS",
-        "https://www.postgresql.org/docs/17/continuous-archiving.html#BACKUP-LOWLEVEL-BASE-BACKUP",
-        "https://www.postgresql.org/docs/17/continuous-archiving.html#BACKUP-TIMELINES",
-        "https://www.postgresql.org/docs/17/continuous-archiving.html#CONTINUOUS-ARCHIVING"
+        "https://www.postgresql.org/docs/17/recovery-config.html#RECOVERY-CONFIG",
+        "https://www.postgresql.org/docs/17/runtime-config-wal.html#RUNTIME-CONFIG-WAL-SETTINGS",
+        "https://www.postgresql.org/docs/17/wal-configuration.html#WAL-CONFIGURATION",
+        "https://www.postgresql.org/docs/17/app-pgcreatesubscriber.html#id-1.9.5.7.7.4"
+      ],
+      "top_group_urls": [
+        [
+          "https://www.postgresql.org/docs/17/continuous-archiving.html#BACKUP-PITR-RECOVERY",
+          "https://www.postgresql.org/docs/17/continuous-archiving.html#CONTINUOUS-ARCHIVING-CAVEATS",
+          "https://www.postgresql.org/docs/17/continuous-archiving.html#BACKUP-LOWLEVEL-BASE-BACKUP",
+          "https://www.postgresql.org/docs/17/continuous-archiving.html#BACKUP-TIMELINES",
+          "https://www.postgresql.org/docs/17/continuous-archiving.html#CONTINUOUS-ARCHIVING",
+          "https://www.postgresql.org/docs/17/continuous-archiving.html#BACKUP-ARCHIVING-WAL",
+          "https://www.postgresql.org/docs/17/continuous-archiving.html#BACKUP-BASE-BACKUP",
+          "https://www.postgresql.org/docs/17/continuous-archiving.html#BACKUP-TIPS",
+          "https://www.postgresql.org/docs/17/continuous-archiving.html#BACKUP-INCREMENTAL-BACKUP"
+        ],
+        [
+          "https://www.postgresql.org/docs/17/recovery-config.html#RECOVERY-CONFIG"
+        ],
+        [
+          "https://www.postgresql.org/docs/17/runtime-config-wal.html#RUNTIME-CONFIG-WAL-SETTINGS",
+          "https://www.postgresql.org/docs/17/runtime-config-wal.html#RUNTIME-CONFIG-WAL-RECOVERY-TARGET",
+          "https://www.postgresql.org/docs/17/runtime-config-wal.html#RUNTIME-CONFIG-WAL-CHECKPOINTS",
+          "https://www.postgresql.org/docs/17/runtime-config-wal.html#RUNTIME-CONFIG-WAL-ARCHIVING",
+          "https://www.postgresql.org/docs/17/runtime-config-wal.html#RUNTIME-CONFIG-WAL-ARCHIVE-RECOVERY",
+          "https://www.postgresql.org/docs/17/runtime-config-wal.html#RUNTIME-CONFIG-WAL-RECOVERY"
+        ],
+        [
+          "https://www.postgresql.org/docs/17/wal-configuration.html#WAL-CONFIGURATION"
+        ],
+        [
+          "https://www.postgresql.org/docs/17/app-pgcreatesubscriber.html#id-1.9.5.7.7.4"
+        ]
       ]
     },
     {
@@ -471,12 +1011,41 @@
       ],
       "invalid_urls": [],
       "hit_rank": 1,
+      "hit_url": "https://www.postgresql.org/docs/17/app-pgbasebackup.html#id-1.9.4.10.5",
       "top_urls": [
         "https://www.postgresql.org/docs/17/app-pgbasebackup.html#id-1.9.4.10.5",
         "https://www.postgresql.org/docs/17/continuous-archiving.html#BACKUP-INCREMENTAL-BACKUP",
-        "https://www.postgresql.org/docs/17/continuous-archiving.html#BACKUP-LOWLEVEL-BASE-BACKUP",
-        "https://www.postgresql.org/docs/17/app-pgbasebackup.html#id-1.9.4.10.7",
-        "https://www.postgresql.org/docs/17/app-pgcombinebackup.html#id-1.9.4.12.5"
+        "https://www.postgresql.org/docs/17/app-pgcombinebackup.html#id-1.9.4.12.5",
+        "https://www.postgresql.org/docs/17/app-pgverifybackup.html#id-1.9.4.20.6",
+        "https://www.postgresql.org/docs/17/basebackup-to-shell.html#BASEBACKUP-TO-SHELL"
+      ],
+      "top_group_urls": [
+        [
+          "https://www.postgresql.org/docs/17/app-pgbasebackup.html#id-1.9.4.10.5",
+          "https://www.postgresql.org/docs/17/app-pgbasebackup.html#id-1.9.4.10.7",
+          "https://www.postgresql.org/docs/17/app-pgbasebackup.html#id-1.9.4.10.6"
+        ],
+        [
+          "https://www.postgresql.org/docs/17/continuous-archiving.html#BACKUP-INCREMENTAL-BACKUP",
+          "https://www.postgresql.org/docs/17/continuous-archiving.html#BACKUP-LOWLEVEL-BASE-BACKUP",
+          "https://www.postgresql.org/docs/17/continuous-archiving.html#BACKUP-PITR-RECOVERY",
+          "https://www.postgresql.org/docs/17/continuous-archiving.html#BACKUP-BASE-BACKUP",
+          "https://www.postgresql.org/docs/17/continuous-archiving.html#CONTINUOUS-ARCHIVING",
+          "https://www.postgresql.org/docs/17/continuous-archiving.html#BACKUP-TIPS",
+          "https://www.postgresql.org/docs/17/continuous-archiving.html#BACKUP-ARCHIVING-WAL",
+          "https://www.postgresql.org/docs/17/continuous-archiving.html#CONTINUOUS-ARCHIVING-CAVEATS"
+        ],
+        [
+          "https://www.postgresql.org/docs/17/app-pgcombinebackup.html#id-1.9.4.12.5",
+          "https://www.postgresql.org/docs/17/app-pgcombinebackup.html#id-1.9.4.12.6"
+        ],
+        [
+          "https://www.postgresql.org/docs/17/app-pgverifybackup.html#id-1.9.4.20.6",
+          "https://www.postgresql.org/docs/17/app-pgverifybackup.html#id-1.9.4.20.5"
+        ],
+        [
+          "https://www.postgresql.org/docs/17/basebackup-to-shell.html#BASEBACKUP-TO-SHELL"
+        ]
       ]
     },
     {
@@ -491,12 +1060,40 @@
       ],
       "invalid_urls": [],
       "hit_rank": 1,
+      "hit_url": "https://www.postgresql.org/docs/17/app-pgcombinebackup.html#id-1.9.4.12.5",
       "top_urls": [
         "https://www.postgresql.org/docs/17/app-pgcombinebackup.html#id-1.9.4.12.5",
-        "https://www.postgresql.org/docs/17/app-pgcombinebackup.html#id-1.9.4.12.6",
-        "https://www.postgresql.org/docs/17/app-pgcombinebackup.html#APP-PGCOMBINEBACKUP-LIMITATIONS",
         "https://www.postgresql.org/docs/17/continuous-archiving.html#BACKUP-INCREMENTAL-BACKUP",
-        "https://www.postgresql.org/docs/17/app-pgbasebackup.html#id-1.9.4.10.5"
+        "https://www.postgresql.org/docs/17/app-pgbasebackup.html#id-1.9.4.10.5",
+        "https://www.postgresql.org/docs/17/app-pgrewind.html#id-1.9.5.10.5",
+        "https://www.postgresql.org/docs/17/app-pgverifybackup.html#id-1.9.4.20.5"
+      ],
+      "top_group_urls": [
+        [
+          "https://www.postgresql.org/docs/17/app-pgcombinebackup.html#id-1.9.4.12.5",
+          "https://www.postgresql.org/docs/17/app-pgcombinebackup.html#id-1.9.4.12.6",
+          "https://www.postgresql.org/docs/17/app-pgcombinebackup.html#APP-PGCOMBINEBACKUP-LIMITATIONS"
+        ],
+        [
+          "https://www.postgresql.org/docs/17/continuous-archiving.html#BACKUP-INCREMENTAL-BACKUP",
+          "https://www.postgresql.org/docs/17/continuous-archiving.html#BACKUP-PITR-RECOVERY",
+          "https://www.postgresql.org/docs/17/continuous-archiving.html#BACKUP-TIPS",
+          "https://www.postgresql.org/docs/17/continuous-archiving.html#BACKUP-LOWLEVEL-BASE-BACKUP",
+          "https://www.postgresql.org/docs/17/continuous-archiving.html#CONTINUOUS-ARCHIVING"
+        ],
+        [
+          "https://www.postgresql.org/docs/17/app-pgbasebackup.html#id-1.9.4.10.5",
+          "https://www.postgresql.org/docs/17/app-pgbasebackup.html#id-1.9.4.10.6",
+          "https://www.postgresql.org/docs/17/app-pgbasebackup.html#id-1.9.4.10.7"
+        ],
+        [
+          "https://www.postgresql.org/docs/17/app-pgrewind.html#id-1.9.5.10.5",
+          "https://www.postgresql.org/docs/17/app-pgrewind.html#id-1.9.5.10.6"
+        ],
+        [
+          "https://www.postgresql.org/docs/17/app-pgverifybackup.html#id-1.9.4.20.5",
+          "https://www.postgresql.org/docs/17/app-pgverifybackup.html#id-1.9.4.20.6"
+        ]
       ]
     },
     {
@@ -513,12 +1110,44 @@
       ],
       "invalid_urls": [],
       "hit_rank": 7,
+      "hit_url": "https://www.postgresql.org/docs/17/logical-replication.html#LOGICAL-REPLICATION",
       "top_urls": [
         "https://www.postgresql.org/docs/17/logicaldecoding-explanation.html#LOGICALDECODING-REPLICATION-SLOTS",
         "https://www.postgresql.org/docs/17/app-pgcreatesubscriber.html#id-1.9.5.7.5",
         "https://www.postgresql.org/docs/17/different-replication-solutions.html#DIFFERENT-REPLICATION-SOLUTIONS",
         "https://www.postgresql.org/docs/17/warm-standby.html#PREPARING-PRIMARY-FOR-STANDBY",
         "https://www.postgresql.org/docs/17/runtime-config-replication.html#RUNTIME-CONFIG-REPLICATION-SUBSCRIBER"
+      ],
+      "top_group_urls": [
+        [
+          "https://www.postgresql.org/docs/17/logicaldecoding-explanation.html#LOGICALDECODING-REPLICATION-SLOTS",
+          "https://www.postgresql.org/docs/17/logicaldecoding-explanation.html#LOGICALDECODING-REPLICATION-SLOTS-SYNCHRONIZATION",
+          "https://www.postgresql.org/docs/17/logicaldecoding-explanation.html#LOGICALDECODING-EXPLANATION-OUTPUT-PLUGINS"
+        ],
+        [
+          "https://www.postgresql.org/docs/17/app-pgcreatesubscriber.html#id-1.9.5.7.5",
+          "https://www.postgresql.org/docs/17/app-pgcreatesubscriber.html#id-1.9.5.7.7.2",
+          "https://www.postgresql.org/docs/17/app-pgcreatesubscriber.html#id-1.9.5.7.6",
+          "https://www.postgresql.org/docs/17/app-pgcreatesubscriber.html#id-1.9.5.7.7.4",
+          "https://www.postgresql.org/docs/17/app-pgcreatesubscriber.html#id-1.9.5.7.8"
+        ],
+        [
+          "https://www.postgresql.org/docs/17/different-replication-solutions.html#DIFFERENT-REPLICATION-SOLUTIONS"
+        ],
+        [
+          "https://www.postgresql.org/docs/17/warm-standby.html#PREPARING-PRIMARY-FOR-STANDBY",
+          "https://www.postgresql.org/docs/17/warm-standby.html#STREAMING-REPLICATION",
+          "https://www.postgresql.org/docs/17/warm-standby.html#SYNCHRONOUS-REPLICATION",
+          "https://www.postgresql.org/docs/17/warm-standby.html#STREAMING-REPLICATION-SLOTS",
+          "https://www.postgresql.org/docs/17/warm-standby.html#STANDBY-PLANNING"
+        ],
+        [
+          "https://www.postgresql.org/docs/17/runtime-config-replication.html#RUNTIME-CONFIG-REPLICATION-SUBSCRIBER",
+          "https://www.postgresql.org/docs/17/runtime-config-replication.html#RUNTIME-CONFIG-REPLICATION-SENDER",
+          "https://www.postgresql.org/docs/17/runtime-config-replication.html#RUNTIME-CONFIG-REPLICATION",
+          "https://www.postgresql.org/docs/17/runtime-config-replication.html#RUNTIME-CONFIG-REPLICATION-PRIMARY",
+          "https://www.postgresql.org/docs/17/runtime-config-replication.html#RUNTIME-CONFIG-REPLICATION-STANDBY"
+        ]
       ]
     },
     {
@@ -533,12 +1162,38 @@
       ],
       "invalid_urls": [],
       "hit_rank": 1,
+      "hit_url": "https://www.postgresql.org/docs/17/app-pgcreatesubscriber.html#id-1.9.5.7.8",
       "top_urls": [
         "https://www.postgresql.org/docs/17/app-pgcreatesubscriber.html#id-1.9.5.7.8",
-        "https://www.postgresql.org/docs/17/app-pgcreatesubscriber.html#id-1.9.5.7.5",
-        "https://www.postgresql.org/docs/17/app-pgcreatesubscriber.html#id-1.9.5.7.7.2",
-        "https://www.postgresql.org/docs/17/app-pgcreatesubscriber.html#id-1.9.5.7.7.4",
-        "https://www.postgresql.org/docs/17/app-pgcreatesubscriber.html#id-1.9.5.7.6"
+        "https://www.postgresql.org/docs/17/release-17.html#RELEASE-17",
+        "https://www.postgresql.org/docs/17/logical-replication-restrictions.html#LOGICAL-REPLICATION-RESTRICTIONS",
+        "https://www.postgresql.org/docs/17/sql-createsubscription.html#id-1.9.3.84.5",
+        "https://www.postgresql.org/docs/17/logical-replication.html#LOGICAL-REPLICATION"
+      ],
+      "top_group_urls": [
+        [
+          "https://www.postgresql.org/docs/17/app-pgcreatesubscriber.html#id-1.9.5.7.8",
+          "https://www.postgresql.org/docs/17/app-pgcreatesubscriber.html#id-1.9.5.7.5",
+          "https://www.postgresql.org/docs/17/app-pgcreatesubscriber.html#id-1.9.5.7.7.2",
+          "https://www.postgresql.org/docs/17/app-pgcreatesubscriber.html#id-1.9.5.7.7.4",
+          "https://www.postgresql.org/docs/17/app-pgcreatesubscriber.html#id-1.9.5.7.6"
+        ],
+        [
+          "https://www.postgresql.org/docs/17/release-17.html#RELEASE-17",
+          "https://www.postgresql.org/docs/17/release-17.html#RELEASE-17-CHANGES"
+        ],
+        [
+          "https://www.postgresql.org/docs/17/logical-replication-restrictions.html#LOGICAL-REPLICATION-RESTRICTIONS"
+        ],
+        [
+          "https://www.postgresql.org/docs/17/sql-createsubscription.html#id-1.9.3.84.5",
+          "https://www.postgresql.org/docs/17/sql-createsubscription.html#id-1.9.3.84.8",
+          "https://www.postgresql.org/docs/17/sql-createsubscription.html#SQL-CREATESUBSCRIPTION-NOTES",
+          "https://www.postgresql.org/docs/17/sql-createsubscription.html#id-1.9.3.84.6"
+        ],
+        [
+          "https://www.postgresql.org/docs/17/logical-replication.html#LOGICAL-REPLICATION"
+        ]
       ]
     },
     {
@@ -553,12 +1208,42 @@
       ],
       "invalid_urls": [],
       "hit_rank": 1,
+      "hit_url": "https://www.postgresql.org/docs/17/warm-standby.html#STREAMING-REPLICATION",
       "top_urls": [
         "https://www.postgresql.org/docs/17/warm-standby.html#STREAMING-REPLICATION",
         "https://www.postgresql.org/docs/17/runtime-config-replication.html#RUNTIME-CONFIG-REPLICATION",
-        "https://www.postgresql.org/docs/17/runtime-config-replication.html#RUNTIME-CONFIG-REPLICATION-STANDBY",
-        "https://www.postgresql.org/docs/17/warm-standby.html#PREPARING-PRIMARY-FOR-STANDBY",
-        "https://www.postgresql.org/docs/17/runtime-config-replication.html#RUNTIME-CONFIG-REPLICATION-PRIMARY"
+        "https://www.postgresql.org/docs/17/different-replication-solutions.html#DIFFERENT-REPLICATION-SOLUTIONS",
+        "https://www.postgresql.org/docs/17/protocol-replication.html#PROTOCOL-REPLICATION",
+        "https://www.postgresql.org/docs/17/logicaldecoding-explanation.html#LOGICALDECODING-REPLICATION-SLOTS"
+      ],
+      "top_group_urls": [
+        [
+          "https://www.postgresql.org/docs/17/warm-standby.html#STREAMING-REPLICATION",
+          "https://www.postgresql.org/docs/17/warm-standby.html#PREPARING-PRIMARY-FOR-STANDBY",
+          "https://www.postgresql.org/docs/17/warm-standby.html#SYNCHRONOUS-REPLICATION",
+          "https://www.postgresql.org/docs/17/warm-standby.html#STREAMING-REPLICATION-SLOTS",
+          "https://www.postgresql.org/docs/17/warm-standby.html#STANDBY-PLANNING",
+          "https://www.postgresql.org/docs/17/warm-standby.html#CONTINUOUS-ARCHIVING-IN-STANDBY",
+          "https://www.postgresql.org/docs/17/warm-standby.html#WARM-STANDBY"
+        ],
+        [
+          "https://www.postgresql.org/docs/17/runtime-config-replication.html#RUNTIME-CONFIG-REPLICATION",
+          "https://www.postgresql.org/docs/17/runtime-config-replication.html#RUNTIME-CONFIG-REPLICATION-STANDBY",
+          "https://www.postgresql.org/docs/17/runtime-config-replication.html#RUNTIME-CONFIG-REPLICATION-PRIMARY",
+          "https://www.postgresql.org/docs/17/runtime-config-replication.html#RUNTIME-CONFIG-REPLICATION-SENDER",
+          "https://www.postgresql.org/docs/17/runtime-config-replication.html#RUNTIME-CONFIG-REPLICATION-SUBSCRIBER"
+        ],
+        [
+          "https://www.postgresql.org/docs/17/different-replication-solutions.html#DIFFERENT-REPLICATION-SOLUTIONS"
+        ],
+        [
+          "https://www.postgresql.org/docs/17/protocol-replication.html#PROTOCOL-REPLICATION"
+        ],
+        [
+          "https://www.postgresql.org/docs/17/logicaldecoding-explanation.html#LOGICALDECODING-REPLICATION-SLOTS",
+          "https://www.postgresql.org/docs/17/logicaldecoding-explanation.html#LOGICALDECODING-REPLICATION-SLOTS-SYNCHRONIZATION",
+          "https://www.postgresql.org/docs/17/logicaldecoding-explanation.html#LOGICALDECODING-EXPLANATION-OUTPUT-PLUGINS"
+        ]
       ]
     },
     {
@@ -573,12 +1258,32 @@
       ],
       "invalid_urls": [],
       "hit_rank": 2,
+      "hit_url": "https://www.postgresql.org/docs/17/runtime-config-resource.html#RUNTIME-CONFIG-RESOURCE-MEMORY",
       "top_urls": [
         "https://www.postgresql.org/docs/17/sql-createindex.html#id-1.9.3.69.7",
         "https://www.postgresql.org/docs/17/runtime-config-resource.html#RUNTIME-CONFIG-RESOURCE-MEMORY",
-        "https://www.postgresql.org/docs/17/runtime-config-resource.html#RUNTIME-CONFIG-RESOURCE-ASYNC-BEHAVIOR",
         "https://www.postgresql.org/docs/17/runtime-config-query.html#RUNTIME-CONFIG-QUERY-ENABLE",
-        "https://www.postgresql.org/docs/17/runtime-config-short.html#RUNTIME-CONFIG-SHORT"
+        "https://www.postgresql.org/docs/17/runtime-config-short.html#RUNTIME-CONFIG-SHORT",
+        "https://www.postgresql.org/docs/17/app-postgres.html#id-1.9.5.16.6.3"
+      ],
+      "top_group_urls": [
+        [
+          "https://www.postgresql.org/docs/17/sql-createindex.html#id-1.9.3.69.7"
+        ],
+        [
+          "https://www.postgresql.org/docs/17/runtime-config-resource.html#RUNTIME-CONFIG-RESOURCE-MEMORY",
+          "https://www.postgresql.org/docs/17/runtime-config-resource.html#RUNTIME-CONFIG-RESOURCE-ASYNC-BEHAVIOR"
+        ],
+        [
+          "https://www.postgresql.org/docs/17/runtime-config-query.html#RUNTIME-CONFIG-QUERY-ENABLE"
+        ],
+        [
+          "https://www.postgresql.org/docs/17/runtime-config-short.html#RUNTIME-CONFIG-SHORT"
+        ],
+        [
+          "https://www.postgresql.org/docs/17/app-postgres.html#id-1.9.5.16.6.3",
+          "https://www.postgresql.org/docs/17/app-postgres.html#APP-POSTGRES-SINGLE-USER"
+        ]
       ]
     },
     {
@@ -593,12 +1298,35 @@
       ],
       "invalid_urls": [],
       "hit_rank": 1,
+      "hit_url": "https://www.postgresql.org/docs/17/runtime-config-resource.html#RUNTIME-CONFIG-RESOURCE-MEMORY",
       "top_urls": [
         "https://www.postgresql.org/docs/17/runtime-config-resource.html#RUNTIME-CONFIG-RESOURCE-MEMORY",
         "https://www.postgresql.org/docs/17/pgbuffercache.html#PGBUFFERCACHE",
         "https://www.postgresql.org/docs/17/server-start.html#SERVER-START-FAILURES",
         "https://www.postgresql.org/docs/17/monitoring-stats.html#MONITORING-PG-STAT-IO-VIEW",
         "https://www.postgresql.org/docs/17/runtime-config-wal.html#RUNTIME-CONFIG-WAL-SETTINGS"
+      ],
+      "top_group_urls": [
+        [
+          "https://www.postgresql.org/docs/17/runtime-config-resource.html#RUNTIME-CONFIG-RESOURCE-MEMORY",
+          "https://www.postgresql.org/docs/17/runtime-config-resource.html#RUNTIME-CONFIG-RESOURCE-VACUUM-COST",
+          "https://www.postgresql.org/docs/17/runtime-config-resource.html#RUNTIME-CONFIG-RESOURCE-ASYNC-BEHAVIOR",
+          "https://www.postgresql.org/docs/17/runtime-config-resource.html#RUNTIME-CONFIG-RESOURCE-BACKGROUND-WRITER"
+        ],
+        [
+          "https://www.postgresql.org/docs/17/pgbuffercache.html#PGBUFFERCACHE"
+        ],
+        [
+          "https://www.postgresql.org/docs/17/server-start.html#SERVER-START-FAILURES"
+        ],
+        [
+          "https://www.postgresql.org/docs/17/monitoring-stats.html#MONITORING-PG-STAT-IO-VIEW",
+          "https://www.postgresql.org/docs/17/monitoring-stats.html#MONITORING-PG-STAT-BGWRITER-VIEW"
+        ],
+        [
+          "https://www.postgresql.org/docs/17/runtime-config-wal.html#RUNTIME-CONFIG-WAL-SETTINGS",
+          "https://www.postgresql.org/docs/17/runtime-config-wal.html#RUNTIME-CONFIG-WAL-RECOVERY"
+        ]
       ]
     },
     {
@@ -613,12 +1341,30 @@
       ],
       "invalid_urls": [],
       "hit_rank": 1,
+      "hit_url": "https://www.postgresql.org/docs/17/auth-pg-hba-conf.html#AUTH-PG-HBA-CONF",
       "top_urls": [
         "https://www.postgresql.org/docs/17/auth-pg-hba-conf.html#AUTH-PG-HBA-CONF",
         "https://www.postgresql.org/docs/17/view-pg-hba-file-rules.html#VIEW-PG-HBA-FILE-RULES",
         "https://www.postgresql.org/docs/17/client-authentication-problems.html#CLIENT-AUTHENTICATION-PROBLEMS",
         "https://www.postgresql.org/docs/17/app-initdb.html#id-1.9.5.3.6",
         "https://www.postgresql.org/docs/17/auth-trust.html#AUTH-TRUST"
+      ],
+      "top_group_urls": [
+        [
+          "https://www.postgresql.org/docs/17/auth-pg-hba-conf.html#AUTH-PG-HBA-CONF"
+        ],
+        [
+          "https://www.postgresql.org/docs/17/view-pg-hba-file-rules.html#VIEW-PG-HBA-FILE-RULES"
+        ],
+        [
+          "https://www.postgresql.org/docs/17/client-authentication-problems.html#CLIENT-AUTHENTICATION-PROBLEMS"
+        ],
+        [
+          "https://www.postgresql.org/docs/17/app-initdb.html#id-1.9.5.3.6"
+        ],
+        [
+          "https://www.postgresql.org/docs/17/auth-trust.html#AUTH-TRUST"
+        ]
       ]
     },
     {
@@ -634,12 +1380,32 @@
       ],
       "invalid_urls": [],
       "hit_rank": 1,
+      "hit_url": "https://www.postgresql.org/docs/17/ddl-rowsecurity.html#DDL-ROWSECURITY",
       "top_urls": [
         "https://www.postgresql.org/docs/17/ddl-rowsecurity.html#DDL-ROWSECURITY",
         "https://www.postgresql.org/docs/17/view-pg-policies.html#VIEW-PG-POLICIES",
         "https://www.postgresql.org/docs/17/sql-createpolicy.html#id-1.9.3.75.6",
         "https://www.postgresql.org/docs/17/sql-altertable.html#id-1.9.3.35.5",
         "https://www.postgresql.org/docs/17/view-pg-shadow.html#VIEW-PG-SHADOW"
+      ],
+      "top_group_urls": [
+        [
+          "https://www.postgresql.org/docs/17/ddl-rowsecurity.html#DDL-ROWSECURITY"
+        ],
+        [
+          "https://www.postgresql.org/docs/17/view-pg-policies.html#VIEW-PG-POLICIES"
+        ],
+        [
+          "https://www.postgresql.org/docs/17/sql-createpolicy.html#id-1.9.3.75.6",
+          "https://www.postgresql.org/docs/17/sql-createpolicy.html#id-1.9.3.75.7",
+          "https://www.postgresql.org/docs/17/sql-createpolicy.html#id-1.9.3.75.5"
+        ],
+        [
+          "https://www.postgresql.org/docs/17/sql-altertable.html#id-1.9.3.35.5"
+        ],
+        [
+          "https://www.postgresql.org/docs/17/view-pg-shadow.html#VIEW-PG-SHADOW"
+        ]
       ]
     },
     {
@@ -655,12 +1421,34 @@
       ],
       "invalid_urls": [],
       "hit_rank": 1,
+      "hit_url": "https://www.postgresql.org/docs/17/plpgsql-trigger.html#PLPGSQL-DML-TRIGGER",
       "top_urls": [
         "https://www.postgresql.org/docs/17/plpgsql-trigger.html#PLPGSQL-DML-TRIGGER",
-        "https://www.postgresql.org/docs/17/plpgsql-trigger.html#PLPGSQL-TRIGGER",
         "https://www.postgresql.org/docs/17/triggers.html#TRIGGERS",
-        "https://www.postgresql.org/docs/17/plpgsql-trigger.html#PLPGSQL-EVENT-TRIGGER",
-        "https://www.postgresql.org/docs/17/pltcl-event-trigger.html#PLTCL-EVENT-TRIGGER"
+        "https://www.postgresql.org/docs/17/pltcl-event-trigger.html#PLTCL-EVENT-TRIGGER",
+        "https://www.postgresql.org/docs/17/plperl-event-triggers.html#PLPERL-EVENT-TRIGGERS",
+        "https://www.postgresql.org/docs/17/plpgsql-implementation.html#PLPGSQL-VAR-SUBST"
+      ],
+      "top_group_urls": [
+        [
+          "https://www.postgresql.org/docs/17/plpgsql-trigger.html#PLPGSQL-DML-TRIGGER",
+          "https://www.postgresql.org/docs/17/plpgsql-trigger.html#PLPGSQL-TRIGGER",
+          "https://www.postgresql.org/docs/17/plpgsql-trigger.html#PLPGSQL-EVENT-TRIGGER"
+        ],
+        [
+          "https://www.postgresql.org/docs/17/triggers.html#TRIGGERS"
+        ],
+        [
+          "https://www.postgresql.org/docs/17/pltcl-event-trigger.html#PLTCL-EVENT-TRIGGER"
+        ],
+        [
+          "https://www.postgresql.org/docs/17/plperl-event-triggers.html#PLPERL-EVENT-TRIGGERS"
+        ],
+        [
+          "https://www.postgresql.org/docs/17/plpgsql-implementation.html#PLPGSQL-VAR-SUBST",
+          "https://www.postgresql.org/docs/17/plpgsql-implementation.html#PLPGSQL-PLAN-CACHING",
+          "https://www.postgresql.org/docs/17/plpgsql-implementation.html#PLPGSQL-IMPLEMENTATION"
+        ]
       ]
     },
     {
@@ -675,12 +1463,39 @@
       ],
       "invalid_urls": [],
       "hit_rank": 1,
+      "hit_url": "https://www.postgresql.org/docs/17/textsearch-controls.html#TEXTSEARCH-RANKING",
       "top_urls": [
         "https://www.postgresql.org/docs/17/textsearch-controls.html#TEXTSEARCH-RANKING",
         "https://www.postgresql.org/docs/17/textsearch-intro.html#TEXTSEARCH-INTRO",
         "https://www.postgresql.org/docs/17/textsearch-dictionaries.html#TEXTSEARCH-STOPWORDS",
-        "https://www.postgresql.org/docs/17/textsearch-controls.html#TEXTSEARCH-HEADLINE",
-        "https://www.postgresql.org/docs/17/textsearch-intro.html#TEXTSEARCH-DOCUMENT"
+        "https://www.postgresql.org/docs/17/functions-textsearch.html#FUNCTIONS-TEXTSEARCH",
+        "https://www.postgresql.org/docs/17/textsearch-indexes.html#TEXTSEARCH-INDEXES"
+      ],
+      "top_group_urls": [
+        [
+          "https://www.postgresql.org/docs/17/textsearch-controls.html#TEXTSEARCH-RANKING",
+          "https://www.postgresql.org/docs/17/textsearch-controls.html#TEXTSEARCH-HEADLINE",
+          "https://www.postgresql.org/docs/17/textsearch-controls.html#TEXTSEARCH-CONTROLS",
+          "https://www.postgresql.org/docs/17/textsearch-controls.html#TEXTSEARCH-PARSING-QUERIES"
+        ],
+        [
+          "https://www.postgresql.org/docs/17/textsearch-intro.html#TEXTSEARCH-INTRO",
+          "https://www.postgresql.org/docs/17/textsearch-intro.html#TEXTSEARCH-DOCUMENT",
+          "https://www.postgresql.org/docs/17/textsearch-intro.html#TEXTSEARCH-MATCHING",
+          "https://www.postgresql.org/docs/17/textsearch-intro.html#TEXTSEARCH-INTRO-CONFIGURATIONS"
+        ],
+        [
+          "https://www.postgresql.org/docs/17/textsearch-dictionaries.html#TEXTSEARCH-STOPWORDS",
+          "https://www.postgresql.org/docs/17/textsearch-dictionaries.html#TEXTSEARCH-SYNONYM-DICTIONARY",
+          "https://www.postgresql.org/docs/17/textsearch-dictionaries.html#TEXTSEARCH-DICTIONARIES",
+          "https://www.postgresql.org/docs/17/textsearch-dictionaries.html#TEXTSEARCH-THESAURUS"
+        ],
+        [
+          "https://www.postgresql.org/docs/17/functions-textsearch.html#FUNCTIONS-TEXTSEARCH"
+        ],
+        [
+          "https://www.postgresql.org/docs/17/textsearch-indexes.html#TEXTSEARCH-INDEXES"
+        ]
       ]
     },
     {
@@ -696,12 +1511,38 @@
       ],
       "invalid_urls": [],
       "hit_rank": 1,
+      "hit_url": "https://www.postgresql.org/docs/17/textsearch-intro.html#TEXTSEARCH-MATCHING",
       "top_urls": [
         "https://www.postgresql.org/docs/17/textsearch-intro.html#TEXTSEARCH-MATCHING",
         "https://www.postgresql.org/docs/17/functions-textsearch.html#FUNCTIONS-TEXTSEARCH",
         "https://www.postgresql.org/docs/17/textsearch-controls.html#TEXTSEARCH-CONTROLS",
         "https://www.postgresql.org/docs/17/textsearch-features.html#TEXTSEARCH-FEATURES",
-        "https://www.postgresql.org/docs/17/textsearch-intro.html#TEXTSEARCH-INTRO"
+        "https://www.postgresql.org/docs/17/datatype-textsearch.html#DATATYPE-TEXTSEARCH"
+      ],
+      "top_group_urls": [
+        [
+          "https://www.postgresql.org/docs/17/textsearch-intro.html#TEXTSEARCH-MATCHING",
+          "https://www.postgresql.org/docs/17/textsearch-intro.html#TEXTSEARCH-INTRO",
+          "https://www.postgresql.org/docs/17/textsearch-intro.html#TEXTSEARCH-DOCUMENT"
+        ],
+        [
+          "https://www.postgresql.org/docs/17/functions-textsearch.html#FUNCTIONS-TEXTSEARCH"
+        ],
+        [
+          "https://www.postgresql.org/docs/17/textsearch-controls.html#TEXTSEARCH-CONTROLS",
+          "https://www.postgresql.org/docs/17/textsearch-controls.html#TEXTSEARCH-RANKING",
+          "https://www.postgresql.org/docs/17/textsearch-controls.html#TEXTSEARCH-PARSING-QUERIES"
+        ],
+        [
+          "https://www.postgresql.org/docs/17/textsearch-features.html#TEXTSEARCH-FEATURES",
+          "https://www.postgresql.org/docs/17/textsearch-features.html#TEXTSEARCH-UPDATE-TRIGGERS",
+          "https://www.postgresql.org/docs/17/textsearch-features.html#TEXTSEARCH-STATISTICS",
+          "https://www.postgresql.org/docs/17/textsearch-features.html#TEXTSEARCH-MANIPULATE-TSQUERY"
+        ],
+        [
+          "https://www.postgresql.org/docs/17/datatype-textsearch.html#DATATYPE-TEXTSEARCH",
+          "https://www.postgresql.org/docs/17/datatype-textsearch.html#DATATYPE-TSQUERY"
+        ]
       ]
     },
     {
@@ -716,12 +1557,30 @@
       ],
       "invalid_urls": [],
       "hit_rank": 1,
+      "hit_url": "https://www.postgresql.org/docs/17/sql-refreshmaterializedview.html#id-1.9.3.162.5",
       "top_urls": [
         "https://www.postgresql.org/docs/17/sql-refreshmaterializedview.html#id-1.9.3.162.5",
         "https://www.postgresql.org/docs/17/plpgsql-control-structures.html#PLPGSQL-RECORDS-ITERATING",
         "https://www.postgresql.org/docs/17/sql-creatematerializedview.html#id-1.9.3.71.5",
         "https://www.postgresql.org/docs/17/rules-materializedviews.html#RULES-MATERIALIZEDVIEWS",
         "https://www.postgresql.org/docs/17/sql-dropmaterializedview.html#id-1.9.3.118.5"
+      ],
+      "top_group_urls": [
+        [
+          "https://www.postgresql.org/docs/17/sql-refreshmaterializedview.html#id-1.9.3.162.5"
+        ],
+        [
+          "https://www.postgresql.org/docs/17/plpgsql-control-structures.html#PLPGSQL-RECORDS-ITERATING"
+        ],
+        [
+          "https://www.postgresql.org/docs/17/sql-creatematerializedview.html#id-1.9.3.71.5"
+        ],
+        [
+          "https://www.postgresql.org/docs/17/rules-materializedviews.html#RULES-MATERIALIZEDVIEWS"
+        ],
+        [
+          "https://www.postgresql.org/docs/17/sql-dropmaterializedview.html#id-1.9.3.118.5"
+        ]
       ]
     },
     {
@@ -737,12 +1596,31 @@
       ],
       "invalid_urls": [],
       "hit_rank": 7,
+      "hit_url": "https://www.postgresql.org/docs/17/ddl-identity-columns.html#DDL-IDENTITY-COLUMNS",
       "top_urls": [
         "https://www.postgresql.org/docs/17/datatype-numeric.html#DATATYPE-SERIAL",
         "https://www.postgresql.org/docs/17/sql-createindex.html#id-1.9.3.69.8",
         "https://www.postgresql.org/docs/17/functions-info.html#FUNCTIONS-INFO-CATALOG",
         "https://www.postgresql.org/docs/17/catalog-pg-statistic-ext-data.html#CATALOG-PG-STATISTIC-EXT-DATA",
         "https://www.postgresql.org/docs/17/transaction-iso.html#XACT-SERIALIZABLE"
+      ],
+      "top_group_urls": [
+        [
+          "https://www.postgresql.org/docs/17/datatype-numeric.html#DATATYPE-SERIAL"
+        ],
+        [
+          "https://www.postgresql.org/docs/17/sql-createindex.html#id-1.9.3.69.8"
+        ],
+        [
+          "https://www.postgresql.org/docs/17/functions-info.html#FUNCTIONS-INFO-CATALOG"
+        ],
+        [
+          "https://www.postgresql.org/docs/17/catalog-pg-statistic-ext-data.html#CATALOG-PG-STATISTIC-EXT-DATA"
+        ],
+        [
+          "https://www.postgresql.org/docs/17/transaction-iso.html#XACT-SERIALIZABLE",
+          "https://www.postgresql.org/docs/17/transaction-iso.html#XACT-REPEATABLE-READ"
+        ]
       ]
     },
     {
@@ -757,12 +1635,33 @@
       ],
       "invalid_urls": [],
       "hit_rank": 1,
+      "hit_url": "https://www.postgresql.org/docs/17/ddl-generated-columns.html#DDL-GENERATED-COLUMNS",
       "top_urls": [
         "https://www.postgresql.org/docs/17/ddl-generated-columns.html#DDL-GENERATED-COLUMNS",
         "https://www.postgresql.org/docs/17/infoschema-columns.html#INFOSCHEMA-COLUMNS",
         "https://www.postgresql.org/docs/17/sql-select.html#SQL-SELECT-LIST",
         "https://www.postgresql.org/docs/17/sql-createforeigntable.html#id-1.9.3.66.7",
         "https://www.postgresql.org/docs/17/release-17.html#RELEASE-17-CHANGES"
+      ],
+      "top_group_urls": [
+        [
+          "https://www.postgresql.org/docs/17/ddl-generated-columns.html#DDL-GENERATED-COLUMNS"
+        ],
+        [
+          "https://www.postgresql.org/docs/17/infoschema-columns.html#INFOSCHEMA-COLUMNS"
+        ],
+        [
+          "https://www.postgresql.org/docs/17/sql-select.html#SQL-SELECT-LIST",
+          "https://www.postgresql.org/docs/17/sql-select.html#id-1.9.3.172.10"
+        ],
+        [
+          "https://www.postgresql.org/docs/17/sql-createforeigntable.html#id-1.9.3.66.7",
+          "https://www.postgresql.org/docs/17/sql-createforeigntable.html#id-1.9.3.66.6"
+        ],
+        [
+          "https://www.postgresql.org/docs/17/release-17.html#RELEASE-17-CHANGES",
+          "https://www.postgresql.org/docs/17/release-17.html#RELEASE-17"
+        ]
       ]
     },
     {
@@ -778,12 +1677,31 @@
       ],
       "invalid_urls": [],
       "hit_rank": 1,
+      "hit_url": "https://www.postgresql.org/docs/17/sql-listen.html#id-1.9.3.153.5",
       "top_urls": [
         "https://www.postgresql.org/docs/17/sql-listen.html#id-1.9.3.153.5",
         "https://www.postgresql.org/docs/17/sql-notify.html#id-1.9.3.158.6",
         "https://www.postgresql.org/docs/17/libpq-notify.html#LIBPQ-NOTIFY",
         "https://www.postgresql.org/docs/17/sql-unlisten.html#id-1.9.3.182.5",
         "https://www.postgresql.org/docs/17/contrib-dblink-get-notify.html#id-1.11.7.21.19.5"
+      ],
+      "top_group_urls": [
+        [
+          "https://www.postgresql.org/docs/17/sql-listen.html#id-1.9.3.153.5"
+        ],
+        [
+          "https://www.postgresql.org/docs/17/sql-notify.html#id-1.9.3.158.6",
+          "https://www.postgresql.org/docs/17/sql-notify.html#id-1.9.3.158.5"
+        ],
+        [
+          "https://www.postgresql.org/docs/17/libpq-notify.html#LIBPQ-NOTIFY"
+        ],
+        [
+          "https://www.postgresql.org/docs/17/sql-unlisten.html#id-1.9.3.182.5"
+        ],
+        [
+          "https://www.postgresql.org/docs/17/contrib-dblink-get-notify.html#id-1.11.7.21.19.5"
+        ]
       ]
     },
     {
@@ -799,12 +1717,40 @@
       ],
       "invalid_urls": [],
       "hit_rank": 1,
+      "hit_url": "https://www.postgresql.org/docs/17/app-pgdump.html#PG-DUMP-DESCRIPTION",
       "top_urls": [
         "https://www.postgresql.org/docs/17/app-pgdump.html#PG-DUMP-DESCRIPTION",
         "https://www.postgresql.org/docs/17/backup-dump.html#BACKUP-DUMP-ALL",
         "https://www.postgresql.org/docs/17/populate.html#POPULATE-PG-DUMP",
         "https://www.postgresql.org/docs/17/app-pgrestore.html#APP-PGRESTORE-EXAMPLES",
-        "https://www.postgresql.org/docs/17/app-pgdump.html#PG-DUMP-EXAMPLES"
+        "https://www.postgresql.org/docs/17/app-pg-dumpall.html#id-1.9.4.15.6"
+      ],
+      "top_group_urls": [
+        [
+          "https://www.postgresql.org/docs/17/app-pgdump.html#PG-DUMP-DESCRIPTION",
+          "https://www.postgresql.org/docs/17/app-pgdump.html#PG-DUMP-EXAMPLES",
+          "https://www.postgresql.org/docs/17/app-pgdump.html#PG-DUMP-OPTIONS",
+          "https://www.postgresql.org/docs/17/app-pgdump.html#PG-DUMP-NOTES"
+        ],
+        [
+          "https://www.postgresql.org/docs/17/backup-dump.html#BACKUP-DUMP-ALL",
+          "https://www.postgresql.org/docs/17/backup-dump.html#BACKUP-DUMP-RESTORE",
+          "https://www.postgresql.org/docs/17/backup-dump.html#BACKUP-DUMP"
+        ],
+        [
+          "https://www.postgresql.org/docs/17/populate.html#POPULATE-PG-DUMP"
+        ],
+        [
+          "https://www.postgresql.org/docs/17/app-pgrestore.html#APP-PGRESTORE-EXAMPLES",
+          "https://www.postgresql.org/docs/17/app-pgrestore.html#APP-PGRESTORE-OPTIONS",
+          "https://www.postgresql.org/docs/17/app-pgrestore.html#APP-PGRESTORE-DESCRIPTION",
+          "https://www.postgresql.org/docs/17/app-pgrestore.html#id-1.9.4.19.7"
+        ],
+        [
+          "https://www.postgresql.org/docs/17/app-pg-dumpall.html#id-1.9.4.15.6",
+          "https://www.postgresql.org/docs/17/app-pg-dumpall.html#APP-PG-DUMPALL-DESCRIPTION",
+          "https://www.postgresql.org/docs/17/app-pg-dumpall.html#id-1.9.4.15.7"
+        ]
       ]
     },
     {
@@ -819,12 +1765,37 @@
       ],
       "invalid_urls": [],
       "hit_rank": 1,
+      "hit_url": "https://www.postgresql.org/docs/17/pgupgrade.html#id-1.9.5.13.5",
       "top_urls": [
         "https://www.postgresql.org/docs/17/pgupgrade.html#id-1.9.5.13.5",
-        "https://www.postgresql.org/docs/17/pgupgrade.html#id-1.9.5.13.7",
         "https://www.postgresql.org/docs/17/upgrading.html#UPGRADING-VIA-PG-UPGRADE",
-        "https://www.postgresql.org/docs/17/pgupgrade.html#id-1.9.5.13.6",
-        "https://www.postgresql.org/docs/17/upgrading.html#UPGRADING"
+        "https://www.postgresql.org/docs/17/release-17-11.html#RELEASE-17-11-CHANGES",
+        "https://www.postgresql.org/docs/17/release-17.html#RELEASE-17",
+        "https://www.postgresql.org/docs/17/release-17-6.html#RELEASE-17-6-CHANGES"
+      ],
+      "top_group_urls": [
+        [
+          "https://www.postgresql.org/docs/17/pgupgrade.html#id-1.9.5.13.5",
+          "https://www.postgresql.org/docs/17/pgupgrade.html#id-1.9.5.13.7",
+          "https://www.postgresql.org/docs/17/pgupgrade.html#id-1.9.5.13.6",
+          "https://www.postgresql.org/docs/17/pgupgrade.html#id-1.9.5.13.8"
+        ],
+        [
+          "https://www.postgresql.org/docs/17/upgrading.html#UPGRADING-VIA-PG-UPGRADE",
+          "https://www.postgresql.org/docs/17/upgrading.html#UPGRADING",
+          "https://www.postgresql.org/docs/17/upgrading.html#UPGRADING-VIA-PGDUMPALL"
+        ],
+        [
+          "https://www.postgresql.org/docs/17/release-17-11.html#RELEASE-17-11-CHANGES"
+        ],
+        [
+          "https://www.postgresql.org/docs/17/release-17.html#RELEASE-17",
+          "https://www.postgresql.org/docs/17/release-17.html#RELEASE-17-CHANGES",
+          "https://www.postgresql.org/docs/17/release-17.html#RELEASE-17-MIGRATION"
+        ],
+        [
+          "https://www.postgresql.org/docs/17/release-17-6.html#RELEASE-17-6-CHANGES"
+        ]
       ]
     },
     {
@@ -840,12 +1811,40 @@
       ],
       "invalid_urls": [],
       "hit_rank": 1,
+      "hit_url": "https://www.postgresql.org/docs/17/rangetypes.html#RANGETYPES-INDEXING",
       "top_urls": [
         "https://www.postgresql.org/docs/17/rangetypes.html#RANGETYPES-INDEXING",
         "https://www.postgresql.org/docs/17/sql-createtable.html#id-1.9.3.85.6",
         "https://www.postgresql.org/docs/17/ddl-constraints.html#DDL-CONSTRAINTS-EXCLUSION",
         "https://www.postgresql.org/docs/17/ddl-partitioning.html#DDL-PARTITIONING-CONSTRAINT-EXCLUSION",
         "https://www.postgresql.org/docs/17/runtime-config-query.html#RUNTIME-CONFIG-QUERY-OTHER"
+      ],
+      "top_group_urls": [
+        [
+          "https://www.postgresql.org/docs/17/rangetypes.html#RANGETYPES-INDEXING",
+          "https://www.postgresql.org/docs/17/rangetypes.html#RANGETYPES"
+        ],
+        [
+          "https://www.postgresql.org/docs/17/sql-createtable.html#id-1.9.3.85.6",
+          "https://www.postgresql.org/docs/17/sql-createtable.html#SQL-CREATETABLE-EXAMPLES",
+          "https://www.postgresql.org/docs/17/sql-createtable.html#id-1.9.3.85.9.9",
+          "https://www.postgresql.org/docs/17/sql-createtable.html#SQL-CREATETABLE-STORAGE-PARAMETERS"
+        ],
+        [
+          "https://www.postgresql.org/docs/17/ddl-constraints.html#DDL-CONSTRAINTS-EXCLUSION",
+          "https://www.postgresql.org/docs/17/ddl-constraints.html#DDL-CONSTRAINTS-FK",
+          "https://www.postgresql.org/docs/17/ddl-constraints.html#DDL-CONSTRAINTS-CHECK-CONSTRAINTS",
+          "https://www.postgresql.org/docs/17/ddl-constraints.html#DDL-CONSTRAINTS"
+        ],
+        [
+          "https://www.postgresql.org/docs/17/ddl-partitioning.html#DDL-PARTITIONING-CONSTRAINT-EXCLUSION",
+          "https://www.postgresql.org/docs/17/ddl-partitioning.html#DDL-PARTITIONING-USING-INHERITANCE",
+          "https://www.postgresql.org/docs/17/ddl-partitioning.html#DDL-PARTITIONING-DECLARATIVE",
+          "https://www.postgresql.org/docs/17/ddl-partitioning.html#DDL-PARTITIONING"
+        ],
+        [
+          "https://www.postgresql.org/docs/17/runtime-config-query.html#RUNTIME-CONFIG-QUERY-OTHER"
+        ]
       ]
     },
     {
@@ -860,12 +1859,36 @@
       ],
       "invalid_urls": [],
       "hit_rank": 6,
+      "hit_url": "https://www.postgresql.org/docs/17/datatype-datetime.html#DATATYPE-DATETIME",
       "top_urls": [
         "https://www.postgresql.org/docs/17/functions-datetime.html#FUNCTIONS-DATETIME",
         "https://www.postgresql.org/docs/17/release-17-1.html#RELEASE-17-1-CHANGES",
         "https://www.postgresql.org/docs/17/datetime-invalid-input.html#DATETIME-INVALID-INPUT",
         "https://www.postgresql.org/docs/17/ecpg-pgtypes.html#ECPG-PGTYPES-TIMESTAMP",
         "https://www.postgresql.org/docs/17/functions-json.html#FUNCTIONS-SQLJSON-PATH"
+      ],
+      "top_group_urls": [
+        [
+          "https://www.postgresql.org/docs/17/functions-datetime.html#FUNCTIONS-DATETIME",
+          "https://www.postgresql.org/docs/17/functions-datetime.html#FUNCTIONS-DATETIME-CURRENT",
+          "https://www.postgresql.org/docs/17/functions-datetime.html#FUNCTIONS-DATETIME-ZONECONVERT",
+          "https://www.postgresql.org/docs/17/functions-datetime.html#FUNCTIONS-DATETIME-TRUNC",
+          "https://www.postgresql.org/docs/17/functions-datetime.html#FUNCTIONS-DATETIME-EXTRACT"
+        ],
+        [
+          "https://www.postgresql.org/docs/17/release-17-1.html#RELEASE-17-1-CHANGES"
+        ],
+        [
+          "https://www.postgresql.org/docs/17/datetime-invalid-input.html#DATETIME-INVALID-INPUT"
+        ],
+        [
+          "https://www.postgresql.org/docs/17/ecpg-pgtypes.html#ECPG-PGTYPES-TIMESTAMP",
+          "https://www.postgresql.org/docs/17/ecpg-pgtypes.html#ECPG-PGTYPES-CONSTANTS",
+          "https://www.postgresql.org/docs/17/ecpg-pgtypes.html#ECPG-PGTYPES"
+        ],
+        [
+          "https://www.postgresql.org/docs/17/functions-json.html#FUNCTIONS-SQLJSON-PATH"
+        ]
       ]
     },
     {
@@ -880,12 +1903,37 @@
       ],
       "invalid_urls": [],
       "hit_rank": 1,
+      "hit_url": "https://www.postgresql.org/docs/17/pgstatstatements.html#PGSTATSTATEMENTS",
       "top_urls": [
         "https://www.postgresql.org/docs/17/pgstatstatements.html#PGSTATSTATEMENTS",
-        "https://www.postgresql.org/docs/17/pgstatstatements.html#PGSTATSTATEMENTS-PG-STAT-STATEMENTS",
-        "https://www.postgresql.org/docs/17/pgstatstatements.html#PGSTATSTATEMENTS-PG-STAT-STATEMENTS-INFO",
-        "https://www.postgresql.org/docs/17/pgstatstatements.html#PGSTATSTATEMENTS-CONFIG-PARAMS",
-        "https://www.postgresql.org/docs/17/pgstatstatements.html#PGSTATSTATEMENTS-SAMPLE-OUTPUT"
+        "https://www.postgresql.org/docs/17/runtime-config-statistics.html#RUNTIME-CONFIG-STATISTICS-MONITOR",
+        "https://www.postgresql.org/docs/17/planner-stats.html#PLANNER-STATS-SINGLE-COLUMN",
+        "https://www.postgresql.org/docs/17/catalog-pg-statistic.html#CATALOG-PG-STATISTIC",
+        "https://www.postgresql.org/docs/17/release-17.html#RELEASE-17-CHANGES"
+      ],
+      "top_group_urls": [
+        [
+          "https://www.postgresql.org/docs/17/pgstatstatements.html#PGSTATSTATEMENTS",
+          "https://www.postgresql.org/docs/17/pgstatstatements.html#PGSTATSTATEMENTS-PG-STAT-STATEMENTS",
+          "https://www.postgresql.org/docs/17/pgstatstatements.html#PGSTATSTATEMENTS-PG-STAT-STATEMENTS-INFO",
+          "https://www.postgresql.org/docs/17/pgstatstatements.html#PGSTATSTATEMENTS-CONFIG-PARAMS",
+          "https://www.postgresql.org/docs/17/pgstatstatements.html#PGSTATSTATEMENTS-SAMPLE-OUTPUT"
+        ],
+        [
+          "https://www.postgresql.org/docs/17/runtime-config-statistics.html#RUNTIME-CONFIG-STATISTICS-MONITOR",
+          "https://www.postgresql.org/docs/17/runtime-config-statistics.html#RUNTIME-CONFIG-CUMULATIVE-STATISTICS"
+        ],
+        [
+          "https://www.postgresql.org/docs/17/planner-stats.html#PLANNER-STATS-SINGLE-COLUMN",
+          "https://www.postgresql.org/docs/17/planner-stats.html#PLANNER-STATS-EXTENDED"
+        ],
+        [
+          "https://www.postgresql.org/docs/17/catalog-pg-statistic.html#CATALOG-PG-STATISTIC"
+        ],
+        [
+          "https://www.postgresql.org/docs/17/release-17.html#RELEASE-17-CHANGES",
+          "https://www.postgresql.org/docs/17/release-17.html#RELEASE-17-MIGRATION"
+        ]
       ]
     },
     {
@@ -900,12 +1948,33 @@
       ],
       "invalid_urls": [],
       "hit_rank": 4,
+      "hit_url": "https://www.postgresql.org/docs/17/monitoring-stats.html#MONITORING-STATS-VIEWS",
       "top_urls": [
         "https://www.postgresql.org/docs/17/tutorial-update.html#TUTORIAL-UPDATE",
         "https://www.postgresql.org/docs/17/indexes-index-only-scans.html#INDEXES-INDEX-ONLY-SCANS",
         "https://www.postgresql.org/docs/17/storage-hot.html#STORAGE-HOT",
         "https://www.postgresql.org/docs/17/monitoring-stats.html#MONITORING-STATS-VIEWS",
         "https://www.postgresql.org/docs/17/auto-explain.html#AUTO-EXPLAIN-EXAMPLE"
+      ],
+      "top_group_urls": [
+        [
+          "https://www.postgresql.org/docs/17/tutorial-update.html#TUTORIAL-UPDATE"
+        ],
+        [
+          "https://www.postgresql.org/docs/17/indexes-index-only-scans.html#INDEXES-INDEX-ONLY-SCANS"
+        ],
+        [
+          "https://www.postgresql.org/docs/17/storage-hot.html#STORAGE-HOT"
+        ],
+        [
+          "https://www.postgresql.org/docs/17/monitoring-stats.html#MONITORING-STATS-VIEWS",
+          "https://www.postgresql.org/docs/17/monitoring-stats.html#MONITORING-PG-STAT-DATABASE-CONFLICTS-VIEW",
+          "https://www.postgresql.org/docs/17/monitoring-stats.html#MONITORING-PG-STAT-DATABASE-VIEW",
+          "https://www.postgresql.org/docs/17/monitoring-stats.html#MONITORING-PG-STATIO-ALL-INDEXES-VIEW"
+        ],
+        [
+          "https://www.postgresql.org/docs/17/auto-explain.html#AUTO-EXPLAIN-EXAMPLE"
+        ]
       ]
     },
     {
@@ -921,12 +1990,36 @@
       ],
       "invalid_urls": [],
       "hit_rank": 1,
+      "hit_url": "https://www.postgresql.org/docs/17/runtime-config-autovacuum.html#RUNTIME-CONFIG-AUTOVACUUM",
       "top_urls": [
         "https://www.postgresql.org/docs/17/runtime-config-autovacuum.html#RUNTIME-CONFIG-AUTOVACUUM",
         "https://www.postgresql.org/docs/17/routine-vacuuming.html#AUTOVACUUM",
         "https://www.postgresql.org/docs/17/sql-createtable.html#SQL-CREATETABLE-STORAGE-PARAMETERS",
-        "https://www.postgresql.org/docs/17/routine-vacuuming.html#VACUUM-FOR-WRAPAROUND",
-        "https://www.postgresql.org/docs/17/runtime-config-resource.html#RUNTIME-CONFIG-RESOURCE-MEMORY"
+        "https://www.postgresql.org/docs/17/runtime-config-resource.html#RUNTIME-CONFIG-RESOURCE-MEMORY",
+        "https://www.postgresql.org/docs/17/runtime-config-statistics.html#RUNTIME-CONFIG-CUMULATIVE-STATISTICS"
+      ],
+      "top_group_urls": [
+        [
+          "https://www.postgresql.org/docs/17/runtime-config-autovacuum.html#RUNTIME-CONFIG-AUTOVACUUM"
+        ],
+        [
+          "https://www.postgresql.org/docs/17/routine-vacuuming.html#AUTOVACUUM",
+          "https://www.postgresql.org/docs/17/routine-vacuuming.html#VACUUM-FOR-WRAPAROUND",
+          "https://www.postgresql.org/docs/17/routine-vacuuming.html#VACUUM-FOR-SPACE-RECOVERY",
+          "https://www.postgresql.org/docs/17/routine-vacuuming.html#ROUTINE-VACUUMING",
+          "https://www.postgresql.org/docs/17/routine-vacuuming.html#VACUUM-FOR-STATISTICS",
+          "https://www.postgresql.org/docs/17/routine-vacuuming.html#VACUUM-FOR-VISIBILITY-MAP"
+        ],
+        [
+          "https://www.postgresql.org/docs/17/sql-createtable.html#SQL-CREATETABLE-STORAGE-PARAMETERS"
+        ],
+        [
+          "https://www.postgresql.org/docs/17/runtime-config-resource.html#RUNTIME-CONFIG-RESOURCE-MEMORY",
+          "https://www.postgresql.org/docs/17/runtime-config-resource.html#RUNTIME-CONFIG-RESOURCE-VACUUM-COST"
+        ],
+        [
+          "https://www.postgresql.org/docs/17/runtime-config-statistics.html#RUNTIME-CONFIG-CUMULATIVE-STATISTICS"
+        ]
       ]
     },
     {
@@ -941,12 +2034,43 @@
       ],
       "invalid_urls": [],
       "hit_rank": 1,
+      "hit_url": "https://www.postgresql.org/docs/17/sql-reindex.html#id-1.9.3.163.7",
       "top_urls": [
         "https://www.postgresql.org/docs/17/sql-reindex.html#id-1.9.3.163.7",
         "https://www.postgresql.org/docs/17/sql-createindex.html#SQL-CREATEINDEX-CONCURRENTLY",
-        "https://www.postgresql.org/docs/17/sql-reindex.html#SQL-REINDEX-CONCURRENTLY",
-        "https://www.postgresql.org/docs/17/sql-reindex.html#id-1.9.3.163.5",
-        "https://www.postgresql.org/docs/17/continuous-archiving.html#BACKUP-TIMELINES"
+        "https://www.postgresql.org/docs/17/continuous-archiving.html#BACKUP-TIMELINES",
+        "https://www.postgresql.org/docs/17/routine-vacuuming.html#VACUUM-FOR-SPACE-RECOVERY",
+        "https://www.postgresql.org/docs/17/progress-reporting.html#CREATE-INDEX-PROGRESS-REPORTING"
+      ],
+      "top_group_urls": [
+        [
+          "https://www.postgresql.org/docs/17/sql-reindex.html#id-1.9.3.163.7",
+          "https://www.postgresql.org/docs/17/sql-reindex.html#SQL-REINDEX-CONCURRENTLY",
+          "https://www.postgresql.org/docs/17/sql-reindex.html#id-1.9.3.163.5",
+          "https://www.postgresql.org/docs/17/sql-reindex.html#id-1.9.3.163.8"
+        ],
+        [
+          "https://www.postgresql.org/docs/17/sql-createindex.html#SQL-CREATEINDEX-CONCURRENTLY",
+          "https://www.postgresql.org/docs/17/sql-createindex.html#SQL-CREATEINDEX-STORAGE-PARAMETERS",
+          "https://www.postgresql.org/docs/17/sql-createindex.html#id-1.9.3.69.7",
+          "https://www.postgresql.org/docs/17/sql-createindex.html#id-1.9.3.69.6",
+          "https://www.postgresql.org/docs/17/sql-createindex.html#id-1.9.3.69.8"
+        ],
+        [
+          "https://www.postgresql.org/docs/17/continuous-archiving.html#BACKUP-TIMELINES",
+          "https://www.postgresql.org/docs/17/continuous-archiving.html#CONTINUOUS-ARCHIVING-CAVEATS",
+          "https://www.postgresql.org/docs/17/continuous-archiving.html#BACKUP-PITR-RECOVERY",
+          "https://www.postgresql.org/docs/17/continuous-archiving.html#CONTINUOUS-ARCHIVING"
+        ],
+        [
+          "https://www.postgresql.org/docs/17/routine-vacuuming.html#VACUUM-FOR-SPACE-RECOVERY",
+          "https://www.postgresql.org/docs/17/routine-vacuuming.html#VACUUM-FOR-WRAPAROUND",
+          "https://www.postgresql.org/docs/17/routine-vacuuming.html#VACUUM-FOR-STATISTICS"
+        ],
+        [
+          "https://www.postgresql.org/docs/17/progress-reporting.html#CREATE-INDEX-PROGRESS-REPORTING",
+          "https://www.postgresql.org/docs/17/progress-reporting.html#CLUSTER-PROGRESS-REPORTING"
+        ]
       ]
     },
     {
@@ -961,12 +2085,36 @@
       ],
       "invalid_urls": [],
       "hit_rank": 1,
+      "hit_url": "https://www.postgresql.org/docs/17/ddl-schemas.html#DDL-SCHEMAS-PATH",
       "top_urls": [
         "https://www.postgresql.org/docs/17/ddl-schemas.html#DDL-SCHEMAS-PATH",
-        "https://www.postgresql.org/docs/17/ddl-schemas.html#DDL-SCHEMAS-PRIV",
-        "https://www.postgresql.org/docs/17/ddl-schemas.html#DDL-SCHEMAS-PATTERNS",
         "https://www.postgresql.org/docs/17/runtime-config-client.html#RUNTIME-CONFIG-CLIENT-STATEMENT",
-        "https://www.postgresql.org/docs/17/app-pgamcheck.html#id-1.9.4.9.6"
+        "https://www.postgresql.org/docs/17/app-pgamcheck.html#id-1.9.4.9.6",
+        "https://www.postgresql.org/docs/17/extend-extensions.html#EXTEND-EXTENSIONS-RELOCATION",
+        "https://www.postgresql.org/docs/17/sql-createschema.html#id-1.9.3.80.5"
+      ],
+      "top_group_urls": [
+        [
+          "https://www.postgresql.org/docs/17/ddl-schemas.html#DDL-SCHEMAS-PATH",
+          "https://www.postgresql.org/docs/17/ddl-schemas.html#DDL-SCHEMAS-PRIV",
+          "https://www.postgresql.org/docs/17/ddl-schemas.html#DDL-SCHEMAS-PATTERNS",
+          "https://www.postgresql.org/docs/17/ddl-schemas.html#DDL-SCHEMAS-PORTABILITY"
+        ],
+        [
+          "https://www.postgresql.org/docs/17/runtime-config-client.html#RUNTIME-CONFIG-CLIENT-STATEMENT"
+        ],
+        [
+          "https://www.postgresql.org/docs/17/app-pgamcheck.html#id-1.9.4.9.6",
+          "https://www.postgresql.org/docs/17/app-pgamcheck.html#id-1.9.4.9.5"
+        ],
+        [
+          "https://www.postgresql.org/docs/17/extend-extensions.html#EXTEND-EXTENSIONS-RELOCATION",
+          "https://www.postgresql.org/docs/17/extend-extensions.html#EXTEND-EXTENSIONS-SECURITY",
+          "https://www.postgresql.org/docs/17/extend-extensions.html#EXTEND-EXTENSIONS"
+        ],
+        [
+          "https://www.postgresql.org/docs/17/sql-createschema.html#id-1.9.3.80.5"
+        ]
       ]
     },
     {
@@ -982,12 +2130,33 @@
       ],
       "invalid_urls": [],
       "hit_rank": 3,
+      "hit_url": "https://www.postgresql.org/docs/17/sql-alterdefaultprivileges.html#SQL-ALTERDEFAULTPRIVILEGES-EXAMPLES",
       "top_urls": [
         "https://www.postgresql.org/docs/17/app-psql.html#APP-PSQL-META-COMMANDS",
         "https://www.postgresql.org/docs/17/sepgsql.html#SEPGSQL-FEATURES",
         "https://www.postgresql.org/docs/17/sql-alterdefaultprivileges.html#SQL-ALTERDEFAULTPRIVILEGES-EXAMPLES",
         "https://www.postgresql.org/docs/17/app-pgamcheck.html#id-1.9.4.9.6",
         "https://www.postgresql.org/docs/17/fdw-callbacks.html#FDW-CALLBACKS-IMPORT"
+      ],
+      "top_group_urls": [
+        [
+          "https://www.postgresql.org/docs/17/app-psql.html#APP-PSQL-META-COMMANDS"
+        ],
+        [
+          "https://www.postgresql.org/docs/17/sepgsql.html#SEPGSQL-FEATURES",
+          "https://www.postgresql.org/docs/17/sepgsql.html#SEPGSQL-FUNCTIONS",
+          "https://www.postgresql.org/docs/17/sepgsql.html#SEPGSQL"
+        ],
+        [
+          "https://www.postgresql.org/docs/17/sql-alterdefaultprivileges.html#SQL-ALTERDEFAULTPRIVILEGES-EXAMPLES"
+        ],
+        [
+          "https://www.postgresql.org/docs/17/app-pgamcheck.html#id-1.9.4.9.6",
+          "https://www.postgresql.org/docs/17/app-pgamcheck.html#id-1.9.4.9.5"
+        ],
+        [
+          "https://www.postgresql.org/docs/17/fdw-callbacks.html#FDW-CALLBACKS-IMPORT"
+        ]
       ]
     },
     {
@@ -1002,12 +2171,31 @@
       ],
       "invalid_urls": [],
       "hit_rank": 7,
+      "hit_url": "https://www.postgresql.org/docs/17/sql-prepare.html#SQL-PREPARE-EXAMPLES",
       "top_urls": [
         "https://www.postgresql.org/docs/17/view-pg-prepared-statements.html#VIEW-PG-PREPARED-STATEMENTS",
         "https://www.postgresql.org/docs/17/ecpg-dynamic.html#ECPG-DYNAMIC",
         "https://www.postgresql.org/docs/17/ecpg-commands.html#ECPG-PREPARED",
         "https://www.postgresql.org/docs/17/ecpg-sql-prepare.html#id-1.7.5.20.13.3",
         "https://www.postgresql.org/docs/17/sql-deallocate.html#id-1.9.3.98.6"
+      ],
+      "top_group_urls": [
+        [
+          "https://www.postgresql.org/docs/17/view-pg-prepared-statements.html#VIEW-PG-PREPARED-STATEMENTS"
+        ],
+        [
+          "https://www.postgresql.org/docs/17/ecpg-dynamic.html#ECPG-DYNAMIC"
+        ],
+        [
+          "https://www.postgresql.org/docs/17/ecpg-commands.html#ECPG-PREPARED",
+          "https://www.postgresql.org/docs/17/ecpg-commands.html#ECPG-COMMANDS"
+        ],
+        [
+          "https://www.postgresql.org/docs/17/ecpg-sql-prepare.html#id-1.7.5.20.13.3"
+        ],
+        [
+          "https://www.postgresql.org/docs/17/sql-deallocate.html#id-1.9.3.98.6"
+        ]
       ]
     },
     {
@@ -1022,12 +2210,36 @@
       ],
       "invalid_urls": [],
       "hit_rank": 2,
+      "hit_url": "https://www.postgresql.org/docs/17/sql-altertable.html#id-1.9.3.35.8",
       "top_urls": [
         "https://www.postgresql.org/docs/17/ddl-generated-columns.html#DDL-GENERATED-COLUMNS",
         "https://www.postgresql.org/docs/17/sql-altertable.html#id-1.9.3.35.8",
         "https://www.postgresql.org/docs/17/xaggr.html#XAGGR",
-        "https://www.postgresql.org/docs/17/xaggr.html#XAGGR-MOVING-AGGREGATES",
-        "https://www.postgresql.org/docs/17/xaggr.html#XAGGR-PARTIAL-AGGREGATES"
+        "https://www.postgresql.org/docs/17/ddl-identity-columns.html#DDL-IDENTITY-COLUMNS",
+        "https://www.postgresql.org/docs/17/infoschema-views.html#INFOSCHEMA-VIEWS"
+      ],
+      "top_group_urls": [
+        [
+          "https://www.postgresql.org/docs/17/ddl-generated-columns.html#DDL-GENERATED-COLUMNS"
+        ],
+        [
+          "https://www.postgresql.org/docs/17/sql-altertable.html#id-1.9.3.35.8",
+          "https://www.postgresql.org/docs/17/sql-altertable.html#id-1.9.3.35.5",
+          "https://www.postgresql.org/docs/17/sql-altertable.html#SQL-ALTERTABLE-NOTES",
+          "https://www.postgresql.org/docs/17/sql-altertable.html#id-1.9.3.35.9"
+        ],
+        [
+          "https://www.postgresql.org/docs/17/xaggr.html#XAGGR",
+          "https://www.postgresql.org/docs/17/xaggr.html#XAGGR-MOVING-AGGREGATES",
+          "https://www.postgresql.org/docs/17/xaggr.html#XAGGR-PARTIAL-AGGREGATES",
+          "https://www.postgresql.org/docs/17/xaggr.html#XAGGR-POLYMORPHIC-AGGREGATES"
+        ],
+        [
+          "https://www.postgresql.org/docs/17/ddl-identity-columns.html#DDL-IDENTITY-COLUMNS"
+        ],
+        [
+          "https://www.postgresql.org/docs/17/infoschema-views.html#INFOSCHEMA-VIEWS"
+        ]
       ]
     },
     {
@@ -1040,12 +2252,36 @@
       "expected_urls": [],
       "invalid_urls": [],
       "hit_rank": null,
+      "hit_url": null,
       "top_urls": [
         "https://www.postgresql.org/docs/17/runtime-config-developer.html#RUNTIME-CONFIG-DEVELOPER",
         "https://www.postgresql.org/docs/17/monitoring-stats.html#MONITORING-PG-STAT-DATABASE-VIEW",
         "https://www.postgresql.org/docs/17/runtime-config-resource.html#RUNTIME-CONFIG-RESOURCE-BACKGROUND-WRITER",
         "https://www.postgresql.org/docs/17/release-17-11.html#RELEASE-17-11-CHANGES",
         "https://www.postgresql.org/docs/17/runtime-config-query.html#RUNTIME-CONFIG-QUERY-CONSTANTS"
+      ],
+      "top_group_urls": [
+        [
+          "https://www.postgresql.org/docs/17/runtime-config-developer.html#RUNTIME-CONFIG-DEVELOPER"
+        ],
+        [
+          "https://www.postgresql.org/docs/17/monitoring-stats.html#MONITORING-PG-STAT-DATABASE-VIEW",
+          "https://www.postgresql.org/docs/17/monitoring-stats.html#MONITORING-STATS-VIEWS",
+          "https://www.postgresql.org/docs/17/monitoring-stats.html#MONITORING-PG-STAT-ACTIVITY-VIEW",
+          "https://www.postgresql.org/docs/17/monitoring-stats.html#MONITORING-PG-STATIO-ALL-INDEXES-VIEW"
+        ],
+        [
+          "https://www.postgresql.org/docs/17/runtime-config-resource.html#RUNTIME-CONFIG-RESOURCE-BACKGROUND-WRITER",
+          "https://www.postgresql.org/docs/17/runtime-config-resource.html#RUNTIME-CONFIG-RESOURCE-ASYNC-BEHAVIOR",
+          "https://www.postgresql.org/docs/17/runtime-config-resource.html#RUNTIME-CONFIG-RESOURCE-VACUUM-COST"
+        ],
+        [
+          "https://www.postgresql.org/docs/17/release-17-11.html#RELEASE-17-11-CHANGES"
+        ],
+        [
+          "https://www.postgresql.org/docs/17/runtime-config-query.html#RUNTIME-CONFIG-QUERY-CONSTANTS",
+          "https://www.postgresql.org/docs/17/runtime-config-query.html#RUNTIME-CONFIG-QUERY-ENABLE"
+        ]
       ]
     },
     {
@@ -1058,12 +2294,34 @@
       "expected_urls": [],
       "invalid_urls": [],
       "hit_rank": null,
+      "hit_url": null,
       "top_urls": [
         "https://www.postgresql.org/docs/17/ddl-generated-columns.html#DDL-GENERATED-COLUMNS",
         "https://www.postgresql.org/docs/17/kernel-resources.html#LINUX-MEMORY-OVERCOMMIT",
         "https://www.postgresql.org/docs/17/sql-select.html#SQL-SELECT-LIST",
         "https://www.postgresql.org/docs/17/release-17.html#RELEASE-17",
         "https://www.postgresql.org/docs/17/infoschema-usage-privileges.html#INFOSCHEMA-USAGE-PRIVILEGES"
+      ],
+      "top_group_urls": [
+        [
+          "https://www.postgresql.org/docs/17/ddl-generated-columns.html#DDL-GENERATED-COLUMNS"
+        ],
+        [
+          "https://www.postgresql.org/docs/17/kernel-resources.html#LINUX-MEMORY-OVERCOMMIT"
+        ],
+        [
+          "https://www.postgresql.org/docs/17/sql-select.html#SQL-SELECT-LIST",
+          "https://www.postgresql.org/docs/17/sql-select.html#id-1.9.3.172.10.12",
+          "https://www.postgresql.org/docs/17/sql-select.html#id-1.9.3.172.10",
+          "https://www.postgresql.org/docs/17/sql-select.html#id-1.9.3.172.7"
+        ],
+        [
+          "https://www.postgresql.org/docs/17/release-17.html#RELEASE-17",
+          "https://www.postgresql.org/docs/17/release-17.html#RELEASE-17-CHANGES"
+        ],
+        [
+          "https://www.postgresql.org/docs/17/infoschema-usage-privileges.html#INFOSCHEMA-USAGE-PRIVILEGES"
+        ]
       ]
     },
     {
@@ -1076,12 +2334,31 @@
       "expected_urls": [],
       "invalid_urls": [],
       "hit_rank": null,
+      "hit_url": null,
       "top_urls": [
         "https://www.postgresql.org/docs/17/uuid-ossp.html#UUID-OSSP",
         "https://www.postgresql.org/docs/17/functions-uuid.html#FUNCTIONS-UUID",
-        "https://www.postgresql.org/docs/17/uuid-ossp.html#UUID-OSSP-BUILDING",
         "https://www.postgresql.org/docs/17/datatype-uuid.html#DATATYPE-UUID",
-        "https://www.postgresql.org/docs/17/install-meson.html#MESON-OPTIONS"
+        "https://www.postgresql.org/docs/17/install-meson.html#MESON-OPTIONS",
+        "https://www.postgresql.org/docs/17/install-make.html#CONFIGURE-OPTIONS"
+      ],
+      "top_group_urls": [
+        [
+          "https://www.postgresql.org/docs/17/uuid-ossp.html#UUID-OSSP",
+          "https://www.postgresql.org/docs/17/uuid-ossp.html#UUID-OSSP-BUILDING"
+        ],
+        [
+          "https://www.postgresql.org/docs/17/functions-uuid.html#FUNCTIONS-UUID"
+        ],
+        [
+          "https://www.postgresql.org/docs/17/datatype-uuid.html#DATATYPE-UUID"
+        ],
+        [
+          "https://www.postgresql.org/docs/17/install-meson.html#MESON-OPTIONS"
+        ],
+        [
+          "https://www.postgresql.org/docs/17/install-make.html#CONFIGURE-OPTIONS"
+        ]
       ]
     },
     {
@@ -1094,12 +2371,30 @@
       "expected_urls": [],
       "invalid_urls": [],
       "hit_rank": null,
+      "hit_url": null,
       "top_urls": [
         "https://www.postgresql.org/docs/17/auth-pg-hba-conf.html#AUTH-PG-HBA-CONF",
         "https://www.postgresql.org/docs/17/app-initdb.html#id-1.9.5.3.6",
         "https://www.postgresql.org/docs/17/client-authentication-problems.html#CLIENT-AUTHENTICATION-PROBLEMS",
         "https://www.postgresql.org/docs/17/ssl-tcp.html#SSL-OPENSSL-CONFIG",
         "https://www.postgresql.org/docs/17/auth-username-maps.html#AUTH-USERNAME-MAPS"
+      ],
+      "top_group_urls": [
+        [
+          "https://www.postgresql.org/docs/17/auth-pg-hba-conf.html#AUTH-PG-HBA-CONF"
+        ],
+        [
+          "https://www.postgresql.org/docs/17/app-initdb.html#id-1.9.5.3.6"
+        ],
+        [
+          "https://www.postgresql.org/docs/17/client-authentication-problems.html#CLIENT-AUTHENTICATION-PROBLEMS"
+        ],
+        [
+          "https://www.postgresql.org/docs/17/ssl-tcp.html#SSL-OPENSSL-CONFIG"
+        ],
+        [
+          "https://www.postgresql.org/docs/17/auth-username-maps.html#AUTH-USERNAME-MAPS"
+        ]
       ]
     },
     {
@@ -1112,12 +2407,33 @@
       "expected_urls": [],
       "invalid_urls": [],
       "hit_rank": null,
+      "hit_url": null,
       "top_urls": [
         "https://www.postgresql.org/docs/17/runtime-config-resource.html#RUNTIME-CONFIG-RESOURCE-ASYNC-BEHAVIOR",
         "https://www.postgresql.org/docs/17/release-17.html#RELEASE-17-MIGRATION",
         "https://www.postgresql.org/docs/17/creating-cluster.html#CREATING-CLUSTER-MOUNT-POINTS",
         "https://www.postgresql.org/docs/17/runtime-config-compatible.html#RUNTIME-CONFIG-COMPATIBLE-VERSION",
         "https://www.postgresql.org/docs/17/monitoring-ps.html#MONITORING-PS"
+      ],
+      "top_group_urls": [
+        [
+          "https://www.postgresql.org/docs/17/runtime-config-resource.html#RUNTIME-CONFIG-RESOURCE-ASYNC-BEHAVIOR",
+          "https://www.postgresql.org/docs/17/runtime-config-resource.html#RUNTIME-CONFIG-RESOURCE-VACUUM-COST"
+        ],
+        [
+          "https://www.postgresql.org/docs/17/release-17.html#RELEASE-17-MIGRATION",
+          "https://www.postgresql.org/docs/17/release-17.html#RELEASE-17",
+          "https://www.postgresql.org/docs/17/release-17.html#RELEASE-17-CHANGES"
+        ],
+        [
+          "https://www.postgresql.org/docs/17/creating-cluster.html#CREATING-CLUSTER-MOUNT-POINTS"
+        ],
+        [
+          "https://www.postgresql.org/docs/17/runtime-config-compatible.html#RUNTIME-CONFIG-COMPATIBLE-VERSION"
+        ],
+        [
+          "https://www.postgresql.org/docs/17/monitoring-ps.html#MONITORING-PS"
+        ]
       ]
     },
     {
@@ -1130,12 +2446,37 @@
       "expected_urls": [],
       "invalid_urls": [],
       "hit_rank": null,
+      "hit_url": null,
       "top_urls": [
         "https://www.postgresql.org/docs/17/runtime-config-resource.html#RUNTIME-CONFIG-RESOURCE-ASYNC-BEHAVIOR",
         "https://www.postgresql.org/docs/17/runtime-config-developer.html#RUNTIME-CONFIG-DEVELOPER",
         "https://www.postgresql.org/docs/17/install-meson.html#MESON-OPTIONS",
         "https://www.postgresql.org/docs/17/spi-spi-cursor-parse-open.html#id-1.8.12.8.22.5",
-        "https://www.postgresql.org/docs/17/runtime-config-resource.html#RUNTIME-CONFIG-RESOURCE-MEMORY"
+        "https://www.postgresql.org/docs/17/runtime-config-query.html#RUNTIME-CONFIG-QUERY-GEQO"
+      ],
+      "top_group_urls": [
+        [
+          "https://www.postgresql.org/docs/17/runtime-config-resource.html#RUNTIME-CONFIG-RESOURCE-ASYNC-BEHAVIOR",
+          "https://www.postgresql.org/docs/17/runtime-config-resource.html#RUNTIME-CONFIG-RESOURCE-MEMORY",
+          "https://www.postgresql.org/docs/17/runtime-config-resource.html#RUNTIME-CONFIG-RESOURCE-BACKGROUND-WRITER",
+          "https://www.postgresql.org/docs/17/runtime-config-resource.html#RUNTIME-CONFIG-RESOURCE-VACUUM-COST",
+          "https://www.postgresql.org/docs/17/runtime-config-resource.html#RUNTIME-CONFIG-RESOURCE-DISK"
+        ],
+        [
+          "https://www.postgresql.org/docs/17/runtime-config-developer.html#RUNTIME-CONFIG-DEVELOPER"
+        ],
+        [
+          "https://www.postgresql.org/docs/17/install-meson.html#MESON-OPTIONS"
+        ],
+        [
+          "https://www.postgresql.org/docs/17/spi-spi-cursor-parse-open.html#id-1.8.12.8.22.5"
+        ],
+        [
+          "https://www.postgresql.org/docs/17/runtime-config-query.html#RUNTIME-CONFIG-QUERY-GEQO",
+          "https://www.postgresql.org/docs/17/runtime-config-query.html#RUNTIME-CONFIG-QUERY-CONSTANTS",
+          "https://www.postgresql.org/docs/17/runtime-config-query.html#RUNTIME-CONFIG-QUERY-OTHER",
+          "https://www.postgresql.org/docs/17/runtime-config-query.html#RUNTIME-CONFIG-QUERY-ENABLE"
+        ]
       ]
     },
     {
@@ -1148,12 +2489,30 @@
       "expected_urls": [],
       "invalid_urls": [],
       "hit_rank": null,
+      "hit_url": null,
       "top_urls": [
         "https://www.postgresql.org/docs/17/rules-materializedviews.html#RULES-MATERIALIZEDVIEWS",
         "https://www.postgresql.org/docs/17/plpgsql-control-structures.html#PLPGSQL-RECORDS-ITERATING",
         "https://www.postgresql.org/docs/17/sql-creatematerializedview.html#id-1.9.3.71.5",
         "https://www.postgresql.org/docs/17/sql-altermaterializedview.html#id-1.9.3.19.5",
         "https://www.postgresql.org/docs/17/sql-refreshmaterializedview.html#id-1.9.3.162.5"
+      ],
+      "top_group_urls": [
+        [
+          "https://www.postgresql.org/docs/17/rules-materializedviews.html#RULES-MATERIALIZEDVIEWS"
+        ],
+        [
+          "https://www.postgresql.org/docs/17/plpgsql-control-structures.html#PLPGSQL-RECORDS-ITERATING"
+        ],
+        [
+          "https://www.postgresql.org/docs/17/sql-creatematerializedview.html#id-1.9.3.71.5"
+        ],
+        [
+          "https://www.postgresql.org/docs/17/sql-altermaterializedview.html#id-1.9.3.19.5"
+        ],
+        [
+          "https://www.postgresql.org/docs/17/sql-refreshmaterializedview.html#id-1.9.3.162.5"
+        ]
       ]
     },
     {
@@ -1166,12 +2525,37 @@
       "expected_urls": [],
       "invalid_urls": [],
       "hit_rank": null,
+      "hit_url": null,
       "top_urls": [
         "https://www.postgresql.org/docs/17/contrib.html#CONTRIB",
         "https://www.postgresql.org/docs/17/sql-createextension.html#id-1.9.3.64.7",
         "https://www.postgresql.org/docs/17/extend-extensions.html#EXTEND-EXTENSIONS",
         "https://www.postgresql.org/docs/17/extend-pgxs.html#EXTEND-PGXS",
         "https://www.postgresql.org/docs/17/view-pg-available-extension-versions.html#VIEW-PG-AVAILABLE-EXTENSION-VERSIONS"
+      ],
+      "top_group_urls": [
+        [
+          "https://www.postgresql.org/docs/17/contrib.html#CONTRIB"
+        ],
+        [
+          "https://www.postgresql.org/docs/17/sql-createextension.html#id-1.9.3.64.7",
+          "https://www.postgresql.org/docs/17/sql-createextension.html#id-1.9.3.64.5"
+        ],
+        [
+          "https://www.postgresql.org/docs/17/extend-extensions.html#EXTEND-EXTENSIONS",
+          "https://www.postgresql.org/docs/17/extend-extensions.html#EXTEND-EXTENSIONS-CONFIG-TABLES",
+          "https://www.postgresql.org/docs/17/extend-extensions.html#EXTEND-EXTENSIONS-FILES",
+          "https://www.postgresql.org/docs/17/extend-extensions.html#EXTEND-EXTENSIONS-UPDATES",
+          "https://www.postgresql.org/docs/17/extend-extensions.html#EXTEND-EXTENSIONS-UPDATE-SCRIPTS",
+          "https://www.postgresql.org/docs/17/extend-extensions.html#EXTEND-EXTENSIONS-SECURITY",
+          "https://www.postgresql.org/docs/17/extend-extensions.html#EXTEND-EXTENSIONS-RELOCATION"
+        ],
+        [
+          "https://www.postgresql.org/docs/17/extend-pgxs.html#EXTEND-PGXS"
+        ],
+        [
+          "https://www.postgresql.org/docs/17/view-pg-available-extension-versions.html#VIEW-PG-AVAILABLE-EXTENSION-VERSIONS"
+        ]
       ]
     },
     {
@@ -1184,12 +2568,32 @@
       "expected_urls": [],
       "invalid_urls": [],
       "hit_rank": null,
+      "hit_url": null,
       "top_urls": [
         "https://www.postgresql.org/docs/17/wal-reliability.html#WAL-RELIABILITY",
         "https://www.postgresql.org/docs/17/functions-admin.html#FUNCTIONS-REPLICATION",
         "https://www.postgresql.org/docs/17/rules-triggers.html#RULES-TRIGGERS",
         "https://www.postgresql.org/docs/17/plpython-database.html#PLPYTHON-DATABASE-ACCESS-FUNCS",
-        "https://www.postgresql.org/docs/17/functions-admin.html#FUNCTIONS-ADMIN-BACKUP"
+        "https://www.postgresql.org/docs/17/sql-altersystem.html#id-1.9.3.34.5"
+      ],
+      "top_group_urls": [
+        [
+          "https://www.postgresql.org/docs/17/wal-reliability.html#WAL-RELIABILITY"
+        ],
+        [
+          "https://www.postgresql.org/docs/17/functions-admin.html#FUNCTIONS-REPLICATION",
+          "https://www.postgresql.org/docs/17/functions-admin.html#FUNCTIONS-ADMIN-BACKUP",
+          "https://www.postgresql.org/docs/17/functions-admin.html#FUNCTIONS-ADMIN-DBOBJECT"
+        ],
+        [
+          "https://www.postgresql.org/docs/17/rules-triggers.html#RULES-TRIGGERS"
+        ],
+        [
+          "https://www.postgresql.org/docs/17/plpython-database.html#PLPYTHON-DATABASE-ACCESS-FUNCS"
+        ],
+        [
+          "https://www.postgresql.org/docs/17/sql-altersystem.html#id-1.9.3.34.5"
+        ]
       ]
     },
     {
@@ -1202,12 +2606,32 @@
       "expected_urls": [],
       "invalid_urls": [],
       "hit_rank": null,
+      "hit_url": null,
       "top_urls": [
         "https://www.postgresql.org/docs/17/infoschema-user-defined-types.html#INFOSCHEMA-USER-DEFINED-TYPES",
         "https://www.postgresql.org/docs/17/sql-createtableas.html#id-1.9.3.86.7",
         "https://www.postgresql.org/docs/17/errcodes-appendix.html#ERRCODES-APPENDIX",
         "https://www.postgresql.org/docs/17/infoschema-usage-privileges.html#INFOSCHEMA-USAGE-PRIVILEGES",
         "https://www.postgresql.org/docs/17/sql-select.html#id-1.9.3.172.10"
+      ],
+      "top_group_urls": [
+        [
+          "https://www.postgresql.org/docs/17/infoschema-user-defined-types.html#INFOSCHEMA-USER-DEFINED-TYPES"
+        ],
+        [
+          "https://www.postgresql.org/docs/17/sql-createtableas.html#id-1.9.3.86.7"
+        ],
+        [
+          "https://www.postgresql.org/docs/17/errcodes-appendix.html#ERRCODES-APPENDIX"
+        ],
+        [
+          "https://www.postgresql.org/docs/17/infoschema-usage-privileges.html#INFOSCHEMA-USAGE-PRIVILEGES"
+        ],
+        [
+          "https://www.postgresql.org/docs/17/sql-select.html#id-1.9.3.172.10",
+          "https://www.postgresql.org/docs/17/sql-select.html#id-1.9.3.172.10.12",
+          "https://www.postgresql.org/docs/17/sql-select.html#SQL-LIMIT"
+        ]
       ]
     },
     {
@@ -1220,12 +2644,36 @@
       "expected_urls": [],
       "invalid_urls": [],
       "hit_rank": null,
+      "hit_url": null,
       "top_urls": [
         "https://www.postgresql.org/docs/17/checksums.html#CHECKSUMS",
         "https://www.postgresql.org/docs/17/catalog-pg-db-role-setting.html#CATALOG-PG-DB-ROLE-SETTING",
         "https://www.postgresql.org/docs/17/plpgsql-porting.html#PLPGSQL-PORTING-EXAMPLES",
         "https://www.postgresql.org/docs/17/install-make.html#INSTALL-PROCEDURE-MAKE",
         "https://www.postgresql.org/docs/17/installation-platform-notes.html#INSTALLATION-NOTES-SOLARIS"
+      ],
+      "top_group_urls": [
+        [
+          "https://www.postgresql.org/docs/17/checksums.html#CHECKSUMS"
+        ],
+        [
+          "https://www.postgresql.org/docs/17/catalog-pg-db-role-setting.html#CATALOG-PG-DB-ROLE-SETTING"
+        ],
+        [
+          "https://www.postgresql.org/docs/17/plpgsql-porting.html#PLPGSQL-PORTING-EXAMPLES",
+          "https://www.postgresql.org/docs/17/plpgsql-porting.html#PLPGSQL-PORTING-APPENDIX",
+          "https://www.postgresql.org/docs/17/plpgsql-porting.html#PLPGSQL-PORTING",
+          "https://www.postgresql.org/docs/17/plpgsql-porting.html#PLPGSQL-PORTING-OTHER"
+        ],
+        [
+          "https://www.postgresql.org/docs/17/install-make.html#INSTALL-PROCEDURE-MAKE",
+          "https://www.postgresql.org/docs/17/install-make.html#CONFIGURE-OPTIONS"
+        ],
+        [
+          "https://www.postgresql.org/docs/17/installation-platform-notes.html#INSTALLATION-NOTES-SOLARIS",
+          "https://www.postgresql.org/docs/17/installation-platform-notes.html#INSTALLATION-PLATFORM-NOTES",
+          "https://www.postgresql.org/docs/17/installation-platform-notes.html#INSTALLATION-NOTES-MACOS"
+        ]
       ]
     },
     {
@@ -1238,12 +2686,34 @@
       "expected_urls": [],
       "invalid_urls": [],
       "hit_rank": null,
+      "hit_url": null,
       "top_urls": [
         "https://www.postgresql.org/docs/17/datatype-numeric.html#DATATYPE-SERIAL",
         "https://www.postgresql.org/docs/17/collation.html#COLLATION-MANAGING",
         "https://www.postgresql.org/docs/17/contrib-spi.html#CONTRIB-SPI-AUTOINC",
         "https://www.postgresql.org/docs/17/planner-stats.html#PLANNER-STATS-SINGLE-COLUMN",
         "https://www.postgresql.org/docs/17/auto-explain.html#AUTO-EXPLAIN-EXAMPLE"
+      ],
+      "top_group_urls": [
+        [
+          "https://www.postgresql.org/docs/17/datatype-numeric.html#DATATYPE-SERIAL",
+          "https://www.postgresql.org/docs/17/datatype-numeric.html#DATATYPE-NUMERIC",
+          "https://www.postgresql.org/docs/17/datatype-numeric.html#DATATYPE-FLOAT"
+        ],
+        [
+          "https://www.postgresql.org/docs/17/collation.html#COLLATION-MANAGING",
+          "https://www.postgresql.org/docs/17/collation.html#ICU-CUSTOM-COLLATIONS"
+        ],
+        [
+          "https://www.postgresql.org/docs/17/contrib-spi.html#CONTRIB-SPI-AUTOINC"
+        ],
+        [
+          "https://www.postgresql.org/docs/17/planner-stats.html#PLANNER-STATS-SINGLE-COLUMN"
+        ],
+        [
+          "https://www.postgresql.org/docs/17/auto-explain.html#AUTO-EXPLAIN-EXAMPLE",
+          "https://www.postgresql.org/docs/17/auto-explain.html#AUTO-EXPLAIN"
+        ]
       ]
     },
     {
@@ -1256,12 +2726,30 @@
       "expected_urls": [],
       "invalid_urls": [],
       "hit_rank": null,
+      "hit_url": null,
       "top_urls": [
         "https://www.postgresql.org/docs/17/tutorial-concepts.html#TUTORIAL-CONCEPTS",
         "https://www.postgresql.org/docs/17/functions-aggregate.html#FUNCTIONS-AGGREGATE",
         "https://www.postgresql.org/docs/17/catalog-pg-type.html#CATALOG-PG-TYPE",
         "https://www.postgresql.org/docs/17/xproc.html#XPROC",
         "https://www.postgresql.org/docs/17/catalog-pg-shdepend.html#CATALOG-PG-SHDEPEND"
+      ],
+      "top_group_urls": [
+        [
+          "https://www.postgresql.org/docs/17/tutorial-concepts.html#TUTORIAL-CONCEPTS"
+        ],
+        [
+          "https://www.postgresql.org/docs/17/functions-aggregate.html#FUNCTIONS-AGGREGATE"
+        ],
+        [
+          "https://www.postgresql.org/docs/17/catalog-pg-type.html#CATALOG-PG-TYPE"
+        ],
+        [
+          "https://www.postgresql.org/docs/17/xproc.html#XPROC"
+        ],
+        [
+          "https://www.postgresql.org/docs/17/catalog-pg-shdepend.html#CATALOG-PG-SHDEPEND"
+        ]
       ]
     },
     {
@@ -1274,12 +2762,30 @@
       "expected_urls": [],
       "invalid_urls": [],
       "hit_rank": null,
+      "hit_url": null,
       "top_urls": [
         "https://www.postgresql.org/docs/17/isn.html#ISN-FUNCS-OPS",
         "https://www.postgresql.org/docs/17/sql-altertable.html#id-1.9.3.35.5",
         "https://www.postgresql.org/docs/17/runtime-config-statistics.html#RUNTIME-CONFIG-CUMULATIVE-STATISTICS",
         "https://www.postgresql.org/docs/17/runtime-config-developer.html#RUNTIME-CONFIG-DEVELOPER",
         "https://www.postgresql.org/docs/17/release-17.html#RELEASE-17-CHANGES"
+      ],
+      "top_group_urls": [
+        [
+          "https://www.postgresql.org/docs/17/isn.html#ISN-FUNCS-OPS"
+        ],
+        [
+          "https://www.postgresql.org/docs/17/sql-altertable.html#id-1.9.3.35.5"
+        ],
+        [
+          "https://www.postgresql.org/docs/17/runtime-config-statistics.html#RUNTIME-CONFIG-CUMULATIVE-STATISTICS"
+        ],
+        [
+          "https://www.postgresql.org/docs/17/runtime-config-developer.html#RUNTIME-CONFIG-DEVELOPER"
+        ],
+        [
+          "https://www.postgresql.org/docs/17/release-17.html#RELEASE-17-CHANGES"
+        ]
       ]
     },
     {
@@ -1292,12 +2798,33 @@
       "expected_urls": [],
       "invalid_urls": [],
       "hit_rank": null,
+      "hit_url": null,
       "top_urls": [
         "https://www.postgresql.org/docs/17/app-postgres.html#id-1.9.5.16.6.3",
         "https://www.postgresql.org/docs/17/auth-radius.html#AUTH-RADIUS",
-        "https://www.postgresql.org/docs/17/app-postgres.html#id-1.9.5.16.8",
         "https://www.postgresql.org/docs/17/app-pgreceivewal.html#id-1.9.4.17.6",
-        "https://www.postgresql.org/docs/17/warm-standby.html#STREAMING-REPLICATION"
+        "https://www.postgresql.org/docs/17/warm-standby.html#STREAMING-REPLICATION",
+        "https://www.postgresql.org/docs/17/app-pgrecvlogical.html#id-1.9.4.18.6"
+      ],
+      "top_group_urls": [
+        [
+          "https://www.postgresql.org/docs/17/app-postgres.html#id-1.9.5.16.6.3",
+          "https://www.postgresql.org/docs/17/app-postgres.html#id-1.9.5.16.8",
+          "https://www.postgresql.org/docs/17/app-postgres.html#id-1.9.5.16.6.4"
+        ],
+        [
+          "https://www.postgresql.org/docs/17/auth-radius.html#AUTH-RADIUS"
+        ],
+        [
+          "https://www.postgresql.org/docs/17/app-pgreceivewal.html#id-1.9.4.17.6",
+          "https://www.postgresql.org/docs/17/app-pgreceivewal.html#id-1.9.4.17.7"
+        ],
+        [
+          "https://www.postgresql.org/docs/17/warm-standby.html#STREAMING-REPLICATION"
+        ],
+        [
+          "https://www.postgresql.org/docs/17/app-pgrecvlogical.html#id-1.9.4.18.6"
+        ]
       ]
     },
     {
@@ -1310,12 +2837,31 @@
       "expected_urls": [],
       "invalid_urls": [],
       "hit_rank": null,
+      "hit_url": null,
       "top_urls": [
         "https://www.postgresql.org/docs/17/release-17.html#RELEASE-17-CHANGES",
         "https://www.postgresql.org/docs/17/release-17-11.html#RELEASE-17-11-CHANGES",
         "https://www.postgresql.org/docs/17/auto-explain.html#AUTO-EXPLAIN-EXAMPLE",
         "https://www.postgresql.org/docs/17/pgprewarm.html#PGPREWARM",
         "https://www.postgresql.org/docs/17/geqo-intro.html#GEQO-INTRO"
+      ],
+      "top_group_urls": [
+        [
+          "https://www.postgresql.org/docs/17/release-17.html#RELEASE-17-CHANGES",
+          "https://www.postgresql.org/docs/17/release-17.html#RELEASE-17-ACKNOWLEDGEMENTS"
+        ],
+        [
+          "https://www.postgresql.org/docs/17/release-17-11.html#RELEASE-17-11-CHANGES"
+        ],
+        [
+          "https://www.postgresql.org/docs/17/auto-explain.html#AUTO-EXPLAIN-EXAMPLE"
+        ],
+        [
+          "https://www.postgresql.org/docs/17/pgprewarm.html#PGPREWARM"
+        ],
+        [
+          "https://www.postgresql.org/docs/17/geqo-intro.html#GEQO-INTRO"
+        ]
       ]
     },
     {
@@ -1328,12 +2874,34 @@
       "expected_urls": [],
       "invalid_urls": [],
       "hit_rank": null,
+      "hit_url": null,
       "top_urls": [
         "https://www.postgresql.org/docs/17/postgres-fdw.html#POSTGRES-FDW-OPTIONS",
         "https://www.postgresql.org/docs/17/sql-explain.html#id-1.9.3.148.7",
         "https://www.postgresql.org/docs/17/datatype-datetime.html#DATATYPE-INTERVAL-INPUT",
         "https://www.postgresql.org/docs/17/runtime-config-query.html#RUNTIME-CONFIG-QUERY-CONSTANTS",
         "https://www.postgresql.org/docs/17/continuous-archiving.html#BACKUP-TIPS"
+      ],
+      "top_group_urls": [
+        [
+          "https://www.postgresql.org/docs/17/postgres-fdw.html#POSTGRES-FDW-OPTIONS",
+          "https://www.postgresql.org/docs/17/postgres-fdw.html#POSTGRES-FDW-TRANSACTION-MANAGEMENT"
+        ],
+        [
+          "https://www.postgresql.org/docs/17/sql-explain.html#id-1.9.3.148.7"
+        ],
+        [
+          "https://www.postgresql.org/docs/17/datatype-datetime.html#DATATYPE-INTERVAL-INPUT",
+          "https://www.postgresql.org/docs/17/datatype-datetime.html#DATATYPE-TIMEZONES",
+          "https://www.postgresql.org/docs/17/datatype-datetime.html#DATATYPE-INTERVAL-OUTPUT"
+        ],
+        [
+          "https://www.postgresql.org/docs/17/runtime-config-query.html#RUNTIME-CONFIG-QUERY-CONSTANTS"
+        ],
+        [
+          "https://www.postgresql.org/docs/17/continuous-archiving.html#BACKUP-TIPS",
+          "https://www.postgresql.org/docs/17/continuous-archiving.html#BACKUP-ARCHIVING-WAL"
+        ]
       ]
     },
     {
@@ -1346,12 +2914,31 @@
       "expected_urls": [],
       "invalid_urls": [],
       "hit_rank": null,
+      "hit_url": null,
       "top_urls": [
         "https://www.postgresql.org/docs/17/acronyms.html#ACRONYMS",
         "https://www.postgresql.org/docs/17/history.html#HISTORY",
         "https://www.postgresql.org/docs/17/intro-whatis.html#INTRO-WHATIS",
         "https://www.postgresql.org/docs/17/biblio.html",
         "https://www.postgresql.org/docs/17/geqo-intro.html#GEQO-INTRO"
+      ],
+      "top_group_urls": [
+        [
+          "https://www.postgresql.org/docs/17/acronyms.html#ACRONYMS"
+        ],
+        [
+          "https://www.postgresql.org/docs/17/history.html#HISTORY",
+          "https://www.postgresql.org/docs/17/history.html#HISTORY-POSTGRES95"
+        ],
+        [
+          "https://www.postgresql.org/docs/17/intro-whatis.html#INTRO-WHATIS"
+        ],
+        [
+          "https://www.postgresql.org/docs/17/biblio.html"
+        ],
+        [
+          "https://www.postgresql.org/docs/17/geqo-intro.html#GEQO-INTRO"
+        ]
       ]
     },
     {
@@ -1364,12 +2951,38 @@
       "expected_urls": [],
       "invalid_urls": [],
       "hit_rank": null,
+      "hit_url": null,
       "top_urls": [
         "https://www.postgresql.org/docs/17/kernel-resources.html#KERNEL-RESOURCES-LIMITS",
-        "https://www.postgresql.org/docs/17/kernel-resources.html#LINUX-HUGE-PAGES",
-        "https://www.postgresql.org/docs/17/kernel-resources.html#LINUX-MEMORY-OVERCOMMIT",
-        "https://www.postgresql.org/docs/17/kernel-resources.html#SYSVIPC",
-        "https://www.postgresql.org/docs/17/kernel-resources.html#KERNEL-RESOURCES"
+        "https://www.postgresql.org/docs/17/auth-peer.html#AUTH-PEER",
+        "https://www.postgresql.org/docs/17/runtime-config-resource.html#RUNTIME-CONFIG-RESOURCE-BACKGROUND-WRITER",
+        "https://www.postgresql.org/docs/17/pgtesttiming.html#id-1.9.5.12.7.4",
+        "https://www.postgresql.org/docs/17/uuid-ossp.html#UUID-OSSP-BUILDING"
+      ],
+      "top_group_urls": [
+        [
+          "https://www.postgresql.org/docs/17/kernel-resources.html#KERNEL-RESOURCES-LIMITS",
+          "https://www.postgresql.org/docs/17/kernel-resources.html#LINUX-HUGE-PAGES",
+          "https://www.postgresql.org/docs/17/kernel-resources.html#LINUX-MEMORY-OVERCOMMIT",
+          "https://www.postgresql.org/docs/17/kernel-resources.html#SYSVIPC",
+          "https://www.postgresql.org/docs/17/kernel-resources.html#KERNEL-RESOURCES",
+          "https://www.postgresql.org/docs/17/kernel-resources.html#SYSTEMD-REMOVEIPC"
+        ],
+        [
+          "https://www.postgresql.org/docs/17/auth-peer.html#AUTH-PEER"
+        ],
+        [
+          "https://www.postgresql.org/docs/17/runtime-config-resource.html#RUNTIME-CONFIG-RESOURCE-BACKGROUND-WRITER",
+          "https://www.postgresql.org/docs/17/runtime-config-resource.html#RUNTIME-CONFIG-RESOURCE-MEMORY",
+          "https://www.postgresql.org/docs/17/runtime-config-resource.html#RUNTIME-CONFIG-RESOURCE-DISK"
+        ],
+        [
+          "https://www.postgresql.org/docs/17/pgtesttiming.html#id-1.9.5.12.7.4",
+          "https://www.postgresql.org/docs/17/pgtesttiming.html#id-1.9.5.12.7.5"
+        ],
+        [
+          "https://www.postgresql.org/docs/17/uuid-ossp.html#UUID-OSSP-BUILDING"
+        ]
       ]
     },
     {
@@ -1382,12 +2995,35 @@
       "expected_urls": [],
       "invalid_urls": [],
       "hit_rank": null,
+      "hit_url": null,
       "top_urls": [
         "https://www.postgresql.org/docs/17/plpython-data.html#PLPYTHON-ARRAYS",
-        "https://www.postgresql.org/docs/17/plpython-data.html#PLPYTHON-DATA-SET-RETURNING-FUNCS",
         "https://www.postgresql.org/docs/17/install-requirements.html#INSTALL-REQUIREMENTS",
         "https://www.postgresql.org/docs/17/install-make.html#CONFIGURE-OPTIONS",
-        "https://www.postgresql.org/docs/17/plpython-envar.html#PLPYTHON-ENVAR"
+        "https://www.postgresql.org/docs/17/plpython-envar.html#PLPYTHON-ENVAR",
+        "https://www.postgresql.org/docs/17/installation-platform-notes.html#INSTALLATION-NOTES-VISUAL-STUDIO"
+      ],
+      "top_group_urls": [
+        [
+          "https://www.postgresql.org/docs/17/plpython-data.html#PLPYTHON-ARRAYS",
+          "https://www.postgresql.org/docs/17/plpython-data.html#PLPYTHON-DATA-SET-RETURNING-FUNCS",
+          "https://www.postgresql.org/docs/17/plpython-data.html#PLPYTHON-DATA-COMPOSITE-TYPES",
+          "https://www.postgresql.org/docs/17/plpython-data.html#PLPYTHON-DATA"
+        ],
+        [
+          "https://www.postgresql.org/docs/17/install-requirements.html#INSTALL-REQUIREMENTS"
+        ],
+        [
+          "https://www.postgresql.org/docs/17/install-make.html#CONFIGURE-OPTIONS",
+          "https://www.postgresql.org/docs/17/install-make.html#INSTALL-SHORT-MAKE",
+          "https://www.postgresql.org/docs/17/install-make.html#CONFIGURE-ENVVARS"
+        ],
+        [
+          "https://www.postgresql.org/docs/17/plpython-envar.html#PLPYTHON-ENVAR"
+        ],
+        [
+          "https://www.postgresql.org/docs/17/installation-platform-notes.html#INSTALLATION-NOTES-VISUAL-STUDIO"
+        ]
       ]
     },
     {
@@ -1400,12 +3036,38 @@
       "expected_urls": [],
       "invalid_urls": [],
       "hit_rank": null,
+      "hit_url": null,
       "top_urls": [
         "https://www.postgresql.org/docs/17/runtime-config-resource.html#RUNTIME-CONFIG-RESOURCE-VACUUM-COST",
-        "https://www.postgresql.org/docs/17/runtime-config-resource.html#RUNTIME-CONFIG-RESOURCE-ASYNC-BEHAVIOR",
         "https://www.postgresql.org/docs/17/regress-run.html#REGRESS-ADDITIONAL",
         "https://www.postgresql.org/docs/17/supported-platforms.html#SUPPORTED-PLATFORMS",
-        "https://www.postgresql.org/docs/17/runtime-config-wal.html#RUNTIME-CONFIG-WAL-RECOVERY"
+        "https://www.postgresql.org/docs/17/runtime-config-wal.html#RUNTIME-CONFIG-WAL-RECOVERY",
+        "https://www.postgresql.org/docs/17/install-make.html#CONFIGURE-OPTIONS"
+      ],
+      "top_group_urls": [
+        [
+          "https://www.postgresql.org/docs/17/runtime-config-resource.html#RUNTIME-CONFIG-RESOURCE-VACUUM-COST",
+          "https://www.postgresql.org/docs/17/runtime-config-resource.html#RUNTIME-CONFIG-RESOURCE-ASYNC-BEHAVIOR",
+          "https://www.postgresql.org/docs/17/runtime-config-resource.html#RUNTIME-CONFIG-RESOURCE-DISK",
+          "https://www.postgresql.org/docs/17/runtime-config-resource.html#RUNTIME-CONFIG-RESOURCE-MEMORY",
+          "https://www.postgresql.org/docs/17/runtime-config-resource.html#RUNTIME-CONFIG-RESOURCE-BACKGROUND-WRITER"
+        ],
+        [
+          "https://www.postgresql.org/docs/17/regress-run.html#REGRESS-ADDITIONAL",
+          "https://www.postgresql.org/docs/17/regress-run.html#REGRESS-RUN-LOCALE"
+        ],
+        [
+          "https://www.postgresql.org/docs/17/supported-platforms.html#SUPPORTED-PLATFORMS"
+        ],
+        [
+          "https://www.postgresql.org/docs/17/runtime-config-wal.html#RUNTIME-CONFIG-WAL-RECOVERY",
+          "https://www.postgresql.org/docs/17/runtime-config-wal.html#RUNTIME-CONFIG-WAL-ARCHIVING",
+          "https://www.postgresql.org/docs/17/runtime-config-wal.html#RUNTIME-CONFIG-WAL",
+          "https://www.postgresql.org/docs/17/runtime-config-wal.html#RUNTIME-CONFIG-WAL-CHECKPOINTS"
+        ],
+        [
+          "https://www.postgresql.org/docs/17/install-make.html#CONFIGURE-OPTIONS"
+        ]
       ]
     },
     {
@@ -1418,12 +3080,32 @@
       "expected_urls": [],
       "invalid_urls": [],
       "hit_rank": null,
+      "hit_url": null,
       "top_urls": [
         "https://www.postgresql.org/docs/17/tutorial-fk.html#TUTORIAL-FK",
         "https://www.postgresql.org/docs/17/tutorial-update.html#TUTORIAL-UPDATE",
         "https://www.postgresql.org/docs/17/release-17.html#RELEASE-17-ACKNOWLEDGEMENTS",
         "https://www.postgresql.org/docs/17/textsearch-controls.html#TEXTSEARCH-RANKING",
         "https://www.postgresql.org/docs/17/sql-update.html#id-1.9.3.183.9"
+      ],
+      "top_group_urls": [
+        [
+          "https://www.postgresql.org/docs/17/tutorial-fk.html#TUTORIAL-FK"
+        ],
+        [
+          "https://www.postgresql.org/docs/17/tutorial-update.html#TUTORIAL-UPDATE"
+        ],
+        [
+          "https://www.postgresql.org/docs/17/release-17.html#RELEASE-17-ACKNOWLEDGEMENTS",
+          "https://www.postgresql.org/docs/17/release-17.html#RELEASE-17-CHANGES",
+          "https://www.postgresql.org/docs/17/release-17.html#RELEASE-17-MIGRATION"
+        ],
+        [
+          "https://www.postgresql.org/docs/17/textsearch-controls.html#TEXTSEARCH-RANKING"
+        ],
+        [
+          "https://www.postgresql.org/docs/17/sql-update.html#id-1.9.3.183.9"
+        ]
       ]
     },
     {
@@ -1436,12 +3118,32 @@
       "expected_urls": [],
       "invalid_urls": [],
       "hit_rank": null,
+      "hit_url": null,
       "top_urls": [
         "https://www.postgresql.org/docs/17/app-psql.html#APP-PSQL-META-COMMANDS",
         "https://www.postgresql.org/docs/17/oid2name.html#id-1.11.8.4.3.9",
         "https://www.postgresql.org/docs/17/pgbench.html#PGBENCH-RUN-OPTIONS",
         "https://www.postgresql.org/docs/17/managing-databases.html#MANAGING-DATABASES",
         "https://www.postgresql.org/docs/17/sql-alterrule.html#id-1.9.3.28.5"
+      ],
+      "top_group_urls": [
+        [
+          "https://www.postgresql.org/docs/17/app-psql.html#APP-PSQL-META-COMMANDS",
+          "https://www.postgresql.org/docs/17/app-psql.html#id-1.9.4.21.8.5",
+          "https://www.postgresql.org/docs/17/app-psql.html#APP-PSQL-EXAMPLES"
+        ],
+        [
+          "https://www.postgresql.org/docs/17/oid2name.html#id-1.11.8.4.3.9"
+        ],
+        [
+          "https://www.postgresql.org/docs/17/pgbench.html#PGBENCH-RUN-OPTIONS"
+        ],
+        [
+          "https://www.postgresql.org/docs/17/managing-databases.html#MANAGING-DATABASES"
+        ],
+        [
+          "https://www.postgresql.org/docs/17/sql-alterrule.html#id-1.9.3.28.5"
+        ]
       ]
     },
     {
@@ -1454,12 +3156,35 @@
       "expected_urls": [],
       "invalid_urls": [],
       "hit_rank": null,
+      "hit_url": null,
       "top_urls": [
         "https://www.postgresql.org/docs/17/tutorial-inheritance.html#TUTORIAL-INHERITANCE",
         "https://www.postgresql.org/docs/17/ddl-inherit.html#DDL-INHERIT",
         "https://www.postgresql.org/docs/17/datetime-config-files.html#DATETIME-CONFIG-FILES",
         "https://www.postgresql.org/docs/17/release-17.html#RELEASE-17-ACKNOWLEDGEMENTS",
-        "https://www.postgresql.org/docs/17/ddl-inherit.html#DDL-INHERIT-CAVEATS"
+        "https://www.postgresql.org/docs/17/functions-datetime.html#FUNCTIONS-DATETIME"
+      ],
+      "top_group_urls": [
+        [
+          "https://www.postgresql.org/docs/17/tutorial-inheritance.html#TUTORIAL-INHERITANCE"
+        ],
+        [
+          "https://www.postgresql.org/docs/17/ddl-inherit.html#DDL-INHERIT",
+          "https://www.postgresql.org/docs/17/ddl-inherit.html#DDL-INHERIT-CAVEATS"
+        ],
+        [
+          "https://www.postgresql.org/docs/17/datetime-config-files.html#DATETIME-CONFIG-FILES"
+        ],
+        [
+          "https://www.postgresql.org/docs/17/release-17.html#RELEASE-17-ACKNOWLEDGEMENTS",
+          "https://www.postgresql.org/docs/17/release-17.html#RELEASE-17-CHANGES"
+        ],
+        [
+          "https://www.postgresql.org/docs/17/functions-datetime.html#FUNCTIONS-DATETIME",
+          "https://www.postgresql.org/docs/17/functions-datetime.html#FUNCTIONS-DATETIME-TRUNC",
+          "https://www.postgresql.org/docs/17/functions-datetime.html#FUNCTIONS-DATETIME-ZONECONVERT",
+          "https://www.postgresql.org/docs/17/functions-datetime.html#FUNCTIONS-DATETIME-EXTRACT"
+        ]
       ]
     },
     {
@@ -1472,12 +3197,30 @@
       "expected_urls": [],
       "invalid_urls": [],
       "hit_rank": null,
+      "hit_url": null,
       "top_urls": [
         "https://www.postgresql.org/docs/17/install-make.html#INSTALL-PROCEDURE-MAKE",
         "https://www.postgresql.org/docs/17/install-meson.html#INSTALL-PROCEDURE-MESON",
         "https://www.postgresql.org/docs/17/extend-pgxs.html#EXTEND-PGXS",
         "https://www.postgresql.org/docs/17/installation-platform-notes.html#INSTALLATION-PLATFORM-NOTES",
         "https://www.postgresql.org/docs/17/sql-show.html#id-1.9.3.179.5"
+      ],
+      "top_group_urls": [
+        [
+          "https://www.postgresql.org/docs/17/install-make.html#INSTALL-PROCEDURE-MAKE"
+        ],
+        [
+          "https://www.postgresql.org/docs/17/install-meson.html#INSTALL-PROCEDURE-MESON"
+        ],
+        [
+          "https://www.postgresql.org/docs/17/extend-pgxs.html#EXTEND-PGXS"
+        ],
+        [
+          "https://www.postgresql.org/docs/17/installation-platform-notes.html#INSTALLATION-PLATFORM-NOTES"
+        ],
+        [
+          "https://www.postgresql.org/docs/17/sql-show.html#id-1.9.3.179.5"
+        ]
       ]
     },
     {
@@ -1490,12 +3233,36 @@
       "expected_urls": [],
       "invalid_urls": [],
       "hit_rank": null,
+      "hit_url": null,
       "top_urls": [
         "https://www.postgresql.org/docs/17/external-extensions.html#EXTERNAL-EXTENSIONS",
         "https://www.postgresql.org/docs/17/earthdistance.html#EARTHDISTANCE",
         "https://www.postgresql.org/docs/17/installation-platform-notes.html#INSTALLATION-PLATFORM-NOTES",
         "https://www.postgresql.org/docs/17/install-meson.html#INSTALL-SHORT-MESON",
         "https://www.postgresql.org/docs/17/install-make.html#CONFIGURE-OPTIONS"
+      ],
+      "top_group_urls": [
+        [
+          "https://www.postgresql.org/docs/17/external-extensions.html#EXTERNAL-EXTENSIONS"
+        ],
+        [
+          "https://www.postgresql.org/docs/17/earthdistance.html#EARTHDISTANCE"
+        ],
+        [
+          "https://www.postgresql.org/docs/17/installation-platform-notes.html#INSTALLATION-PLATFORM-NOTES",
+          "https://www.postgresql.org/docs/17/installation-platform-notes.html#INSTALLATION-NOTES-VISUAL-STUDIO",
+          "https://www.postgresql.org/docs/17/installation-platform-notes.html#INSTALLATION-NOTES-SOLARIS"
+        ],
+        [
+          "https://www.postgresql.org/docs/17/install-meson.html#INSTALL-SHORT-MESON",
+          "https://www.postgresql.org/docs/17/install-meson.html#TARGETS-MESON",
+          "https://www.postgresql.org/docs/17/install-meson.html#MESON-OPTIONS",
+          "https://www.postgresql.org/docs/17/install-meson.html#INSTALL-PROCEDURE-MESON"
+        ],
+        [
+          "https://www.postgresql.org/docs/17/install-make.html#CONFIGURE-OPTIONS",
+          "https://www.postgresql.org/docs/17/install-make.html#INSTALL-SHORT-MAKE"
+        ]
       ]
     },
     {
@@ -1508,12 +3275,32 @@
       "expected_urls": [],
       "invalid_urls": [],
       "hit_rank": null,
+      "hit_url": null,
       "top_urls": [
         "https://www.postgresql.org/docs/17/libpq-connect.html#LIBPQ-PARAMKEYWORDS",
         "https://www.postgresql.org/docs/17/warm-standby-failover.html#WARM-STANDBY-FAILOVER",
         "https://www.postgresql.org/docs/17/tablesample-support-functions.html#TABLESAMPLE-SUPPORT-FUNCTIONS",
         "https://www.postgresql.org/docs/17/spgist.html#SPGIST-EXTENSIBILITY",
         "https://www.postgresql.org/docs/17/custom-scan-execution.html#CUSTOM-SCAN-EXECUTION-CALLBACKS"
+      ],
+      "top_group_urls": [
+        [
+          "https://www.postgresql.org/docs/17/libpq-connect.html#LIBPQ-PARAMKEYWORDS"
+        ],
+        [
+          "https://www.postgresql.org/docs/17/warm-standby-failover.html#WARM-STANDBY-FAILOVER"
+        ],
+        [
+          "https://www.postgresql.org/docs/17/tablesample-support-functions.html#TABLESAMPLE-SUPPORT-FUNCTIONS"
+        ],
+        [
+          "https://www.postgresql.org/docs/17/spgist.html#SPGIST-EXTENSIBILITY",
+          "https://www.postgresql.org/docs/17/spgist.html#SPGIST-IMPLEMENTATION",
+          "https://www.postgresql.org/docs/17/spgist.html#SPGIST-INTRO"
+        ],
+        [
+          "https://www.postgresql.org/docs/17/custom-scan-execution.html#CUSTOM-SCAN-EXECUTION-CALLBACKS"
+        ]
       ]
     },
     {
@@ -1526,12 +3313,30 @@
       "expected_urls": [],
       "invalid_urls": [],
       "hit_rank": null,
+      "hit_url": null,
       "top_urls": [
         "https://www.postgresql.org/docs/17/runtime-config-wal.html#RUNTIME-CONFIG-WAL",
         "https://www.postgresql.org/docs/17/runtime-config-logging.html#RUNTIME-CONFIG-LOGGING-WHAT",
         "https://www.postgresql.org/docs/17/error-style-guide.html#ERROR-STYLE-GUIDE-ERROR-REASONS",
         "https://www.postgresql.org/docs/17/event-trigger-matrix.html#EVENT-TRIGGER-MATRIX",
         "https://www.postgresql.org/docs/17/bug-reporting.html#BUG-REPORTING-WHAT-TO-REPORT"
+      ],
+      "top_group_urls": [
+        [
+          "https://www.postgresql.org/docs/17/runtime-config-wal.html#RUNTIME-CONFIG-WAL"
+        ],
+        [
+          "https://www.postgresql.org/docs/17/runtime-config-logging.html#RUNTIME-CONFIG-LOGGING-WHAT"
+        ],
+        [
+          "https://www.postgresql.org/docs/17/error-style-guide.html#ERROR-STYLE-GUIDE-ERROR-REASONS"
+        ],
+        [
+          "https://www.postgresql.org/docs/17/event-trigger-matrix.html#EVENT-TRIGGER-MATRIX"
+        ],
+        [
+          "https://www.postgresql.org/docs/17/bug-reporting.html#BUG-REPORTING-WHAT-TO-REPORT"
+        ]
       ]
     },
     {
@@ -1544,12 +3349,32 @@
       "expected_urls": [],
       "invalid_urls": [],
       "hit_rank": null,
+      "hit_url": null,
       "top_urls": [
         "https://www.postgresql.org/docs/17/bug-reporting.html#BUG-REPORTING-WHAT-TO-REPORT",
         "https://www.postgresql.org/docs/17/sql-insert.html#id-1.9.3.152.10",
         "https://www.postgresql.org/docs/17/appendix-obsolete.html#APPENDIX-OBSOLETE",
         "https://www.postgresql.org/docs/17/runtime-config-wal.html#RUNTIME-CONFIG-WAL",
         "https://www.postgresql.org/docs/17/ltree.html#LTREE-EXAMPLE"
+      ],
+      "top_group_urls": [
+        [
+          "https://www.postgresql.org/docs/17/bug-reporting.html#BUG-REPORTING-WHAT-TO-REPORT",
+          "https://www.postgresql.org/docs/17/bug-reporting.html#BUG-REPORTING"
+        ],
+        [
+          "https://www.postgresql.org/docs/17/sql-insert.html#id-1.9.3.152.10",
+          "https://www.postgresql.org/docs/17/sql-insert.html#id-1.9.3.152.9"
+        ],
+        [
+          "https://www.postgresql.org/docs/17/appendix-obsolete.html#APPENDIX-OBSOLETE"
+        ],
+        [
+          "https://www.postgresql.org/docs/17/runtime-config-wal.html#RUNTIME-CONFIG-WAL"
+        ],
+        [
+          "https://www.postgresql.org/docs/17/ltree.html#LTREE-EXAMPLE"
+        ]
       ]
     },
     {
@@ -1562,12 +3387,32 @@
       "expected_urls": [],
       "invalid_urls": [],
       "hit_rank": null,
+      "hit_url": null,
       "top_urls": [
         "https://www.postgresql.org/docs/17/release-17.html#RELEASE-17",
         "https://www.postgresql.org/docs/17/release-17-1.html#RELEASE-17-1-CHANGES",
         "https://www.postgresql.org/docs/17/release-17-11.html#RELEASE-17-11-CHANGES",
         "https://www.postgresql.org/docs/17/runtime-config-compatible.html#RUNTIME-CONFIG-COMPATIBLE-VERSION",
         "https://www.postgresql.org/docs/17/config-setting.html#CONFIG-SETTING-CONFIGURATION-FILE"
+      ],
+      "top_group_urls": [
+        [
+          "https://www.postgresql.org/docs/17/release-17.html#RELEASE-17",
+          "https://www.postgresql.org/docs/17/release-17.html#RELEASE-17-CHANGES",
+          "https://www.postgresql.org/docs/17/release-17.html#RELEASE-17-MIGRATION"
+        ],
+        [
+          "https://www.postgresql.org/docs/17/release-17-1.html#RELEASE-17-1-CHANGES"
+        ],
+        [
+          "https://www.postgresql.org/docs/17/release-17-11.html#RELEASE-17-11-CHANGES"
+        ],
+        [
+          "https://www.postgresql.org/docs/17/runtime-config-compatible.html#RUNTIME-CONFIG-COMPATIBLE-VERSION"
+        ],
+        [
+          "https://www.postgresql.org/docs/17/config-setting.html#CONFIG-SETTING-CONFIGURATION-FILE"
+        ]
       ]
     }
   ]

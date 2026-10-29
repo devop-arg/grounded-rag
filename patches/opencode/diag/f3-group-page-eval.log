@@ -1,0 +1,199 @@
+== brief 10: group results by page (branch fase3-interfaz)
+
+what changed: retrieval/search.py group_by_url -> group_by_page (key = url without
+#anchor; representative = best ranked fragment, its url keeps its own anchor;
+chunk_ids = every candidate fragment of the page in rank order; new 'urls' field;
+page_url = the grouping key; group score = best fragment's rrf, not the sum).
+eval/__main__.py: first_hit()/first_hit_rank() take the search results and match an
+expected #anchor against any fragment of the group (page-level expectations unchanged);
+rows now carry hit_url and top_group_urls.
+
+command: .venv/bin/python -m eval --strict
+command: .venv/bin/python -m eval --compare --strict
+python: 3.12.3 (venv) / corpus untouched
+
+== strict run (downweight, 80 questions)
+
+corpus: 1097 pages, 1866 chunk URLs
+expected URLs not in the corpus: 0
+  policy: downweight
+  questions: 80 (50 answerable, 30 not)
+  recall@5: 0.88
+  mrr@8: 0.7336
+  time: 6.95s (86.9 ms/question)
+
+== before/after, default policy (downweight) -- the numbers in the brief
+
+metric        before     after
+------------------------------
+recall@5      0.8800    0.8800
+MRR@8         0.7336    0.7336
+en recall     0.9200    0.9200
+en MRR        0.8048    0.8048
+es recall     0.8400    0.8400
+es MRR        0.6624    0.6624
+
+same input, same index, same policy: the only difference is the grouping. The
+'before' column is the pre-brief code (group by anchored URL, and eval scoring only
+the representative URL), reproduced by monkeypatching HEAD's group_by_url.
+
+== before/after per policy (all 6 policies, --compare source)
+
+policy                  lang            recall@5           MRR@8
+                                 before    after  before   after
+----------------------------------------------------------------
+baseline                all      0.8600   0.8800  0.7095  0.7102
+baseline                en       0.9200   0.9200  0.8048  0.8048
+baseline                es       0.8000   0.8400  0.6143  0.6157
+plain                   all      0.8600   0.8800  0.7284  0.7306
+plain                   en       0.9200   0.9200  0.8048  0.8048
+plain                   es       0.8000   0.8400  0.6521  0.6564
+downweight              all      0.8800   0.8800  0.7336  0.7336
+downweight              en       0.9200   0.9200  0.8048  0.8048
+downweight              es       0.8400   0.8400  0.6624  0.6624
+plain+downweight        all      0.9000   0.9000  0.7376  0.7380
+plain+downweight        en       0.9200   0.9200  0.8048  0.8048
+plain+downweight        es       0.8800   0.8800  0.6704  0.6713
+es-stopwords            all      0.8600   0.8600  0.7084  0.7089
+es-stopwords            en       0.9200   0.9200  0.8048  0.8048
+es-stopwords            es       0.8000   0.8000  0.6120  0.6130
+es-stopwords+downweight all      0.8600   0.8800  0.7294  0.7305
+es-stopwords+downweight en       0.9200   0.9200  0.8048  0.8048
+es-stopwords+downweight es       0.8000   0.8400  0.6540  0.6563
+
+== questions whose hit rank changed (MRR@8 window, per policy)
+
+[baseline] 1 rank change(s)
+  a12 (es) rank 6 -> 5 :: ¿Cómo particiono una tabla por rango de fechas?
+      matched fragment: https://www.postgresql.org/docs/17/ddl-partitioning.html#DDL-PARTITIONING
+      expected: https://www.postgresql.org/docs/17/ddl-partitioning.html
+[plain] 3 rank change(s)
+  a12 (es) rank 6 -> 5 :: ¿Cómo particiono una tabla por rango de fechas?
+      matched fragment: https://www.postgresql.org/docs/17/ddl-partitioning.html#DDL-PARTITIONING
+      expected: https://www.postgresql.org/docs/17/ddl-partitioning.html
+  a42 (es) rank 7 -> 6 :: ¿Qué diferencia hay entre timestamp y timestamptz?
+      matched fragment: https://www.postgresql.org/docs/17/datatype-datetime.html#DATATYPE-DATETIME
+      expected: https://www.postgresql.org/docs/17/datatype-datetime.html
+  a48 (es) rank 5 -> 4 :: ¿Cómo otorgo permiso de solo lectura sobre todas las tablas de un esquema?
+      matched fragment: https://www.postgresql.org/docs/17/sql-alterdefaultprivileges.html#SQL-ALTERDEFAULTPRIVILEGES-EXAMPLES
+      expected: https://www.postgresql.org/docs/17/sql-grant.html, https://www.postgresql.org/docs/17/sql-alterdefaultprivileges.html
+[downweight] 0 rank change(s)
+[plain+downweight] 1 rank change(s)
+  a42 (es) rank 7 -> 6 :: ¿Qué diferencia hay entre timestamp y timestamptz?
+      matched fragment: https://www.postgresql.org/docs/17/datatype-datetime.html#DATATYPE-DATETIME
+      expected: https://www.postgresql.org/docs/17/datatype-datetime.html
+[es-stopwords] 1 rank change(s)
+  a42 (es) rank 7 -> 6 :: ¿Qué diferencia hay entre timestamp y timestamptz?
+      matched fragment: https://www.postgresql.org/docs/17/datatype-datetime.html#DATATYPE-DATETIME-INPUT
+      expected: https://www.postgresql.org/docs/17/datatype-datetime.html
+[es-stopwords+downweight] 1 rank change(s)
+  a42 (es) rank 7 -> 5 :: ¿Qué diferencia hay entre timestamp y timestamptz?
+      matched fragment: https://www.postgresql.org/docs/17/datatype-datetime.html#DATATYPE-DATETIME-INPUT
+      expected: https://www.postgresql.org/docs/17/datatype-datetime.html
+
+reading:
+- downweight (the shipped default): no answerable question changed rank at all, so
+  recall@5 and MRR@8 are identical; the gain is the result list (see the duplicate
+  page section below).
+- baseline and plain: a12 moved from rank 6 to 5, i.e. one more Spanish question
+  inside top-5 (recall@5 all 0.86 -> 0.88).
+- es-stopwords+downweight: a42 moved from 7 to 5 (same effect, different question).
+- plain+downweight and es-stopwords: only small MRR moves (a42 7 -> 6 and back).
+- no question got worse under any policy, and none fell out of top-5.
+
+== repeated pages in the returned results (top-5, downweight)
+
+before: 40 of 80 questions had at least one page twice in their
+        top-5, 78 duplicated slots in total
+after : 0 questions, 0 duplicated slots
+
+a01 before (same page four times, 3 wasted slots):
+  1. https://www.postgresql.org/docs/17/sql-createindex.html#SQL-CREATEINDEX-CONCURRENTLY
+  2. https://www.postgresql.org/docs/17/sql-createindex.html#id-1.9.3.69.7
+  3. https://www.postgresql.org/docs/17/indexes-intro.html#INDEXES-INTRO
+  4. https://www.postgresql.org/docs/17/progress-reporting.html#CREATE-INDEX-PROGRESS-REPORTING
+  5. https://www.postgresql.org/docs/17/sql-createindex.html#id-1.9.3.69.6
+a01 after (8 distinct pages, best fragment kept):
+  1. https://www.postgresql.org/docs/17/sql-createindex.html#SQL-CREATEINDEX-CONCURRENTLY
+  2. https://www.postgresql.org/docs/17/indexes-intro.html#INDEXES-INTRO
+  3. https://www.postgresql.org/docs/17/progress-reporting.html#CREATE-INDEX-PROGRESS-REPORTING
+  4. https://www.postgresql.org/docs/17/sql-reindex.html#id-1.9.3.163.5
+  5. https://www.postgresql.org/docs/17/gist.html#GIST-IMPLEMENTATION
+
+== --compare --strict output (after)
+
+corpus: 1097 pages, 1866 chunk URLs
+expected URLs not in the corpus: 0
+
+file: /home/capw/projects/grounded-rag/eval/questions.jsonl
+policy              lang     n   recall@5    mrr@8
+--------------------------------------------------
+baseline            all     50     0.8800   0.7102
+baseline            en      25     0.9200   0.8048
+baseline            es      25     0.8400   0.6157
+plain               all     50     0.8800   0.7306
+plain               en      25     0.9200   0.8048
+plain               es      25     0.8400   0.6564
+downweight          all     50     0.8800   0.7336
+downweight          en      25     0.9200   0.8048
+downweight          es      25     0.8400   0.6624
+plain+downweight    all     50     0.9000   0.7380
+plain+downweight    en      25     0.9200   0.8048
+plain+downweight    es      25     0.8800   0.6713
+es-stopwords        all     50     0.8600   0.7089
+es-stopwords        en      25     0.9200   0.8048
+es-stopwords        es      25     0.8000   0.6130
+es-stopwords+downweight  all     50     0.8800   0.7305
+es-stopwords+downweight  en      25     0.9200   0.8048
+es-stopwords+downweight  es      25     0.8400   0.6563
+
+== web/recorded.json (regenerated with python -m web.record)
+
+generated_at 2026-10-29T02:08:01Z | report None | entries 8
+report is null and every entry is retrieval_only/retrieval-only: no real generation
+report exists on this box, so no answer could be replayed.
+
+id   lang  sources  distinct pages  repeated slots before  after
+----------------------------------------------------------------
+a01  en          8               8                      4     no
+a15  en          8               8                      5     no
+a16  es          8               8                      3     no
+a06  es          8               8                      4     no
+a33  en          8               8                      2     no
+a42  es          8               8                      1     no
+u01  en          8               8                      1     no
+u30  es          8               8                      0     no
+
+check: every entry has 8 sources on 8 distinct pages, so no source list repeats a
+page. Before the change 7 of the 8 entries repeated pages (u30 already had 8
+distinct ones); the recording is otherwise unchanged: report null, 8 entries, all
+retrieval_only/retrieval-only, no answers.
+first source of each entry after the change:
+  a01: https://www.postgresql.org/docs/17/sql-createindex.html#SQL-CREATEINDEX-CONCURRENTLY
+  a15: https://www.postgresql.org/docs/17/datatype-json.html#DATATYPE-JSON
+  a16: https://www.postgresql.org/docs/17/functions-json.html#FUNCTIONS-SQLJSON-TABLE
+  a06: https://www.postgresql.org/docs/17/routine-vacuuming.html#VACUUM-FOR-SPACE-RECOVERY
+  a33: https://www.postgresql.org/docs/17/textsearch-controls.html#TEXTSEARCH-RANKING
+  a42: https://www.postgresql.org/docs/17/functions-datetime.html#FUNCTIONS-DATETIME
+  u01: https://www.postgresql.org/docs/17/runtime-config-developer.html#RUNTIME-CONFIG-DEVELOPER
+  u30: https://www.postgresql.org/docs/17/release-17.html#RELEASE-17
+
+== README numbers touched
+
+- grouping bullet: by page, not by anchored URL; 'k distinct pages'.
+- policies table: baseline '(the old behaviour, still page-grouped)'.
+- generation: 8 page groups, full text of all the page's fragments (up to ~1200 words).
+- status: downweight 0.88 / 0.7336 unchanged; plain+downweight 0.90 / 0.7376 -> 0.7380;
+  note on page grouping; test count 213 -> 234.
+
+== limits
+
+- Only the downweight policy is versioned in eval/reports/retrieval.json (as before);
+  the other rows of the per-policy table come from the --compare run above.
+- The generation numbers in the README are still the phase 2 mock run: there is no
+  real generation report, so grouping did not change them.
+- 'before' was reproduced by monkeypatching the pre-brief grouping (git HEAD) in the
+  same process and corpus, not by re-running an old binary.
+- 0 of the 80 questions carry an expected URL with an #anchor (grep -c 'expected_urls.*#'
+  eval/questions.jsonl = 0), so the secondary-fragment rule only runs in the tests; what
+  moved the numbers here is page-level matching plus no repeated pages.

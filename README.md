@@ -97,11 +97,13 @@ expected URLs are otherwise listed up front and dropped from the metrics), and
 * **Fusion** — weighted reciprocal rank fusion,
   `score = Σ w_i / (60 + rank)`, over the top 50 lexical and top 50 vector hits.
   Without weights it is the original `Σ 1/(60 + rank)`.
-* **Grouping** — candidates are grouped by URL before returning: the best ranked
-  fragment of a URL is its representative, the score of a group is *that
+* **Grouping** — candidates are grouped by **page** (the URL without its `#anchor`)
+  before returning: the best ranked fragment of a page is its representative (the
+  result keeps *that* fragment's URL and anchor), the score of a group is *that
   fragment's* score (not the sum, so a page is not inflated by having many
-  fragments), and `chunk_ids` lists every candidate fragment of the page. The
-  search returns `k` distinct URLs.
+  fragments), `chunk_ids` lists every candidate fragment of the page and `urls`
+  their full URLs. The search returns `k` distinct pages, so one page never takes
+  two slots.
 
 **Language-aware policies.** `detect_lang()` (`retrieval/lang.py`) is a pure
 heuristic: `¿ ¡ ñ`, accented vowels and short function-word lists for Spanish and
@@ -113,7 +115,7 @@ signal matters most) always keep the stemmed index with weights 1/1:
 
 | Policy | Spanish queries |
 | --- | --- |
-| `baseline` | stemmed index, weights 1/1 (the old behaviour, still URL-grouped) |
+| `baseline` | stemmed index, weights 1/1 (the old behaviour, still page-grouped) |
 | `plain` | plain index |
 | `downweight` | lexical weight 0.5 |
 | `plain+downweight` | plain index and lexical weight 0.5 |
@@ -164,9 +166,9 @@ offline model used by `eval --generate --mock` and by the app smoke test.
 
 ## Generation
 
-`hybrid_search` returns 8 URL groups; each group becomes one numbered source
-(`[1]..[8]`) with title, section path and the **full text** of its
-representative fragment plus its other fragments up to ~1200 words, wrapped in
+`hybrid_search` returns 8 page groups; each group becomes one numbered source
+(`[1]..[8]`) with title, section path and the **full text** of all its fragments
+(representative first) up to ~1200 words, wrapped in
 `<<<PASSAGES>>>`/`<<<SOURCE n>>>` delimiters. The system prompt is English and
 states the rules: answer only from the passages, in the question's language
 (`lang` or `detect_lang`; `other` means English), treat question and passages as
@@ -268,8 +270,11 @@ dropping the alphabetical index (1143 pages read, 1 index page excluded, 45
 discarded, **2808 chunks** instead of 2835) the default `downweight` policy on
 the 80-question set scores **recall@5 0.88 / MRR@8 0.7336** (it was 0.88 /
 0.7324 with the index page in the corpus; `plain+downweight` is the best policy
-at 0.90 / 0.7376). See `patches/opencode/diag/f2-reindex.log` and
-`f2-eval-retrieval.log`.
+at 0.90 / 0.7380). Grouping by page instead of by anchored URL left those
+numbers untouched: the repeated fragments sat below the hit, so the gain is in
+the result list (40 of 80 questions had a page twice in their top-5; now none
+does). See `patches/opencode/diag/f2-reindex.log`, `f2-eval-retrieval.log` and
+`f3-group-page-eval.log`.
 
 `eval --generate --mock` (deterministic offline model, so the numbers prove the
 pipeline and the metrics, not model quality) over the same 80 questions:
@@ -282,8 +287,8 @@ loading anything. The mock run's token counts are synthetic. See
 `eval/reports/<date>-generate-mock.json`.
 
 The real generation run is **not** included: no API key is configured on this
-box, and the brief forbids obtaining one. 213 tests pass
-(`patches/opencode/diag/f2-pytest.log`), the app smoke test
+box, and the brief forbids obtaining one. 234 tests pass
+(`patches/opencode/diag/f3-pytest.log`), the app smoke test
 (`f2-app-smoke.log`) covers health, generation off, 422 (empty and 501
 characters), 429, a mock answer with citations, the released port and the
 absence of IPs/keys in logs and `usage.sqlite`. The Spanish dev set is small and

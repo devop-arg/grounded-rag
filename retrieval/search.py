@@ -1,10 +1,13 @@
 """Hybrid search: lexical (FTS5/bm25) + dense vectors, fused with RRF.
 
 Result units are **pages, not chunks**: candidate chunks (top 50 lexical + top 50
-vector) are fused, then grouped by ``url``.  The best ranked fragment of a URL is
-the representative and the group score is *that fragment's* RRF score (scores are
-not summed), so a page that wins on one fragment is not inflated by the many
-fragments that share its URL.
+vector) are fused, then grouped by page (the URL without its ``#anchor``).  The
+best ranked fragment of a page is the representative and the group score is
+*that fragment's* RRF score (scores are not summed), so a page that wins on one
+fragment is not inflated by the many fragments that share its page.  The group
+keeps every fragment of that page that made it into the fused list (``chunk_ids``,
+in rank order) and their full URLs (``urls``), so an expected ``#anchor`` matches
+even when another fragment of the same page is the representative.
 """
 
 from __future__ import annotations
@@ -110,15 +113,19 @@ def resolve_policy(
     return PolicyConfig(lang, mode, weights, drop_stopwords)
 
 
-def group_by_url(
+def group_by_page(
     fused: list[tuple[str, float]],
     rows: dict[str, dict],
 ) -> list[dict]:
-    """Collapse fused chunks into one entry per URL, best fragment first.
+    """Collapse fused chunks into one entry per page, best fragment first.
 
-    ``fused`` is ordered best first, so the first chunk seen for a URL is its
-    representative and its score is the group score (not summed).  Every chunk of
-    that URL that made it into ``fused`` is kept in ``chunk_ids``.
+    The grouping key is the page URL (``url`` without its ``#anchor``, i.e.
+    ``page_file``), so two fragments of the same page never occupy two slots.
+    ``fused`` is ordered best first, so the first chunk seen for a page is its
+    representative: the group keeps *that* chunk's ``id``, score, URL (with its
+    anchor), title, section and snippet.  Every chunk of the page that made it
+    into ``fused`` is kept in ``chunk_ids`` (rank order) and its full URL in
+    ``urls``.
     """
     groups: dict[str, dict] = {}
     for chunk_id, score in fused:
@@ -126,20 +133,25 @@ def group_by_url(
         if row is None:
             continue
         url = row["url"]
-        group = groups.get(url)
+        page_url = url.split("#", 1)[0]
+        group = groups.get(page_url)
         if group is None:
-            groups[url] = {
+            groups[page_url] = {
                 "id": chunk_id,
                 "rrf": score,
                 "url": url,
+                "page_url": page_url,
                 "page_title": row["page_title"],
                 "section_path": row["section_path"],
                 "text": snippet(row["text"]),
                 "chunk_ids": [chunk_id],
+                "urls": [url],
             }
         else:
             group["chunk_ids"].append(chunk_id)
-    ordered = sorted(groups.values(), key=lambda group: (-group["rrf"], group["url"]))
+            if url not in group["urls"]:
+                group["urls"].append(url)
+    ordered = sorted(groups.values(), key=lambda group: (-group["rrf"], group["page_url"]))
     for group in ordered:
         group["n_chunks"] = len(group["chunk_ids"])
     return ordered
@@ -154,12 +166,12 @@ def hybrid_search(
     candidates: int = CANDIDATES,
     lexical_weight: float | None = None,
 ) -> list[dict]:
-    """Return the top ``k`` distinct URLs for ``query``.
+    """Return the top ``k`` distinct pages for ``query``.
 
     Lexical top-``candidates`` + vector top-``candidates`` are fused with RRF and
-    grouped by URL (see :func:`group_by_url`).  ``policy`` picks the lexical index,
-    the fusion weights and whether Spanish function words are dropped from the
-    lexical query (see :data:`POLICIES`).
+    grouped by page (see :func:`group_by_page`).  ``policy`` picks the lexical
+    index, the fusion weights and whether Spanish function words are dropped from
+    the lexical query (see :data:`POLICIES`).
     """
     store = store or get_store()
     embedder = embedder or get_embedder()
@@ -174,7 +186,7 @@ def hybrid_search(
     vector_ranks = rank_map(vector)
     rows = {row["chunk_id"]: row for row in store.get([chunk_id for chunk_id, _ in fused])}
 
-    results = group_by_url(fused, rows)
+    results = group_by_page(fused, rows)
     for result in results:
         result["lexical_rank"] = lexical_ranks.get(result["id"])
         result["vector_rank"] = vector_ranks.get(result["id"])
