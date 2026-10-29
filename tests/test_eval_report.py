@@ -4,6 +4,7 @@ from __future__ import annotations
 
 import json
 
+import httpx
 import pytest
 
 import eval.generate as eval_generate
@@ -19,6 +20,8 @@ from eval.generate import (
 )
 from eval.__main__ import main as eval_main
 from eval.sanitize import main as sanitize_main
+from generation.generate import Thresholds
+from retrieval.remote import RemoteEmbeddings, RemoteRetrieval
 
 from helpers import FakeEmbedder, FakeStore, ScriptedLLM, make_settings
 
@@ -128,14 +131,21 @@ def test_report_paths_and_mock_suffix(tmp_path, monkeypatch) -> None:
     monkeypatch.setattr(eval_generate, "REPORTS_DIR", tmp_path)
     assert report_path("2026-10-28").name == "2026-10-28-generate.json"
     assert report_path("2026-10-28", mock=True).name == "2026-10-28-generate-mock.json"
+    # A remote run never overwrites the local report of the same day.
+    assert report_path("2026-10-28", remote=True).name == "2026-10-28-generate-remote.json"
     path = write_report({"a": 1}, mock=True)
     assert path == tmp_path / report_path(mock=True).name
     assert json.loads(path.read_text()) == {"a": 1}
+    written = write_report({"b": 2}, remote=True)
+    assert written.name.endswith("-generate-remote.json") and written.parent == tmp_path
+    explicit = write_report({"c": 3}, remote=True, out=tmp_path / "custom.json")
+    assert explicit == tmp_path / "custom.json"
+    assert json.loads(explicit.read_text()) == {"c": 3}
 
 
 def test_run_generate_builds_rows_without_secrets(tmp_path, monkeypatch) -> None:
     monkeypatch.setattr(eval_generate, "REPORTS_DIR", tmp_path)
-    monkeypatch.setattr(eval_generate, "load_threshold", lambda *a, **k: None)
+    monkeypatch.setattr(eval_generate, "load_thresholds", lambda *a, **k: Thresholds())
     llm = ScriptedLLM(
         [
             {"abstain": False, "sentences": [{"text": "Ok.", "citations": [{"n": 1, "quote": GOOD_QUOTE}]}]},
@@ -192,6 +202,124 @@ def test_run_generate_honours_the_limit(tmp_path) -> None:
     )
     assert report["summary"]["questions"] == 1
     assert [row["id"] for row in report["questions"]] == ["a01"]
+
+
+class FixedIndex:
+    """A vector index with fixed hits: no file, no numpy, no dimension check."""
+
+    def search(self, qvec, k: int) -> list[tuple[str, float]]:
+        return [("c1", 0.9), ("c2", 0.8)][:k]
+
+
+def remote_with_embedding_cost() -> RemoteRetrieval:
+    """A real remote query embedding served by a mock transport, at $0.000006 a call."""
+
+    def handler(request: httpx.Request) -> httpx.Response:
+        return httpx.Response(
+            200,
+            json={
+                "data": [{"object": "embedding", "index": 0, "embedding": [1.0, 0.0]}],
+                "usage": {"prompt_tokens": 8, "cost": 0.000006},
+            },
+        )
+
+    embeddings = RemoteEmbeddings(
+        "https://llm.example/v1",
+        "sk-test-value",
+        "vendor/embed-model",
+        transport=httpx.MockTransport(handler),
+        sleep=lambda seconds: None,
+    )
+    return RemoteRetrieval(embeddings=embeddings, index=FixedIndex())
+
+
+def test_a_remote_run_keeps_the_remote_parts_thresholds_and_cost_split(tmp_path) -> None:
+    llm = ScriptedLLM([{"abstain": True, "sentences": []}])
+    settings = make_settings(
+        tmp_path,
+        llm_api_key="sk-hidden-value",
+        llm_model="vendor/model-name",
+        llm_base_url="https://provider.example/v1",
+        llm_price_input_per_m=1.0,
+        llm_price_output_per_m=1.0,
+    )
+    thresholds = Thresholds(
+        local={"signal": "vector_cosine", "value": 0.820859},
+        remote={"signal": "vector_cosine", "value": 0.436503},
+    )
+    report = run_generate(
+        QUESTIONS,
+        store=FakeStore(),
+        embedder=FakeEmbedder(),
+        llm=llm,
+        config=settings,
+        remote=remote_with_embedding_cost(),
+        thresholds=thresholds,
+    )
+    config = report["config"]
+    assert config["retrieval_remote"] == {
+        "embeddings": True,
+        "rerank": False,
+        "translate": False,
+        "embed_model": "embed-model",
+        "rerank_model": "",
+        "translate_model": "",
+    }
+    assert config["thresholds"] == {
+        "local": {"signal": "vector_cosine", "value": 0.820859},
+        "remote": {"signal": "vector_cosine", "value": 0.436503},
+    }
+    assert config["cost_usd"]["remote"] == 0.000012
+    assert config["cost_usd"]["llm"] == report["summary"]["cost_usd"] > 0
+    assert config["cost_usd"]["total"] == round(
+        config["cost_usd"]["llm"] + config["cost_usd"]["remote"], 6
+    )
+    # The run compared both answers with the remote calibration.
+    assert report["threshold"]["value"] == 0.436503
+    assert report["remote"]["embed_calls"] == 2
+    assert {row["embedding"] for row in report["questions"]} == {"remote"}
+    dumped = json.dumps(report)
+    assert "sk-hidden-value" not in dumped
+    assert "provider.example" not in dumped
+    assert "vendor/" not in dumped
+
+
+def test_public_config_keeps_the_remote_run_without_routes_or_paths() -> None:
+    raw = {
+        "llm_model": "vendor/model-name",
+        "llm_price_input_per_m": 0.045,
+        "llm_price_output_per_m": 0.5,
+        "budget_usd_per_month": 0.5,
+        "generation": True,
+        "retrieval_remote": {
+            "embeddings": True,
+            "rerank": False,
+            "translate": True,
+            "embed_model": "vendor/embed-model",
+            "rerank_model": "",
+            "translate_model": "vendor/translate-model",
+            "index": "/somewhere/vectors-alt.npy",
+        },
+        "thresholds": {
+            "local": {"signal": "vector_cosine", "value": 0.820859},
+            "remote": {"signal": "vector_cosine", "value": 0.436503},
+        },
+        "cost_usd": {"llm": 0.063846, "remote": 0.000022, "total": 0.063868},
+    }
+    block = public_config(raw)
+    assert block["llm_model"] == "model-name"
+    assert block["retrieval_remote"] == {
+        "embeddings": True,
+        "rerank": False,
+        "translate": True,
+        "embed_model": "embed-model",
+        "rerank_model": "",
+        "translate_model": "translate-model",
+    }
+    assert block["thresholds"]["remote"] == {"signal": "vector_cosine", "value": 0.436503}
+    assert block["cost_usd"] == {"llm": 0.063846, "remote": 0.000022, "total": 0.063868}
+    dumped = json.dumps(block)
+    assert "vendor/" not in dumped and "somewhere" not in dumped
 
 
 def test_public_config_drops_the_host_the_paths_and_the_model_route() -> None:

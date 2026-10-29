@@ -366,10 +366,21 @@ def main(argv: list[str] | None = None) -> int:
         help="with --generate: use the deterministic offline model (no network, no key)",
     )
     parser.add_argument("--limit", type=int, default=None, help="with --generate: only the first N questions")
+    parser.add_argument(
+        "--out",
+        default=None,
+        help=(
+            "with --generate: write the report here instead of "
+            "eval/reports/<date>-generate[-remote].json"
+        ),
+    )
     args = parser.parse_args(argv)
 
     if args.mock and not args.generate:
         print("ERROR: --mock only makes sense with --generate", flush=True)
+        return 2
+    if args.out is not None and not args.generate:
+        print("ERROR: --out only makes sense with --generate", flush=True)
         return 2
     if args.limit is not None and not (args.generate or args.compare_remote):
         print("ERROR: --limit only makes sense with --generate or --compare-remote", flush=True)
@@ -415,18 +426,34 @@ def main(argv: list[str] | None = None) -> int:
 
     if args.generate:
         from eval.generate import print_summary, run_generate, write_report
+        from generation.generate import load_thresholds
+        from retrieval.remote import build_remote
         from retrieval.search import get_embedder, get_store
+
+        # The remote parts come from the configuration of the run (never from a
+        # default here); the mock run stays fully offline.
+        remote = None if args.mock else build_remote(config)
+        if config.remote_active and remote is None and not args.mock:
+            print("remote retrieval configured but unavailable: this run stays local", flush=True)
+        remote_run = bool(remote is not None and remote.active)
+        if remote_run:
+            print(f"retrieval remote: {json.dumps(remote.describe(), ensure_ascii=False)}", flush=True)
+            print(flush=True)
 
         report = run_generate(
             questions,
             store=get_store(),
-            embedder=get_embedder(),
+            # With a usable remote index the local model is only built if a
+            # remote embedding fails and the local search is the fallback.
+            embedder=None if (remote_run and remote.remote_vectors) else get_embedder(),
             llm=llm,
             config=config,
             limit=args.limit,
+            remote=remote,
+            thresholds=load_thresholds(),
             log=lambda message: print(message, flush=True),
         )
-        path = write_report(report, mock=args.mock)
+        path = write_report(report, mock=args.mock, remote=remote_run, out=args.out)
         print()
         print_summary(report)
         print(f"report: {path}")

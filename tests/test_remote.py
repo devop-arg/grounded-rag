@@ -594,6 +594,7 @@ def test_the_api_charges_the_remote_cost_of_one_request(tmp_path) -> None:
     from app.main import create_app
     from app.usage import UsageStore
     from fastapi.testclient import TestClient
+    from generation.generate import Thresholds
 
     from tests.helpers import FakeEmbedder, FakeStore, ScriptedLLM, make_settings
 
@@ -613,7 +614,7 @@ def test_the_api_charges_the_remote_cost_of_one_request(tmp_path) -> None:
         llm=ScriptedLLM(['{"abstain": true, "sentences": []}']),
         usage=usage,
         remote=remote,
-        threshold={"signal": "vector_cosine", "value": 0.0},
+        thresholds=Thresholds(local={"signal": "vector_cosine", "value": 0.0}),
     )
     client = TestClient(application)
     response = client.post("/api/ask", json={"question": "¿Cómo creo un índice parcial?"})

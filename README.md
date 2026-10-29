@@ -77,8 +77,11 @@ fusion and grouped by page, so one page never takes two of the eight slots.
 `eval` flags: `--file`, `--policy` (`baseline`, `plain`, `downweight`,
 `plain+downweight`, `es-stopwords`, `es-stopwords+downweight`), `--compare`,
 `--lexical-weight`, `--json`, `--strict` (exit 1 if an expected URL does not
-exist in the corpus) and `--generate` / `--mock` / `--limit` for the generation
-run. `eval/README.md` describes the question set.
+exist in the corpus) and `--generate` / `--mock` / `--limit` / `--out` for the
+generation run. A `--generate` run with any remote retrieval part configured
+writes `<date>-generate-remote.json` instead of `<date>-generate.json`, so it
+never overwrites the local report of the same day (`--out PATH` overrides both
+names). `eval/README.md` describes the question set.
 
 ### Evaluation
 
@@ -88,8 +91,11 @@ unanswerable questions. `plain+downweight` is the best policy on the same set at
 0.90 / 0.7380. Grouping by page instead of by anchored URL left those numbers
 untouched and removed the duplicate pages from the result lists.
 
-Generation (`eval/reports/2026-10-29-generate.json`: the real model, one call per
-question, 50 answerable and 30 not, threshold 0.820859):
+Generation, the real model with one call per question, 50 answerable and 30 not,
+run twice over the same 80 questions: once on the local index and once with the
+remote embeddings plus translation.
+
+Local index (`eval/reports/2026-10-29-generate.json`, threshold 0.820859):
 
 | Metric | All (80) | EN (40) | ES (40) |
 | --- | --- | --- | --- |
@@ -104,22 +110,48 @@ question, 50 answerable and 30 not, threshold 0.820859):
 | Mean tokens per question | 8084.7 | 8666.3 | 7503.1 |
 | Cost | $0.063846 | $0.034627 | $0.029218 |
 
-The 80 questions cost 570,424 input plus 76,353 output tokens at the configured
-$0.045 and $0.50 per million. Two of the labelled-unanswerable questions (`u02`,
-`u07`) were answered because they are in fact premise corrections: PostgreSQL 17
-has no `VIRTUAL` generated columns and no `CREATE MATERIALIZED TABLE`, and the
-answers say so while quoting the documentation for the supported construct. Of
-the six answerable questions that abstained, five are Spanish (`a02`, `a04`,
-`a10`, `a44`, `a46`) and one is English (`a43`), which is why the Spanish
-abstention precision is the weakest number in the table.
+Remote index, embeddings plus translation
+(`eval/reports/2026-10-29-generate-remote.json`, threshold 0.436503 of that
+index):
 
-The abstention threshold is calibrated on the same questions
-(`generation/threshold.json`: top-1 vector cosine 0.820859, 10/30 unanswerable
-abstained, 2/50 answerable lost), so both the threshold and the generation
-metrics are optimistically biased: treat them as a smoke test, not a benchmark.
-A `--generate --mock` run exercises the whole pipeline offline and is never
-presented as a real evaluation: only a report without the `-mock` suffix is
-summarised by the API.
+| Metric | All (80) | EN (40) | ES (40) |
+| --- | --- | --- | --- |
+| Answerable questions answered | 46/50 (92%) | 25/25 (100%) | 21/25 (84%) |
+| Abstention precision | 0.875 | 1.0 | 0.7778 |
+| Abstention recall | 0.9333 | 0.9333 | 0.9333 |
+| Abstained for `model` / `threshold` | 19 / 13 | 8 / 6 | 11 / 7 |
+| Valid citations | 334/335 (99.7%) | 162/163 (99.4%) | 172/172 (100%) |
+| Sentences carrying a valid citation | 252/253 (99.6%) | 128/129 (99.2%) | 124/124 (100%) |
+| Retrieval latency, median / p95 | 1451.7 / 2957.2 ms | 628.6 / 965.1 ms | 2000.2 / 3288.3 ms |
+| LLM latency, median / p95 | 5849.5 / 17393.4 ms | 5302.2 / 14392.4 ms | 6354.4 / 18477.3 ms |
+| Mean tokens per question | 8293.2 | 8425.3 | 8161.1 |
+| Cost | $0.070060 | $0.034553 | $0.035507 |
+
+The local run costs 570,424 input plus 76,353 output tokens and the remote one
+575,092 plus 88,361, at the configured $0.045 and $0.50 per million. The remote
+run adds $0.000022 for 120 retrieval calls (80 query embeddings and 40
+translations, no error and no fallback), so the whole remote evaluation cost
+$0.070082; every one of its 80 rows used the remote index. What it buys is the
+Spanish answer rate (20/25 → 21/25) and the abstention precision (0.8235 → 0.875);
+what it costs is 1.3 s more retrieval per question and one sentence dropped by
+citation validation. Two of the labelled-unanswerable questions (`u02`, `u07`)
+were answered in both runs because they are in fact premise corrections:
+PostgreSQL 17 has no `VIRTUAL` generated columns and no `CREATE MATERIALIZED TABLE`,
+and the answers say so while quoting the documentation for the supported
+construct. Of the four answerable questions that abstained in the remote run, two
+are Spanish and fell to the threshold (`a02`, `a44`) and two abstained by the
+model (`a04`, `a10`); the local run also lost `a43` and `a46`, which the remote
+index recovers.
+
+Both thresholds are calibrated on the same questions, so the threshold and the
+generation metrics are optimistically biased: treat them as a smoke test, not a
+benchmark. The local one (`generation/threshold.json`: top-1 vector cosine
+0.820859, 10/30 unanswerable abstained, 2/50 answerable lost) and the remote one
+(`generation/threshold-remote.json`: top-1 vector cosine 0.436503, 11/30
+unanswerable abstained, 2/50 answerable lost) are separate calibrations of two
+different cosine scales. A `--generate --mock` run exercises the whole pipeline
+offline and is never presented as a real evaluation: only a report without the
+`-mock` suffix is summarised by the API.
 
 ## Optional remote retrieval
 
@@ -178,11 +210,19 @@ recall@5, and it is the only one that gains on both languages at once (Spanish
 MRR 0.6624 → 0.8513). Rerank stays off because no rerank model answered. The
 remote index costs a network round trip per query (about +0.5 s) and the
 translation another one per non-English query, so the offline baseline is still
-the fastest configuration. The app still reads `generation/threshold.json`, which
-was calibrated for the local model, so a deployment that turns the remote index on
-should recalibrate on the remote scale (`python -m generation.calibrate --remote`,
-which writes `generation/threshold-remote.json`) and use that file; leaving the
-local threshold in place would compare two different cosine scales.
+the fastest configuration.
+
+Each index has its own abstention threshold, because the cosine of a remote
+embedding lives on a different scale than the local one:
+`generation/threshold.json` for the local index and
+`generation/threshold-remote.json` (calibrated with
+`python -m generation.calibrate --remote`) for the remote one. Both are read once
+at startup, and every answer is compared with the threshold of the index its
+search **really** used: a question embedded remotely is checked against the
+remote file, and one whose remote embedding failed (the local index is then the
+fallback) against the local file. An index whose file is missing simply has no
+threshold. `GET /api/metrics` reports the active one under the running
+configuration, labelled `index: "remote"` or `"local"`.
 
 ## API
 
@@ -202,7 +242,8 @@ no CORS.
   else.
 * `GET /api/health` → `{status, generation, llm_configured, budget}`.
 * `GET /api/metrics` → `{retrieval, threshold, generation, budget}` for the
-  "How it is evaluated" panel.
+  "How it is evaluated" panel; `threshold` is the one the configuration uses
+  (local or remote index) and carries the index it belongs to.
 * `GET /` serves the web UI: an EN/ES and light/dark page with the question
   form, the citations of every sentence (hover, focus or tap to read the verbatim
   quote) and the evaluation panel. If the model is unavailable, if generation is
@@ -210,7 +251,8 @@ no CORS.
   to **recorded mode** and replays an answer recorded from `web/recorded.json`,
   behind a short banner. Regenerate that file with `python -m web.record` (no
   model, no network): it replays `--from-report <real *-generate.json>` when one
-  exists, otherwise it records the retrieved sources only.
+  exists (the remote run of the day wins over the local one), otherwise it
+  records the retrieved sources only.
 
 Every response carries `Content-Security-Policy` (no inline script or style, no
 JS CDN), `X-Content-Type-Options: nosniff` and `Referrer-Policy: no-referrer`.

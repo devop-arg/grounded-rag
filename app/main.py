@@ -27,7 +27,7 @@ from fastapi.staticfiles import StaticFiles
 from pydantic import BaseModel, field_validator
 
 from generation.config import Config, LLMNotConfigured, load_config
-from generation.generate import answer_question, load_threshold
+from generation.generate import Thresholds, answer_question, load_thresholds
 from generation.llm import LLMError, build_llm
 from retrieval.remote import RemoteRetrieval, RemoteStats, build_remote
 from retrieval.search import get_embedder, get_store, hybrid_search
@@ -89,7 +89,7 @@ def create_app(
     llm=None,
     usage: UsageStore | None = None,
     limiter: RateLimiter | None = None,
-    threshold: dict | None = None,
+    thresholds: Thresholds | None = None,
     remote: RemoteRetrieval | None = None,
 ) -> FastAPI:
     """Build the app; every dependency is injectable (tests use fakes)."""
@@ -133,7 +133,9 @@ def create_app(
     )
     limit, window = settings.rate_limit()
     app.state.limiter = limiter or RateLimiter(limit, window, salt=settings.ip_salt)
-    app.state.threshold = load_threshold() if threshold is None else threshold
+    # Both thresholds are read once, here: each answer compares the cosine of
+    # the index its search really used with that index's own calibration.
+    app.state.thresholds = thresholds if thresholds is not None else load_thresholds()
 
     def model_for(state) -> object:
         if state.llm is None:
@@ -159,7 +161,7 @@ def create_app(
     @app.get("/api/metrics")
     def metrics(request: Request) -> dict:
         """Retrieval, abstention threshold, generation and the monthly budget."""
-        body = build_metrics()
+        body = build_metrics(config=request.app.state.config)
         body["budget"] = request.app.state.usage.status()
         return body
 
@@ -220,8 +222,7 @@ def create_app(
                 embedder=state.embedder,
                 llm=llm,
                 k=DEFAULT_K,
-                threshold=state.threshold,
-                use_threshold=state.threshold is not None,
+                thresholds=state.thresholds,
                 remote=state.remote,
                 stats=stats,
             )
