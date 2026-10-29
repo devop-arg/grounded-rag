@@ -1,0 +1,5 @@
+{"id": "q01", "lang": "en", "question": "how do I create a partial index", "answerable": true, "expected_urls": ["https://www.postgresql.org/docs/17/indexes-partial.html#INDEXES-PARTIAL"]}
+{"id": "q02", "lang": "en", "question": "what isolation levels does PostgreSQL support", "answerable": true, "expected_urls": ["https://www.postgresql.org/docs/17/transaction-iso.html"]}
+{"id": "q03", "lang": "en", "question": "how do I change the InnoDB buffer pool size in MySQL", "answerable": false, "expected_urls": []}
+{"id": "q04", "lang": "es", "question": "¿cómo configuro la replicación lógica?", "answerable": true, "expected_urls": ["https://www.postgresql.org/docs/17/logical-replication.html#LOGICAL-REPLICATION"]}
+{"id": "q05", "lang": "es", "question": "¿cómo hago una copia de seguridad de una base de datos con pg_dump?", "answerable": true, "expected_urls": ["https://www.postgresql.org/docs/17/backup-dump.html"]}
