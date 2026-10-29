@@ -7,7 +7,15 @@ import json
 import httpx
 import pytest
 
-from generation.llm import SESSION_ID, USER_AGENT, LLMError, OpenAICompatibleClient
+from generation.config import Config, LLMNotConfigured
+from generation.llm import (
+    HTTP_REFERER,
+    USER_AGENT,
+    X_TITLE,
+    LLMError,
+    OpenAICompatibleClient,
+    build_llm,
+)
 
 KEY = "sk-test-secret-value"
 BODY = {
@@ -47,7 +55,10 @@ def test_happy_path_headers_and_usage() -> None:
     assert str(request.url) == "https://llm.example/v1/chat/completions"
     assert request.headers["Authorization"] == f"Bearer {KEY}"
     assert request.headers["User-Agent"] == USER_AGENT
-    assert request.headers["x-opencode-session"] == SESSION_ID
+    assert request.headers["HTTP-Referer"] == HTTP_REFERER
+    assert request.headers["X-Title"] == X_TITLE
+    assert "x-opencode-session" not in request.headers
+    assert KEY not in "".join(f"{name}:{value}" for name, value in request.headers.items() if name != "authorization")
     payload = json.loads(request.content)
     assert payload["response_format"] == {"type": "json_object"}
     assert payload["temperature"] == 0
@@ -120,3 +131,66 @@ def test_empty_choices_raise() -> None:
     client = make_client(lambda request: httpx.Response(200, json={"choices": []}))
     with pytest.raises(LLMError, match="no choices"):
         client.complete(MESSAGES)
+
+
+def test_error_carries_the_provider_message() -> None:
+    client = make_client(
+        lambda request: httpx.Response(502, json={"error": {"message": "model over capacity"}})
+    )
+    with pytest.raises(LLMError) as error:
+        client.complete(MESSAGES)
+    text = str(error.value)
+    assert "HTTP 502" in text
+    assert "model over capacity" in text
+
+
+def test_error_message_is_capped_at_200_chars() -> None:
+    client = make_client(lambda request: httpx.Response(400, json={"error": {"message": "y" * 500}}))
+    with pytest.raises(LLMError) as error:
+        client.complete(MESSAGES)
+    assert str(error.value) == f"LLM request failed with HTTP 400: {'y' * 200}"
+
+
+def test_error_never_quotes_headers_or_the_key() -> None:
+    client = make_client(
+        lambda request: httpx.Response(
+            401,
+            json={"error": {"message": f"bad key {KEY}"}},
+            headers={"X-Upstream-Debug": "header-secret-value"},
+        )
+    )
+    with pytest.raises(LLMError) as error:
+        client.complete(MESSAGES)
+    text = str(error.value)
+    assert "HTTP 401" in text
+    assert KEY not in text
+    assert "header-secret-value" not in text
+    assert "Authorization" not in text
+
+
+def test_error_body_without_error_message_is_status_only() -> None:
+    client = make_client(lambda request: httpx.Response(500, json={"error": "boom"}))
+    with pytest.raises(LLMError) as error:
+        client.complete(MESSAGES)
+    assert str(error.value) == "LLM request failed with HTTP 500"
+
+
+def test_build_llm_reads_the_key_file_at_call_time(tmp_path) -> None:
+    path = tmp_path / "auth.json"
+    path.write_text(json.dumps({"openrouter": {"key": KEY}}), encoding="utf-8")
+    config = Config(llm_key_file=str(path), llm_key_path="openrouter.key")
+    assert config.llm_api_key == ""
+
+    client = build_llm(config)
+    try:
+        assert isinstance(client, OpenAICompatibleClient)
+        assert client.base_url == "https://openrouter.ai/api/v1"  # the default provider
+        assert client.model == "deepseek/deepseek-v4.1-flash"
+        assert KEY not in repr(client)
+    finally:
+        client.close()
+
+    # The file is read per call, not cached in the config: deleting it breaks the next build.
+    path.unlink()
+    with pytest.raises(LLMNotConfigured):
+        build_llm(config)

@@ -152,9 +152,11 @@ salt, and reports only say whether they are set.
 
 | Variable | Default | Meaning |
 | --- | --- | --- |
-| `GROUNDED_RAG_LLM_BASE_URL` | — | OpenAI-compatible base URL (`/chat/completions` is appended) |
-| `GROUNDED_RAG_LLM_API_KEY` | — | bearer token; without it `--generate` exits 2 and the API answers 503 |
-| `GROUNDED_RAG_LLM_MODEL` | — | model name |
+| `GROUNDED_RAG_LLM_BASE_URL` | `https://openrouter.ai/api/v1` | OpenAI-compatible base URL (`/chat/completions` is appended) |
+| `GROUNDED_RAG_LLM_API_KEY` | — | bearer token; without it (and without the key file) `--generate` exits 2 and the API answers 503 |
+| `GROUNDED_RAG_LLM_KEY_FILE` | — | JSON file holding the key, e.g. an OpenCode/OpenRouter `auth.json`; read only when the token above is empty |
+| `GROUNDED_RAG_LLM_KEY_PATH` | — | dotted path to the key inside that JSON, e.g. `openrouter.key` |
+| `GROUNDED_RAG_LLM_MODEL` | `deepseek/deepseek-v4.1-flash` | model name |
 | `GROUNDED_RAG_GENERATION` | `on` | `off`: retrieval only, `abstain: true` + `reason: "generation_disabled"` |
 | `GROUNDED_RAG_DAILY_TOKEN_CAP` | `200000` | global daily budget (UTC), persisted in `data/usage.sqlite` |
 | `GROUNDED_RAG_RATE_PER_IP` | `10/hour` | sliding-window limit per hashed IP |
@@ -163,6 +165,19 @@ salt, and reports only say whether they are set.
 
 `GROUNDED_RAG_LLM_FAKE=mock` (test only) swaps the client for the deterministic
 offline model used by `eval --generate --mock` and by the app smoke test.
+
+**The key, from the environment or from a file.** The default provider is
+OpenRouter (`https://openrouter.ai/api/v1`, model
+`deepseek/deepseek-v4.1-flash`); any OpenAI-compatible endpoint works by setting
+`GROUNDED_RAG_LLM_BASE_URL`. A non-empty `GROUNDED_RAG_LLM_API_KEY` always wins.
+Otherwise, when both `GROUNDED_RAG_LLM_KEY_FILE` (a JSON file) and
+`GROUNDED_RAG_LLM_KEY_PATH` (a dotted path inside it, e.g. `openrouter.key`) are
+set, `build_llm` reads the key from there **at call time**: it is not loaded at
+import, not kept in `Config`, not written anywhere. `llm_configured` and
+`require_llm` only check that both variables are set and the file exists. A
+missing file, invalid JSON, a missing path or an empty/non-string value raise
+`LLMNotConfigured` naming the variable and the file path — never the value or
+the contents. `repr`/`public()` show the file and key paths, never the key.
 
 ## Generation
 

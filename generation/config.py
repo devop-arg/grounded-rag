@@ -6,11 +6,16 @@ standard library only) and then from the real environment, which wins.
 
 The API key and the IP salt are secrets: this module never logs them, its
 ``repr`` masks them and :meth:`Config.public` is the only shape meant for
-reports.  See ``tests/test_config.py``.
+reports.  The key can also live outside the environment, in a JSON file whose
+location and dotted path are settings (``GROUNDED_RAG_LLM_KEY_FILE`` plus
+``GROUNDED_RAG_LLM_KEY_PATH``); that file is read at call time by
+:func:`resolve_llm_api_key`, never at import time and never into
+:class:`Config`.  See ``tests/test_config.py``.
 """
 
 from __future__ import annotations
 
+import json
 import os
 import re
 from dataclasses import dataclass, fields
@@ -21,8 +26,8 @@ ENV_FILE = Path("~/.config/grounded-rag/env").expanduser()
 PREFIX = "GROUNDED_RAG_"
 MASK = "***"
 
-DEFAULT_BASE_URL = ""
-DEFAULT_MODEL = ""
+DEFAULT_BASE_URL = "https://openrouter.ai/api/v1"
+DEFAULT_MODEL = "deepseek/deepseek-v4.1-flash"
 DEFAULT_DAILY_TOKEN_CAP = 200_000
 DEFAULT_RATE_PER_IP = "10/hour"
 DEFAULT_PORT = 8790
@@ -113,6 +118,8 @@ def parse_rate(text: str, *, name: str = "GROUNDED_RAG_RATE_PER_IP") -> tuple[in
 ENV_FIELDS = {
     f"{PREFIX}LLM_BASE_URL": "llm_base_url",
     f"{PREFIX}LLM_API_KEY": "llm_api_key",
+    f"{PREFIX}LLM_KEY_FILE": "llm_key_file",
+    f"{PREFIX}LLM_KEY_PATH": "llm_key_path",
     f"{PREFIX}LLM_MODEL": "llm_model",
     f"{PREFIX}GENERATION": "generation",
     f"{PREFIX}DAILY_TOKEN_CAP": "daily_token_cap",
@@ -133,6 +140,8 @@ class Config:
 
     llm_base_url: str = DEFAULT_BASE_URL
     llm_api_key: str = ""
+    llm_key_file: str = ""
+    llm_key_path: str = ""
     llm_model: str = DEFAULT_MODEL
     generation: bool = True
     daily_token_cap: int = DEFAULT_DAILY_TOKEN_CAP
@@ -144,26 +153,59 @@ class Config:
 
     # ------------------------------------------------------------- secrets
     @property
+    def key_file_ready(self) -> bool:
+        """True when both file variables are set and the file exists (it is not read)."""
+        if not (self.llm_key_file and self.llm_key_path):
+            return False
+        return Path(self.llm_key_file).expanduser().is_file()
+
+    def describe_key_problem(self) -> str:
+        """Why there is no API key, naming variables and paths — never a value."""
+        if not (self.llm_key_file or self.llm_key_path):
+            return "GROUNDED_RAG_LLM_API_KEY is empty"
+        if not (self.llm_key_file and self.llm_key_path):
+            missing = (
+                "GROUNDED_RAG_LLM_KEY_PATH" if self.llm_key_file else "GROUNDED_RAG_LLM_KEY_FILE"
+            )
+            return (
+                f"{missing} is missing, so the key file is unusable "
+                f"GROUNDED_RAG_LLM_KEY_FILE={self.llm_key_file or '(unset)'} "
+                f"GROUNDED_RAG_LLM_KEY_PATH={self.llm_key_path or '(unset)'}"
+            )
+        path = Path(self.llm_key_file).expanduser()
+        if not path.is_file():
+            return (
+                f"GROUNDED_RAG_LLM_KEY_FILE points at {path}, which does not exist "
+                f"(and GROUNDED_RAG_LLM_API_KEY is empty)"
+            )
+        return ""
+
+    @property
     def llm_configured(self) -> bool:
-        """True when a base URL, a model and an API key are all present."""
-        return bool(self.llm_base_url and self.llm_model and self.llm_api_key)
+        """True when a base URL, a model and a key (env or key file) are all present."""
+        return bool(
+            self.llm_base_url
+            and self.llm_model
+            and (self.llm_api_key or self.key_file_ready)
+        )
 
     def require_llm(self) -> None:
         """Raise :class:`LLMNotConfigured` (no network) when the model is missing."""
-        missing = [
-            name
+        problems = [
+            f"{name} is empty"
             for name, value in (
                 ("GROUNDED_RAG_LLM_BASE_URL", self.llm_base_url),
                 ("GROUNDED_RAG_LLM_MODEL", self.llm_model),
-                ("GROUNDED_RAG_LLM_API_KEY", self.llm_api_key),
             )
             if not value
         ]
-        if missing:
+        if not self.llm_api_key and not self.key_file_ready:
+            problems.append(self.describe_key_problem())
+        if problems:
             raise LLMNotConfigured(
                 "the generation model is not configured: "
-                + ", ".join(missing)
-                + " is empty (set it in the environment or in ~/.config/grounded-rag/env)"
+                + "; ".join(problems)
+                + " (set it in the environment or in ~/.config/grounded-rag/env)"
             )
 
     def rate_limit(self) -> tuple[int, float]:
@@ -246,3 +288,55 @@ def load_config(
     if "llm_fake" in kwargs and kwargs["llm_fake"].lower() not in {"", "mock"}:
         raise ConfigError("GROUNDED_RAG_LLM_FAKE only accepts 'mock'")
     return Config(**kwargs)
+
+
+def read_key_from_file(file_path: str | Path, dotted_path: str) -> str:
+    """Return the key at ``dotted_path`` inside the JSON file ``file_path``.
+
+    Called at runtime by :func:`resolve_llm_api_key` (never at import time).
+    Every failure raises :class:`LLMNotConfigured` naming the variable and the
+    path; the value and the file contents never reach the message.
+    """
+    path = Path(file_path).expanduser()
+    name = f"{PREFIX}LLM_KEY_FILE"
+    path_name = f"{PREFIX}LLM_KEY_PATH"
+    if not path.is_file():
+        raise LLMNotConfigured(f"{name} points at {path}, which does not exist")
+    try:
+        text = path.read_text(encoding="utf-8", errors="replace")
+    except OSError:
+        raise LLMNotConfigured(f"{name}: {path} cannot be read") from None
+    try:
+        data = json.loads(text)
+    except ValueError:
+        # The JSON decoder's message can quote the file: keep it out.
+        raise LLMNotConfigured(f"{name}: {path} is not valid JSON") from None
+
+    node: Any = data
+    for part in dotted_path.split("."):
+        if not part or not isinstance(node, dict) or part not in node:
+            raise LLMNotConfigured(
+                f"{path_name}: no such path {dotted_path!r} in {path} ({name})"
+            )
+        node = node[part]
+
+    if not isinstance(node, str) or not node.strip():
+        raise LLMNotConfigured(
+            f"{path_name}: the value at {dotted_path!r} in {path} is empty or not a string ({name})"
+        )
+    return node.strip()
+
+
+def resolve_llm_api_key(config: Config) -> str:
+    """The API key for ``config``: the environment one wins over the key file.
+
+    The file route is read here, at call time, and returned straight to the
+    client: it is not stored on :class:`Config` nor written anywhere.
+    """
+    if config.llm_api_key:
+        return config.llm_api_key
+    if not (config.llm_key_file and config.llm_key_path):
+        raise LLMNotConfigured(
+            "the generation model is not configured: " + config.describe_key_problem()
+        )
+    return read_key_from_file(config.llm_key_file, config.llm_key_path)
