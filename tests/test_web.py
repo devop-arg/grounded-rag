@@ -144,6 +144,16 @@ def test_the_assets_are_csp_clean() -> None:
     assert ".style." not in script and "setAttribute('style'" not in script
 
 
+def test_the_web_switches_to_recorded_mode_when_the_budget_is_spent() -> None:
+    """No JS runner here: this pins the wiring the Playwright run exercises."""
+    script = (WEB_DIR / "app.js").read_text(encoding="utf-8")
+    assert script.count("'banner.budget':") == 2  # English and Spanish
+    assert script.count("t('banner.budget')") == 2  # the 503 path and the health path
+    assert "'budget_exhausted'" in script
+    assert "health.budget && health.budget.exhausted" in script
+    assert "state.budgetExhausted = true" in script
+
+
 # ------------------------------------------------------------------- metrics
 def test_retrieval_metrics_are_read_per_language(reports: Path) -> None:
     metrics = retrieval_metrics(reports / "retrieval.json")
@@ -202,9 +212,10 @@ def test_metrics_endpoint_uses_the_versioned_reports(tmp_path) -> None:
     client, _ = make_client(tmp_path)
     with client:
         body = client.get("/api/metrics").json()
-    assert set(body) == {"retrieval", "threshold", "generation"}
+    assert set(body) == {"retrieval", "threshold", "generation", "budget"}
     assert body["retrieval"]["report"] == "retrieval.json"
     assert isinstance(body["retrieval"]["recall@5"], float)
+    assert body["budget"]["budget_usd"] == 0.5
     assert body["generation"]["status"] in {"pending", "measured"}
     if body["generation"]["status"] == "pending":
         assert body["generation"]["report"] is None

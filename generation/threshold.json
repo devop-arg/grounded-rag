@@ -6,7 +6,7 @@
   "unanswerable_abstained": 10,
   "unanswerable_total": 30,
   "max_lost": 2,
-  "calibrated_on": "/home/capw/projects/grounded-rag/eval/questions.jsonl",
+  "calibrated_on": "eval/questions.jsonl",
   "calibrated_at": "2026-10-29T01:19:35Z",
   "note": "calibrated on the same 80-question eval set used for reporting: optimistically biased",
   "signals": {

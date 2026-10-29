@@ -32,7 +32,23 @@ def test_health(tmp_path) -> None:
     with client:
         response = client.get("/api/health")
     assert response.status_code == 200
-    assert response.json() == {"status": "ok", "generation": True, "llm_configured": True}
+    body = response.json()
+    assert body["status"] == "ok"
+    assert body["generation"] is True
+    assert body["llm_configured"] is True
+    assert set(body["budget"]) == {
+        "month",
+        "spent_usd",
+        "budget_usd",
+        "remaining_usd",
+        "exhausted",
+        "prompt_tokens",
+        "completion_tokens",
+        "prices_usd_per_million",
+    }
+    assert body["budget"]["budget_usd"] == 0.5
+    assert body["budget"]["spent_usd"] == 0.0
+    assert body["budget"]["exhausted"] is False
 
 
 def test_ask_returns_validated_answer(tmp_path) -> None:
@@ -95,23 +111,57 @@ def test_rate_limit_is_per_hashed_ip(tmp_path) -> None:
     assert "1.2.3.4" not in limiter._hits  # only the digest is kept
 
 
-def test_daily_token_cap_is_503_and_skips_the_model(tmp_path) -> None:
+def test_budget_exhausted_is_503_with_reason_and_skips_the_model(tmp_path) -> None:
     llm = ScriptedLLM([VALID_ANSWER])
-    client, application = make_client(tmp_path, llm=llm, daily_token_cap=10)
-    usage: UsageStore = application.state.usage
-    usage.add(10)
+    client, _ = make_client(tmp_path, llm=llm, budget_usd_per_month=0.0)
     with client:
         response = client.post("/api/ask", json={"question": "How do partial indexes work?"})
     assert response.status_code == 503
-    assert "budget" in response.json()["detail"]
+    body = response.json()
+    assert body["reason"] == "budget_exhausted"
+    assert "budget" in body["detail"]
     assert llm.calls == 0
+
+
+def test_a_month_of_answers_stops_at_the_budget(tmp_path) -> None:
+    """Every answer costs 120 tokens × 1 USD/M = 0.00012 USD, capped at 0.0002."""
+    llm = ScriptedLLM([VALID_ANSWER])
+    client, application = make_client(
+        tmp_path,
+        llm=llm,
+        budget_usd_per_month=0.0002,
+        llm_price_input_per_m=1.0,
+        llm_price_output_per_m=1.0,
+    )
+    with client:
+        assert client.post("/api/ask", json={"question": "q1"}).status_code == 200
+        assert client.post("/api/ask", json={"question": "q2"}).status_code == 200
+        response = client.post("/api/ask", json={"question": "q3"})
+    assert response.status_code == 503
+    assert response.json()["reason"] == "budget_exhausted"
+    assert llm.calls == 2
+    assert application.state.usage.spent() == pytest.approx(0.00024)
+    assert application.state.usage.exhausted() is True
+
+
+def test_metrics_and_health_expose_the_budget(tmp_path) -> None:
+    client, application = make_client(tmp_path, llm=ScriptedLLM([VALID_ANSWER]))
+    with client:
+        assert client.post("/api/ask", json={"question": "q"}).status_code == 200
+        health = client.get("/api/health").json()
+        metrics = client.get("/api/metrics").json()
+    spent = application.state.usage.spent()
+    assert health["budget"]["spent_usd"] == round(spent, 6)
+    assert metrics["budget"] == health["budget"]
+    dumped = repr(metrics["budget"])
+    assert "key" not in dumped and "salt" not in dumped
 
 
 def test_tokens_are_recorded_in_the_usage_db(tmp_path) -> None:
     client, application = make_client(tmp_path, llm=ScriptedLLM([VALID_ANSWER]))
     with client:
         assert client.post("/api/ask", json={"question": "q"}).status_code == 200
-    assert application.state.usage.tokens_today() == 120
+    assert application.state.usage.tokens() == (100, 20)
 
 
 def test_generation_off_returns_sources_without_calling_the_model(tmp_path) -> None:
@@ -184,24 +234,24 @@ def test_client_ip_is_neither_logged_nor_stored(tmp_path, caplog) -> None:
     assert b"Authorization" not in raw
 
 
-def test_threshold_rejection_does_not_consume_tokens(tmp_path) -> None:
+def test_threshold_rejection_does_not_consume_the_budget(tmp_path) -> None:
     client, application = make_client(
         tmp_path, llm=ScriptedLLM([VALID_ANSWER]), threshold={"signal": "rrf", "value": 1.0}
     )
     with client:
         client.post("/api/ask", json={"question": "q"})
-    assert application.state.usage.tokens_today() == 0
+    assert application.state.usage.spent() == 0.0
 
 
-def test_usage_store_is_per_utc_day(tmp_path) -> None:
-    store = UsageStore(tmp_path / "usage.sqlite", 100)
-    store.add(40, "2026-01-01")
-    store.add(10, "2026-01-01")
-    assert store.tokens_today("2026-01-01") == 50
-    assert store.tokens_today("2026-01-02") == 0
-    assert store.exhausted("2026-01-01") is False
-    store.add(60, "2026-01-01")
-    assert store.exhausted("2026-01-01") is True
+def test_usage_store_is_per_utc_month(tmp_path) -> None:
+    store = UsageStore(tmp_path / "usage.sqlite", 0.0001, input_price_per_m=1.0, output_price_per_m=0.0)
+    store.add(40_000, 0, "2026-01")
+    store.add(10_000, 0, "2026-01")
+    assert store.tokens("2026-01") == (50_000, 0)
+    assert store.spent("2026-01") == pytest.approx(0.05)
+    assert store.spent("2026-02") == 0.0
+    assert store.exhausted("2026-01") is True
+    assert store.exhausted("2026-02") is False
 
 
 def test_app_refuses_a_non_loopback_host(monkeypatch) -> None:

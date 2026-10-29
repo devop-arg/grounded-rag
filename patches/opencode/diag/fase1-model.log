@@ -1,5 +1,0 @@
-Fetching 5 files:   0%|          | 0/5 [00:00<?, ?it/s]Warning: You are sending unauthenticated requests to the HF Hub. Please set a HF_TOKEN to enable higher rate limits and faster downloads.
-Fetching 5 files:  20%|██        | 1/5 [00:00<00:00,  5.35it/s]Fetching 5 files:  80%|████████  | 4/5 [00:01<00:00,  2.13it/s]Fetching 5 files: 100%|██████████| 5/5 [00:05<00:00,  1.48s/it]Fetching 5 files: 100%|██████████| 5/5 [00:05<00:00,  1.18s/it]
-shape (2, 384) norms [1. 1.]
-query shape (384,) norm 1.0
-sim 0.7442632913589478

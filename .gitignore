@@ -3,5 +3,7 @@ data/
 __pycache__/
 .pytest_cache/
 *.egg-info/
+# working notes and diagnostics: local only
+patches/
 # deterministic offline runs (eval --generate --mock) are not versioned
 eval/reports/*-mock.json

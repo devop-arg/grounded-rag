@@ -9,15 +9,15 @@ import pytest
 
 from generation.config import Config, LLMNotConfigured
 from generation.llm import (
-    HTTP_REFERER,
     USER_AGENT,
-    X_TITLE,
     LLMError,
     OpenAICompatibleClient,
     build_llm,
 )
 
 KEY = "sk-test-secret-value"
+BASE_URL = "https://llm.example/v1"
+MODEL = "deepseek-v4.1-flash"
 BODY = {
     "choices": [{"message": {"content": '{"abstain": true, "sentences": []}'}}],
     "usage": {"prompt_tokens": 11, "completion_tokens": 3},
@@ -27,7 +27,7 @@ BODY = {
 MESSAGES = [{"role": "user", "content": "hi"}]
 
 
-def make_client(handler, sleeps: list | None = None) -> OpenAICompatibleClient:
+def make_client(handler, sleeps: list | None = None, **overrides) -> OpenAICompatibleClient:
     sleeps = sleeps if sleeps is not None else []
     return OpenAICompatibleClient(
         "https://llm.example/v1/",
@@ -36,6 +36,7 @@ def make_client(handler, sleeps: list | None = None) -> OpenAICompatibleClient:
         transport=httpx.MockTransport(handler),
         sleep=sleeps.append,
         timeout=5.0,
+        **overrides,
     )
 
 
@@ -55,13 +56,26 @@ def test_happy_path_headers_and_usage() -> None:
     assert str(request.url) == "https://llm.example/v1/chat/completions"
     assert request.headers["Authorization"] == f"Bearer {KEY}"
     assert request.headers["User-Agent"] == USER_AGENT
-    assert request.headers["HTTP-Referer"] == HTTP_REFERER
-    assert request.headers["X-Title"] == X_TITLE
-    assert "x-opencode-session" not in request.headers
+    # Optional attribution headers are off unless configured: none is invented.
+    assert "HTTP-Referer" not in request.headers
+    assert "X-Title" not in request.headers
     assert KEY not in "".join(f"{name}:{value}" for name, value in request.headers.items() if name != "authorization")
     payload = json.loads(request.content)
     assert payload["response_format"] == {"type": "json_object"}
     assert payload["temperature"] == 0
+
+
+def test_attribution_headers_are_sent_only_when_configured() -> None:
+    seen: list[httpx.Request] = []
+
+    def handler(request: httpx.Request) -> httpx.Response:
+        seen.append(request)
+        return httpx.Response(200, json=BODY)
+
+    client = make_client(handler, referer="https://example.com/docs", title="example")
+    client.complete(MESSAGES)
+    assert seen[0].headers["HTTP-Referer"] == "https://example.com/docs"
+    assert seen[0].headers["X-Title"] == "example"
 
 
 def test_repr_hides_the_key() -> None:
@@ -177,15 +191,23 @@ def test_error_body_without_error_message_is_status_only() -> None:
 
 def test_build_llm_reads_the_key_file_at_call_time(tmp_path) -> None:
     path = tmp_path / "auth.json"
-    path.write_text(json.dumps({"openrouter": {"key": KEY}}), encoding="utf-8")
-    config = Config(llm_key_file=str(path), llm_key_path="openrouter.key")
+    path.write_text(json.dumps({"llm": {"key": KEY}}), encoding="utf-8")
+    config = Config(
+        llm_base_url=BASE_URL,
+        llm_model=MODEL,
+        llm_key_file=str(path),
+        llm_key_path="llm.key",
+        llm_referer="https://example.com/docs",
+        llm_title="example",
+    )
     assert config.llm_api_key == ""
 
     client = build_llm(config)
     try:
         assert isinstance(client, OpenAICompatibleClient)
-        assert client.base_url == "https://openrouter.ai/api/v1"  # the default provider
-        assert client.model == "deepseek/deepseek-v4.1-flash"
+        assert client.base_url == BASE_URL  # nothing is hardcoded
+        assert client.model == MODEL
+        assert (client.referer, client.title) == ("https://example.com/docs", "example")
         assert KEY not in repr(client)
     finally:
         client.close()

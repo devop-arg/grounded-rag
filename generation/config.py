@@ -2,7 +2,13 @@
 
 Every setting is a ``GROUNDED_RAG_*`` variable.  Values are read from
 ``~/.config/grounded-rag/env`` first (``CLAVE=valor`` lines, read with the
-standard library only) and then from the real environment, which wins.
+standard library only) and then from the real environment, which wins.  An
+empty value means "not set", so a copy of ``.env.example`` with every value
+blank behaves exactly like no file at all.
+
+The endpoint, the model and the key are never hardcoded: they only come from
+``GROUNDED_RAG_LLM_BASE_URL``, ``GROUNDED_RAG_LLM_MODEL`` and
+``GROUNDED_RAG_LLM_API_KEY`` (or the key file pair below).
 
 The API key and the IP salt are secrets: this module never logs them, its
 ``repr`` masks them and :meth:`Config.public` is the only shape meant for
@@ -26,9 +32,11 @@ ENV_FILE = Path("~/.config/grounded-rag/env").expanduser()
 PREFIX = "GROUNDED_RAG_"
 MASK = "***"
 
-DEFAULT_BASE_URL = "https://openrouter.ai/api/v1"
-DEFAULT_MODEL = "deepseek/deepseek-v4.1-flash"
-DEFAULT_DAILY_TOKEN_CAP = 200_000
+DEFAULT_BASE_URL = ""
+DEFAULT_MODEL = ""
+DEFAULT_PRICE_INPUT_PER_M = 0.0
+DEFAULT_PRICE_OUTPUT_PER_M = 0.0
+DEFAULT_BUDGET_USD_PER_MONTH = 0.50
 DEFAULT_RATE_PER_IP = "10/hour"
 DEFAULT_PORT = 8790
 USAGE_DB = Path(__file__).resolve().parent.parent / "data" / "usage.sqlite"
@@ -81,6 +89,17 @@ def parse_bool(value: str, *, name: str) -> bool:
     raise ConfigError(f"{name} must be 'on'/'off' (got {value!r})")
 
 
+def parse_amount(value: str, *, name: str) -> float:
+    """A non-negative amount: USD per million tokens, or USD for the budget."""
+    try:
+        amount = float(str(value).strip())
+    except ValueError as error:
+        raise ConfigError(f"{name} must be a non-negative number (got {value!r})") from error
+    if amount < 0:
+        raise ConfigError(f"{name} cannot be negative (got {value!r})")
+    return amount
+
+
 RATE_RE = re.compile(r"^\s*(\d+)\s*/\s*([a-zA-Z]+)\s*$")
 RATE_UNITS = {
     "s": 1.0,
@@ -121,8 +140,12 @@ ENV_FIELDS = {
     f"{PREFIX}LLM_KEY_FILE": "llm_key_file",
     f"{PREFIX}LLM_KEY_PATH": "llm_key_path",
     f"{PREFIX}LLM_MODEL": "llm_model",
+    f"{PREFIX}LLM_REFERER": "llm_referer",
+    f"{PREFIX}LLM_TITLE": "llm_title",
+    f"{PREFIX}LLM_PRICE_INPUT_PER_M": "llm_price_input_per_m",
+    f"{PREFIX}LLM_PRICE_OUTPUT_PER_M": "llm_price_output_per_m",
+    f"{PREFIX}BUDGET_USD_PER_MONTH": "budget_usd_per_month",
     f"{PREFIX}GENERATION": "generation",
-    f"{PREFIX}DAILY_TOKEN_CAP": "daily_token_cap",
     f"{PREFIX}RATE_PER_IP": "rate_per_ip",
     f"{PREFIX}IP_SALT": "ip_salt",
     f"{PREFIX}PORT": "port",
@@ -130,6 +153,18 @@ ENV_FIELDS = {
     # offline model (see generation.mock) instead of a network client.
     f"{PREFIX}LLM_FAKE": "llm_fake",
 }
+
+#: Fields the loop below converts explicitly instead of taking the raw string.
+TYPED_FIELDS = frozenset(
+    {
+        "generation",
+        "port",
+        "rate_per_ip",
+        "llm_price_input_per_m",
+        "llm_price_output_per_m",
+        "budget_usd_per_month",
+    }
+)
 
 SECRET_FIELDS = ("llm_api_key", "ip_salt")
 
@@ -143,8 +178,12 @@ class Config:
     llm_key_file: str = ""
     llm_key_path: str = ""
     llm_model: str = DEFAULT_MODEL
+    llm_referer: str = ""
+    llm_title: str = ""
+    llm_price_input_per_m: float = DEFAULT_PRICE_INPUT_PER_M
+    llm_price_output_per_m: float = DEFAULT_PRICE_OUTPUT_PER_M
+    budget_usd_per_month: float = DEFAULT_BUDGET_USD_PER_MONTH
     generation: bool = True
-    daily_token_cap: int = DEFAULT_DAILY_TOKEN_CAP
     rate_per_ip: str = DEFAULT_RATE_PER_IP
     ip_salt: str = ""
     port: int = DEFAULT_PORT
@@ -211,6 +250,13 @@ class Config:
     def rate_limit(self) -> tuple[int, float]:
         return parse_rate(self.rate_per_ip)
 
+    def cost_usd(self, prompt_tokens: int, completion_tokens: int) -> float:
+        """USD cost of one completion at the configured prices per million tokens."""
+        return (
+            int(prompt_tokens) * self.llm_price_input_per_m
+            + int(completion_tokens) * self.llm_price_output_per_m
+        ) / 1_000_000
+
     @property
     def masked(self) -> dict[str, Any]:
         """Public view for logs/reports: secrets become ``***`` (or '' if unset)."""
@@ -243,6 +289,15 @@ class Config:
     __str__ = __repr__
 
 
+def _present(values: Mapping[str, str], name: str) -> str | None:
+    """The value of ``name``, or ``None`` when it is absent or blank."""
+    text = values.get(name)
+    if text is None:
+        return None
+    text = text.strip()
+    return text or None
+
+
 def load_config(
     environ: Mapping[str, str] | None = None,
     env_file: Path | str | None = ENV_FILE,
@@ -250,37 +305,41 @@ def load_config(
     """Build :class:`Config` from the env file plus the real environment.
 
     The environment wins over the file; unknown ``GROUNDED_RAG_*`` variables are
-    ignored.  A malformed value raises :class:`ConfigError`.
+    ignored and an empty value falls back to the default, so a blank
+    ``.env.example`` copy changes nothing.  A malformed value raises
+    :class:`ConfigError`.
     """
     environ = os.environ if environ is None else environ
     values = read_env_file(env_file) if env_file is not None else {}
-    for env_name, field_name in ENV_FIELDS.items():
+    for env_name in ENV_FIELDS:
         if env_name in environ:
             values[env_name] = environ[env_name]
 
     kwargs: dict[str, Any] = {}
-    if f"{PREFIX}GENERATION" in values:
-        kwargs["generation"] = parse_bool(values[f"{PREFIX}GENERATION"], name=f"{PREFIX}GENERATION")
-    if f"{PREFIX}DAILY_TOKEN_CAP" in values:
-        raw = values[f"{PREFIX}DAILY_TOKEN_CAP"].strip()
+    generation = _present(values, f"{PREFIX}GENERATION")
+    if generation is not None:
+        kwargs["generation"] = parse_bool(generation, name=f"{PREFIX}GENERATION")
+    port = _present(values, f"{PREFIX}PORT")
+    if port is not None:
         try:
-            kwargs["daily_token_cap"] = int(raw)
+            kwargs["port"] = int(port)
         except ValueError as error:
-            raise ConfigError(f"{PREFIX}DAILY_TOKEN_CAP must be an integer (got {raw!r})") from error
-        if kwargs["daily_token_cap"] < 0:
-            raise ConfigError(f"{PREFIX}DAILY_TOKEN_CAP cannot be negative")
-    if f"{PREFIX}PORT" in values:
-        raw = values[f"{PREFIX}PORT"].strip()
-        try:
-            kwargs["port"] = int(raw)
-        except ValueError as error:
-            raise ConfigError(f"{PREFIX}PORT must be an integer (got {raw!r})") from error
-    if f"{PREFIX}RATE_PER_IP" in values:
-        parse_rate(values[f"{PREFIX}RATE_PER_IP"])  # fail fast on a malformed rate
-        kwargs["rate_per_ip"] = values[f"{PREFIX}RATE_PER_IP"].strip()
+            raise ConfigError(f"{PREFIX}PORT must be an integer (got {port!r})") from error
+    rate = _present(values, f"{PREFIX}RATE_PER_IP")
+    if rate is not None:
+        parse_rate(rate)  # fail fast on a malformed rate
+        kwargs["rate_per_ip"] = rate
+    for env_name, field_name in (
+        (f"{PREFIX}LLM_PRICE_INPUT_PER_M", "llm_price_input_per_m"),
+        (f"{PREFIX}LLM_PRICE_OUTPUT_PER_M", "llm_price_output_per_m"),
+        (f"{PREFIX}BUDGET_USD_PER_MONTH", "budget_usd_per_month"),
+    ):
+        amount = _present(values, env_name)
+        if amount is not None:
+            kwargs[field_name] = parse_amount(amount, name=env_name)
 
     for env_name, field_name in ENV_FIELDS.items():
-        if field_name in kwargs or field_name in {"generation", "daily_token_cap", "port", "rate_per_ip"}:
+        if field_name in TYPED_FIELDS or field_name in kwargs:
             continue
         if env_name in values:
             kwargs[field_name] = values[env_name].strip()

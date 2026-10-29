@@ -2,10 +2,10 @@
 
 No provider SDK: one ``httpx`` call, a 60 s timeout, one retry on ``429``/``5xx``
 and one fallback when the server rejects ``response_format`` with a ``400``.
-The default endpoint is OpenRouter; ``GROUNDED_RAG_LLM_BASE_URL`` points it
-anywhere OpenAI-compatible.  The client never logs the API key or the request
-headers, and its two optional attribution headers (``HTTP-Referer``,
-``X-Title``) are plain project constants that other providers simply ignore.
+The endpoint comes only from ``GROUNDED_RAG_LLM_BASE_URL``: nothing is
+hardcoded.  The client never logs the API key or the request headers, and its
+two optional attribution headers (``HTTP-Referer``, ``X-Title``) are settings
+that are left out of the request entirely when empty.
 """
 
 from __future__ import annotations
@@ -19,9 +19,6 @@ import httpx
 from .config import MASK, Config, LLMNotConfigured, resolve_llm_api_key
 
 USER_AGENT = "grounded-rag/0.2 (+https://github.com/devop-arg/grounded-rag)"
-#: Optional attribution headers used by OpenRouter; harmless elsewhere.
-HTTP_REFERER = "https://github.com/devop-arg/grounded-rag"
-X_TITLE = "grounded-rag"
 #: Upstream error messages are quoted back for diagnosis, up to this many chars.
 MAX_ERROR_DETAIL = 200
 TIMEOUT_S = 60.0
@@ -68,6 +65,8 @@ class OpenAICompatibleClient:
         transport: httpx.BaseTransport | None = None,
         sleep=time.sleep,
         max_retries: int = MAX_RETRIES,
+        referer: str = "",
+        title: str = "",
     ) -> None:
         if not base_url or not api_key or not model:
             raise LLMNotConfigured("base URL, model and API key are required")
@@ -77,6 +76,8 @@ class OpenAICompatibleClient:
         self.timeout = timeout
         self.sleep = sleep
         self.max_retries = max_retries
+        self.referer = referer
+        self.title = title
         self._json_mode = True
         self._client = httpx.Client(timeout=timeout, transport=transport)
 
@@ -84,13 +85,17 @@ class OpenAICompatibleClient:
         return f"OpenAICompatibleClient(base_url={self.base_url!r}, model={self.model!r})"
 
     def _headers(self) -> dict[str, str]:
-        return {
+        headers = {
             "Authorization": f"Bearer {self._api_key}",
             "Content-Type": "application/json",
             "User-Agent": USER_AGENT,
-            "HTTP-Referer": HTTP_REFERER,
-            "X-Title": X_TITLE,
         }
+        # Optional attribution headers: configured by env, never invented here.
+        if self.referer:
+            headers["HTTP-Referer"] = self.referer
+        if self.title:
+            headers["X-Title"] = self.title
+        return headers
 
     def _redact(self, text: str) -> str:
         """Never echo the key back, even if an upstream error message quotes it."""
@@ -207,5 +212,9 @@ def build_llm(config: Config) -> ChatModel:
         return MockLLM()
     config.require_llm()
     return OpenAICompatibleClient(
-        config.llm_base_url, resolve_llm_api_key(config), config.llm_model
+        config.llm_base_url,
+        resolve_llm_api_key(config),
+        config.llm_model,
+        referer=config.llm_referer,
+        title=config.llm_title,
     )
