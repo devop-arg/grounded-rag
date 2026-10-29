@@ -1,0 +1,16 @@
+{"id": "d01", "lang": "es", "question": "¿cómo creo un índice parcial?", "answerable": true, "expected_urls": ["https://www.postgresql.org/docs/17/indexes-partial.html#INDEXES-PARTIAL"]}
+{"id": "d02", "lang": "es", "question": "¿cómo funciona el control de concurrencia multiversión de PostgreSQL?", "answerable": true, "expected_urls": ["https://www.postgresql.org/docs/17/mvcc-intro.html#MVCC-INTRO"]}
+{"id": "d03", "lang": "es", "question": "¿cómo otorgo permisos sobre una tabla a un rol?", "answerable": true, "expected_urls": ["https://www.postgresql.org/docs/17/sql-grant.html#SQL-GRANT-DESCRIPTION"]}
+{"id": "d04", "lang": "es", "question": "¿cómo cargo un archivo CSV en una tabla con COPY?", "answerable": true, "expected_urls": ["https://www.postgresql.org/docs/17/sql-copy.html"]}
+{"id": "d05", "lang": "es", "question": "¿cómo puedo indexar una columna de tipo JSONB?", "answerable": true, "expected_urls": ["https://www.postgresql.org/docs/17/datatype-json.html#JSON-INDEXING"]}
+{"id": "d06", "lang": "es", "question": "¿cómo creo una tabla particionada por rango?", "answerable": true, "expected_urls": ["https://www.postgresql.org/docs/17/ddl-partitioning.html#DDL-PARTITIONING-DECLARATIVE"]}
+{"id": "d07", "lang": "es", "question": "¿cómo leo el plan de ejecución que devuelve EXPLAIN ANALYZE?", "answerable": true, "expected_urls": ["https://www.postgresql.org/docs/17/using-explain.html#USING-EXPLAIN-ANALYZE"]}
+{"id": "d08", "lang": "es", "question": "¿qué es el registro de escritura anticipada WAL?", "answerable": true, "expected_urls": ["https://www.postgresql.org/docs/17/wal-intro.html#WAL-INTRO"]}
+{"id": "d09", "lang": "es", "question": "¿cómo configuro el autovacuum para que limpie las tablas muertas?", "answerable": true, "expected_urls": ["https://www.postgresql.org/docs/17/routine-vacuuming.html#AUTOVACUUM"]}
+{"id": "d10", "lang": "es", "question": "¿cómo instalo una extensión en mi base de datos?", "answerable": true, "expected_urls": ["https://www.postgresql.org/docs/17/sql-createextension.html"]}
+{"id": "d11", "lang": "es", "question": "¿cómo defino un trigger que se dispare antes de insertar una fila?", "answerable": true, "expected_urls": ["https://www.postgresql.org/docs/17/trigger-definition.html#TRIGGER-DEFINITION"]}
+{"id": "d12", "lang": "es", "question": "¿cómo hago una búsqueda de texto completo y ordeno por relevancia?", "answerable": true, "expected_urls": ["https://www.postgresql.org/docs/17/textsearch-controls.html#TEXTSEARCH-CONTROLS"]}
+{"id": "d13", "lang": "en", "question": "how do I read the query plan of a slow query", "answerable": true, "expected_urls": ["https://www.postgresql.org/docs/17/using-explain.html#USING-EXPLAIN-BASICS"]}
+{"id": "d14", "lang": "en", "question": "how do I create a multicolumn index", "answerable": true, "expected_urls": ["https://www.postgresql.org/docs/17/indexes-multicolumn.html#INDEXES-MULTICOLUMN"]}
+{"id": "d15", "lang": "en", "question": "how do I tune autovacuum thresholds", "answerable": true, "expected_urls": ["https://www.postgresql.org/docs/17/routine-vacuuming.html#AUTOVACUUM"]}
+{"id": "d16", "lang": "en", "question": "how do privileges on tables and schemas work", "answerable": true, "expected_urls": ["https://www.postgresql.org/docs/17/ddl-priv.html#DDL-PRIV"]}

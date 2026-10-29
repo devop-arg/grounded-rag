@@ -108,13 +108,92 @@ def file_size(path: Path) -> int:
     return path.stat().st_size if path.exists() else 0
 
 
+def reuse_vectors() -> int:
+    """Rebuild ``index.sqlite`` (both FTS tables) from ``chunks.jsonl``, keep the vectors.
+
+    The embeddings cost ~34 minutes, so this path never re-embeds: it verifies
+    that ``vector_ids.json`` matches the chunk ids of ``chunks.jsonl`` in the same
+    order (and that the vector matrix has that many rows) and aborts otherwise.
+    """
+    import numpy as np
+
+    from retrieval.store import INDEX_PATH, VECTORS_PATH, VECTOR_IDS_PATH, SqliteNumpyStore, iter_chunks
+
+    if not CHUNKS_PATH.exists():
+        print(f"ERROR: {CHUNKS_PATH} not found; --reuse-vectors needs an existing chunk file", flush=True)
+        return 2
+    chunks = list(iter_chunks(CHUNKS_PATH))
+    chunk_ids = [chunk["id"] for chunk in chunks]
+    if not VECTOR_IDS_PATH.exists() or not VECTORS_PATH.exists():
+        print(f"ERROR: {VECTORS_PATH.name} / {VECTOR_IDS_PATH.name} missing; nothing to reuse", flush=True)
+        return 2
+
+    stored_ids = json.loads(VECTOR_IDS_PATH.read_text())
+    if stored_ids != chunk_ids:
+        mismatch = next(
+            (index for index, (a, b) in enumerate(zip(stored_ids, chunk_ids)) if a != b),
+            min(len(stored_ids), len(chunk_ids)),
+        )
+        print(
+            f"ERROR: {VECTOR_IDS_PATH.name} does not match {CHUNKS_PATH.name}"
+            f" ({len(stored_ids)} vs {len(chunk_ids)} ids, first mismatch at {mismatch}); aborting",
+            flush=True,
+        )
+        return 2
+
+    rows = int(np.load(VECTORS_PATH, mmap_mode="r").shape[0])
+    if rows != len(chunk_ids):
+        print(f"ERROR: {VECTORS_PATH.name} has {rows} vectors for {len(chunk_ids)} chunks; aborting", flush=True)
+        return 2
+
+    started = time.perf_counter()
+    store = SqliteNumpyStore.build(
+        chunks,
+        vectors=None,  # keep data/vectors.npy and data/vector_ids.json untouched
+        index_path=INDEX_PATH,
+        vectors_path=VECTORS_PATH,
+        vector_ids_path=VECTOR_IDS_PATH,
+    )
+    seconds = time.perf_counter() - started
+    print(
+        f"index: {store.size} chunks indexed in {seconds:.1f}s from {CHUNKS_PATH.name}"
+        f" (vectors reused: {rows} x {np.load(VECTORS_PATH, mmap_mode='r').shape[1]})",
+        flush=True,
+    )
+
+    stats_path = DATA_DIR / "ingest_stats.json"
+    stats = json.loads(stats_path.read_text()) if stats_path.exists() else {}
+    stats.setdefault("seconds", {})["index"] = round(seconds, 2)
+    stats["index_bytes"] = {
+        "chunks.jsonl": file_size(CHUNKS_PATH),
+        "index.sqlite": file_size(INDEX_PATH),
+        "vectors.npy": file_size(VECTORS_PATH),
+        "vector_ids.json": file_size(VECTOR_IDS_PATH),
+    }
+    stats["vectors_reused"] = True
+    stats_path.write_text(json.dumps(stats, indent=2, ensure_ascii=False) + "\n")
+    print(json.dumps(stats, indent=2, ensure_ascii=False), flush=True)
+    return 0
+
+
 def main(argv: list[str] | None = None) -> int:
     parser = argparse.ArgumentParser(prog="ingest", description="Build the PostgreSQL 17 documentation index")
     parser.add_argument("--skip-download", action="store_true", help="do not fetch docs (use data/html as is)")
     parser.add_argument("--skip-embed", action="store_true", help="skip embeddings and the vector index")
+    parser.add_argument(
+        "--reuse-vectors",
+        action="store_true",
+        help="rebuild index.sqlite from data/chunks.jsonl and keep data/vectors.npy as is (no re-embedding)",
+    )
     parser.add_argument("--limit", type=int, default=None, help="only process the first N pages (for tests)")
     parser.add_argument("--refresh", action="store_true", help="re-fetch cached docs pages from the site")
     args = parser.parse_args(argv)
+
+    if args.reuse_vectors:
+        if args.skip_embed:
+            print("ERROR: --reuse-vectors and --skip-embed are incompatible (--skip-embed deletes the vectors)", flush=True)
+            return 2
+        return reuse_vectors()
 
     timings: dict[str, float] = {}
     total_started = time.perf_counter()

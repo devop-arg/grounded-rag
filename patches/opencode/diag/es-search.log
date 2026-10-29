@@ -1,0 +1,372 @@
+== python -m retrieval (default policy: downweight) (2026-10-28T22:05:50-03:00) ==
+
+######## .venv/bin/python -m retrieval "¿cómo configuro la replicación lógica?"
+store + model load: 2203.2 ms (excluded from latency)
+query: "¿cómo configuro la replicación lógica?"
+lang: es   policy: downweight   lexical index: stem   stopwords dropped: no
+results: 8   latency: 47.6 ms
+
+ #      rrf   lex   vec  frags  url
+-----------------------------------------------------------------------------------------------
+ 1  0.01639     -     1      1  https://www.postgresql.org/docs/17/logical-replication-config.html#LOGICAL-REPLICATION-CONFIG
+ 2  0.01613     -     2      1  https://www.postgresql.org/docs/17/logical-replication-subscription.html#LOGICAL-REPLICATION-SUBSCRIPTION-EXAMPLES
+ 3  0.01587     -     3      1  https://www.postgresql.org/docs/17/logical-replication.html#LOGICAL-REPLICATION
+ 4  0.01562     -     4      1  https://www.postgresql.org/docs/17/logicaldecoding-explanation.html#LOGICALDECODING-EXPLANATION-OUTPUT-PLUGINS
+ 5  0.01538     -     5      1  https://www.postgresql.org/docs/17/logical-replication-architecture.html#LOGICAL-REPLICATION-ARCHITECTURE
+ 6  0.01515     -     6      1  https://www.postgresql.org/docs/17/app-pgcreatesubscriber.html#id-1.9.5.7.8
+ 7  0.01493     -     7      2  https://www.postgresql.org/docs/17/logicaldecoding-explanation.html#LOGICALDECODING-REPLICATION-SLOTS-SYNCHRONIZATION
+ 8  0.01471     -     8      1  https://www.postgresql.org/docs/17/logical-replication-restrictions.html#LOGICAL-REPLICATION-RESTRICTIONS
+
+[1] 29.11. Configuration Settings :: 29.11. Configuration Settings
+    grouped fragments: 1 (logical-replication-config.html#LOGICAL-REPLICATION-CONFIG#0)
+    Logical replication requires several configuration options to be set. Most options are relevant only on one side of the replication. However, max_replication_slots is used on both the publisher and th...
+[2] 29.2. Subscription :: 29.2. Subscription > 29.2.2. Examples: Set Up Logical Replication
+    grouped fragments: 1 (logical-replication-subscription.html#LOGICAL-REPLICATION-SUBSCRIPTION-EXAMPLES#1)
+    test_sub=# SELECT * FROM t1; a | b ---+------- 1 | one 2 | two 3 | three 4 | four 5 | five 6 | six (6 rows) test_sub=# SELECT * FROM t2; c | d ---+--- 1 | A 2 | B 3 | C (3 rows) test_sub=# SELECT * FR...
+[3] Chapter 29. Logical Replication :: Chapter 29. Logical Replication
+    grouped fragments: 1 (logical-replication.html#LOGICAL-REPLICATION#0)
+    Logical replication is a method of replicating data objects and their changes, based upon their replication identity (usually a primary key). We use the term logical in contrast to physical replicatio...
+[4] 47.2. Logical Decoding Concepts :: 47.2. Logical Decoding Concepts > 47.2.4. Output Plugins
+    grouped fragments: 1 (logicaldecoding-explanation.html#LOGICALDECODING-EXPLANATION-OUTPUT-PLUGINS#0)
+    Output plugins transform the data from the write-ahead log's internal representation into the format the consumer of a replication slot desires. When a new replication slot is created using the stream...
+[5] 29.8. Architecture :: 29.8. Architecture
+    grouped fragments: 1 (logical-replication-architecture.html#LOGICAL-REPLICATION-ARCHITECTURE#0)
+    Logical replication starts by copying a snapshot of the data on the publisher database. Once that is done, changes on the publisher are sent to the subscriber as they occur in real time. The subscribe...
+[6] pg_createsubscriber :: Examples
+    grouped fragments: 1 (app-pgcreatesubscriber.html#id-1.9.5.7.8#0)
+    To create a logical replica for databases hr and finance from a physical replica at foo : $ pg_createsubscriber -D /usr/local/pgsql/data -P "host=foo" -d hr -d finance...
+[7] 47.2. Logical Decoding Concepts :: 47.2. Logical Decoding Concepts > 47.2.3. Replication Slot Synchronization
+    grouped fragments: 2 (logicaldecoding-explanation.html#LOGICALDECODING-REPLICATION-SLOTS-SYNCHRONIZATION#0, logicaldecoding-explanation.html#LOGICALDECODING-REPLICATION-SLOTS-SYNCHRONIZATION#1)
+    The logical replication slots on the primary can be synchronized to the hot standby by using the failover parameter of pg_create_logical_replication_slot , or by using the failover option of CREATE SU...
+[8] 29.7. Restrictions :: 29.7. Restrictions
+    grouped fragments: 1 (logical-replication-restrictions.html#LOGICAL-REPLICATION-RESTRICTIONS#0)
+    Logical replication currently has the following restrictions or missing functionality. These might be addressed in future releases. The database schema and DDL commands are not replicated. The initial...
+
+######## .venv/bin/python -m retrieval "how do I create a partial index"
+store + model load: 2252.7 ms (excluded from latency)
+query: "how do I create a partial index"
+lang: en   policy: downweight   lexical index: stem   stopwords dropped: no
+results: 8   latency: 63.9 ms
+
+ #      rrf   lex   vec  frags  url
+-----------------------------------------------------------------------------------------------
+ 1  0.03279     1     1      3  https://www.postgresql.org/docs/17/indexes-partial.html#INDEXES-PARTIAL
+ 2  0.02782    22     4      1  https://www.postgresql.org/docs/17/sql-createindex.html#id-1.9.3.69.5
+ 3  0.02764    25     3      2  https://www.postgresql.org/docs/17/sql-createindex.html#SQL-CREATEINDEX-CONCURRENTLY
+ 4  0.02667    16    14      2  https://www.postgresql.org/docs/17/sql-createindex.html#id-1.9.3.69.7
+ 5  0.02626     6    30      2  https://www.postgresql.org/docs/17/sql-insert.html#SQL-ON-CONFLICT
+ 6  0.02583    15    20      1  https://www.postgresql.org/docs/17/sql-insert.html#id-1.9.3.152.9
+ 7  0.02476    12    32      1  https://www.postgresql.org/docs/17/catalog-pg-index.html#CATALOG-PG-INDEX
+ 8  0.02410    24    22      4  https://www.postgresql.org/docs/17/sql-createtable.html#id-1.9.3.85.6
+
+[1] 11.8. Partial Indexes :: 11.8. Partial Indexes
+    grouped fragments: 3 (indexes-partial.html#INDEXES-PARTIAL#2, indexes-partial.html#INDEXES-PARTIAL#0, indexes-partial.html#INDEXES-PARTIAL#1)
+    Keep in mind that setting up a partial index indicates that you know at least as much as the query planner knows, in particular you know when an index might be profitable. Forming this knowledge requi...
+[2] CREATE INDEX :: Description
+    grouped fragments: 1 (sql-createindex.html#id-1.9.3.69.5#0)
+    CREATE INDEX constructs an index on the specified column(s) of the specified relation, which can be a table or a materialized view. Indexes are primarily used to enhance database performance (though i...
+[3] CREATE INDEX :: Parameters > Building Indexes Concurrently
+    grouped fragments: 2 (sql-createindex.html#SQL-CREATEINDEX-CONCURRENTLY#1, sql-createindex.html#SQL-CREATEINDEX-CONCURRENTLY#0)
+    Concurrent builds of expression indexes and partial indexes are supported. Errors occurring in the evaluation of these expressions could cause behavior similar to that described above for unique const...
+[4] CREATE INDEX :: Notes
+    grouped fragments: 2 (sql-createindex.html#id-1.9.3.69.7#1, sql-createindex.html#id-1.9.3.69.7#0)
+    For most index methods, the speed of creating an index is dependent on the setting of maintenance_work_mem . Larger values will reduce the time needed for index creation, so long as you don't make it ...
+[5] INSERT :: Parameters > ON CONFLICT Clause
+    grouped fragments: 2 (sql-insert.html#SQL-ON-CONFLICT#1, sql-insert.html#SQL-ON-CONFLICT#0)
+    Used to allow inference of partial unique indexes. Any indexes that satisfy the predicate (which need not actually be partial indexes) can be inferred. Follows CREATE INDEX format. SELECT privilege on...
+[6] INSERT :: Examples
+    grouped fragments: 1 (sql-insert.html#id-1.9.3.152.9#1)
+    -- This statement could infer a partial unique index on "did" -- with a predicate of "WHERE is_active", but it could also -- just use a regular unique constraint on "did" INSERT INTO distributors (did...
+[7] 51.26. pg_index :: 51.26. pg_index
+    grouped fragments: 1 (catalog-pg-index.html#CATALOG-PG-INDEX#1)
+    Column Type Description indexprs pg_node_tree Expression trees (in nodeToString() representation) for index attributes that are not simple column references. This is a list with one element for each z...
+[8] CREATE TABLE :: Parameters
+    grouped fragments: 4 (sql-createtable.html#id-1.9.3.85.6#8, sql-createtable.html#id-1.9.3.85.6#7, sql-createtable.html#id-1.9.3.85.6#2, sql-createtable.html#id-1.9.3.85.6#4)
+    EXCLUDE [ USING index_method ] ( exclude_element WITH operator [, ... ] ) index_parameters [ WHERE ( predicate ) ] The EXCLUDE clause defines an exclusion constraint, which guarantees that if any two ...
+
+######## .venv/bin/python -m retrieval "¿qué niveles de aislamiento soporta PostgreSQL?"
+store + model load: 2253.6 ms (excluded from latency)
+query: "¿qué niveles de aislamiento soporta PostgreSQL?"
+lang: es   policy: downweight   lexical index: stem   stopwords dropped: no
+results: 8   latency: 89.5 ms
+
+ #      rrf   lex   vec  frags  url
+-----------------------------------------------------------------------------------------------
+ 1  0.02005    30     9      1  https://www.postgresql.org/docs/17/release-17-11.html#RELEASE-17-11-CHANGES
+ 2  0.01639     -     1      1  https://www.postgresql.org/docs/17/transaction-iso.html#TRANSACTION-ISO
+ 3  0.01613     -     2      1  https://www.postgresql.org/docs/17/transaction-iso.html#XACT-REPEATABLE-READ
+ 4  0.01587     -     3      1  https://www.postgresql.org/docs/17/mvcc-intro.html#MVCC-INTRO
+ 5  0.01562     -     4      2  https://www.postgresql.org/docs/17/transaction-iso.html#XACT-SERIALIZABLE
+ 6  0.01538     -     5      1  https://www.postgresql.org/docs/17/view-pg-shadow.html#VIEW-PG-SHADOW
+ 7  0.01515     -     6      1  https://www.postgresql.org/docs/17/manage-ag-overview.html#MANAGE-AG-OVERVIEW
+ 8  0.01493     -     7      1  https://www.postgresql.org/docs/17/postgres-fdw.html#POSTGRES-FDW-TRANSACTION-MANAGEMENT
+
+[1] E.1. Release 17.11 :: E.1. Release 17.11 > E.1.2. Changes
+    grouped fragments: 1 (release-17-11.html#RELEASE-17-11-CHANGES#1)
+    Fix buffer overrun with long time zone abbreviation in to_char() (Tom Lane) § This can easily crash the server, and exploits leading to arbitrary code execution have been reported. The PostgreSQL Proj...
+[2] 13.2. Transaction Isolation :: 13.2. Transaction Isolation
+    grouped fragments: 1 (transaction-iso.html#TRANSACTION-ISO#0)
+    The SQL standard defines four levels of transaction isolation. The most strict is Serializable, which is defined by the standard in a paragraph which says that any concurrent execution of a set of Ser...
+[3] 13.2. Transaction Isolation :: 13.2. Transaction Isolation > 13.2.2. Repeatable Read Isolation Level
+    grouped fragments: 1 (transaction-iso.html#XACT-REPEATABLE-READ#1)
+    The Repeatable Read isolation level is implemented using a technique known in academic database literature and in some other database products as Snapshot Isolation . Differences in behavior and perfo...
+[4] 13.1. Introduction :: 13.1. Introduction
+    grouped fragments: 1 (mvcc-intro.html#MVCC-INTRO#0)
+    PostgreSQL provides a rich set of tools for developers to manage concurrent access to data. Internally, data consistency is maintained by using a multiversion model (Multiversion Concurrency Control, ...
+[5] 13.2. Transaction Isolation :: 13.2. Transaction Isolation > 13.2.3. Serializable Isolation Level
+    grouped fragments: 2 (transaction-iso.html#XACT-SERIALIZABLE#1, transaction-iso.html#XACT-SERIALIZABLE#2)
+    Predicate locks in PostgreSQL , like in most other database systems, are based on data actually accessed by a transaction. These will show up in the pg_locks system view with a mode of SIReadLock . Th...
+[6] 52.25. pg_shadow :: 52.25. pg_shadow
+    grouped fragments: 1 (view-pg-shadow.html#VIEW-PG-SHADOW#0)
+    The view pg_shadow exists for backwards compatibility: it emulates a catalog that existed in PostgreSQL before version 8.1. It shows properties of all roles that are marked as rolcanlogin in pg_authid...
+[7] 22.1. Overview :: 22.1. Overview
+    grouped fragments: 1 (manage-ag-overview.html#MANAGE-AG-OVERVIEW#0)
+    A small number of objects, like role, database, and tablespace names, are defined at the cluster level and stored in the pg_global tablespace. Inside the cluster are multiple databases, which are isol...
+[8] F.36. postgres_fdw — access data stored in external PostgreSQL servers :: F.36. postgres_fdw — access data stored in external PostgreSQL servers > F.36.4. Transaction Management
+    grouped fragments: 1 (postgres-fdw.html#POSTGRES-FDW-TRANSACTION-MANAGEMENT#0)
+    During a query that references any remote tables on a foreign server, postgres_fdw opens a transaction on the remote server if one is not already open corresponding to the current local transaction. T...
+
+######## old behaviour for comparison: --policy baseline
+store + model load: 2347.4 ms (excluded from latency)
+query: "¿cómo configuro la replicación lógica?"
+lang: es   policy: baseline   lexical index: stem   stopwords dropped: no
+results: 8   latency: 50.3 ms
+
+ #      rrf   lex   vec  frags  url
+-----------------------------------------------------------------------------------------------
+ 1  0.01639     1     -      1  https://www.postgresql.org/docs/17/ddl-inherit.html#DDL-INHERIT
+ 2  0.01639     -     1      1  https://www.postgresql.org/docs/17/logical-replication-config.html#LOGICAL-REPLICATION-CONFIG
+ 3  0.01613     -     2      1  https://www.postgresql.org/docs/17/logical-replication-subscription.html#LOGICAL-REPLICATION-SUBSCRIPTION-EXAMPLES
+ 4  0.01613     2     -      1  https://www.postgresql.org/docs/17/unaccent.html#UNACCENT
+ 5  0.01587     -     3      1  https://www.postgresql.org/docs/17/logical-replication.html#LOGICAL-REPLICATION
+ 6  0.01587     3     -      1  https://www.postgresql.org/docs/17/tutorial-inheritance.html#TUTORIAL-INHERITANCE
+ 7  0.01562     -     4      1  https://www.postgresql.org/docs/17/logicaldecoding-explanation.html#LOGICALDECODING-EXPLANATION-OUTPUT-PLUGINS
+ 8  0.01538     -     5      1  https://www.postgresql.org/docs/17/logical-replication-architecture.html#LOGICAL-REPLICATION-ARCHITECTURE
+
+[1] 5.11. Inheritance :: 5.11. Inheritance
+    grouped fragments: 1 (ddl-inherit.html#DDL-INHERIT#0)
+    PostgreSQL implements table inheritance, which can be a useful tool for database designers. (SQL:1999 and later define a type inheritance feature, which differs in many respects from the features desc...
+[2] 29.11. Configuration Settings :: 29.11. Configuration Settings
+    grouped fragments: 1 (logical-replication-config.html#LOGICAL-REPLICATION-CONFIG#0)
+    Logical replication requires several configuration options to be set. Most options are relevant only on one side of the replication. However, max_replication_slots is used on both the publisher and th...
+[3] 29.2. Subscription :: 29.2. Subscription > 29.2.2. Examples: Set Up Logical Replication
+    grouped fragments: 1 (logical-replication-subscription.html#LOGICAL-REPLICATION-SUBSCRIPTION-EXAMPLES#1)
+    test_sub=# SELECT * FROM t1; a | b ---+------- 1 | one 2 | two 3 | three 4 | four 5 | five 6 | six (6 rows) test_sub=# SELECT * FROM t2; c | d ---+--- 1 | A 2 | B 3 | C (3 rows) test_sub=# SELECT * FR...
+[4] F.46. unaccent — a text search dictionary which removes diacritics :: F.46. unaccent — a text search dictionary which removes diacritics
+    grouped fragments: 1 (unaccent.html#UNACCENT#0)
+    unaccent is a text search dictionary that removes accents (diacritic signs) from lexemes. It's a filtering dictionary, which means its output is always passed to the next dictionary (if any), unlike t...
+[5] Chapter 29. Logical Replication :: Chapter 29. Logical Replication
+    grouped fragments: 1 (logical-replication.html#LOGICAL-REPLICATION#0)
+    Logical replication is a method of replicating data objects and their changes, based upon their replication identity (usually a primary key). We use the term logical in contrast to physical replicatio...
+[6] 3.6. Inheritance :: 3.6. Inheritance
+    grouped fragments: 1 (tutorial-inheritance.html#TUTORIAL-INHERITANCE#0)
+    Inheritance is a concept from object-oriented databases. It opens up interesting new possibilities of database design. Let's create two tables: A table cities and a table capitals . Naturally, capital...
+[7] 47.2. Logical Decoding Concepts :: 47.2. Logical Decoding Concepts > 47.2.4. Output Plugins
+    grouped fragments: 1 (logicaldecoding-explanation.html#LOGICALDECODING-EXPLANATION-OUTPUT-PLUGINS#0)
+    Output plugins transform the data from the write-ahead log's internal representation into the format the consumer of a replication slot desires. When a new replication slot is created using the stream...
+[8] 29.8. Architecture :: 29.8. Architecture
+    grouped fragments: 1 (logical-replication-architecture.html#LOGICAL-REPLICATION-ARCHITECTURE#0)
+    Logical replication starts by copying a snapshot of the data on the publisher database. Once that is done, changes on the publisher are sent to the subscriber as they occur in real time. The subscribe...
+
+######## new policy es-stopwords (Spanish function words dropped from the lexical query)
+store + model load: 2209.0 ms (excluded from latency)
+query: "¿cómo configuro la replicación lógica?"
+lang: es   policy: es-stopwords   lexical index: stem   stopwords dropped: yes
+results: 8   latency: 37.0 ms
+
+ #      rrf   lex   vec  frags  url
+-----------------------------------------------------------------------------------------------
+ 1  0.01639     -     1      1  https://www.postgresql.org/docs/17/logical-replication-config.html#LOGICAL-REPLICATION-CONFIG
+ 2  0.01613     -     2      1  https://www.postgresql.org/docs/17/logical-replication-subscription.html#LOGICAL-REPLICATION-SUBSCRIPTION-EXAMPLES
+ 3  0.01587     -     3      1  https://www.postgresql.org/docs/17/logical-replication.html#LOGICAL-REPLICATION
+ 4  0.01562     -     4      1  https://www.postgresql.org/docs/17/logicaldecoding-explanation.html#LOGICALDECODING-EXPLANATION-OUTPUT-PLUGINS
+ 5  0.01538     -     5      1  https://www.postgresql.org/docs/17/logical-replication-architecture.html#LOGICAL-REPLICATION-ARCHITECTURE
+ 6  0.01515     -     6      1  https://www.postgresql.org/docs/17/app-pgcreatesubscriber.html#id-1.9.5.7.8
+ 7  0.01493     -     7      2  https://www.postgresql.org/docs/17/logicaldecoding-explanation.html#LOGICALDECODING-REPLICATION-SLOTS-SYNCHRONIZATION
+ 8  0.01471     -     8      1  https://www.postgresql.org/docs/17/logical-replication-restrictions.html#LOGICAL-REPLICATION-RESTRICTIONS
+
+[1] 29.11. Configuration Settings :: 29.11. Configuration Settings
+    grouped fragments: 1 (logical-replication-config.html#LOGICAL-REPLICATION-CONFIG#0)
+    Logical replication requires several configuration options to be set. Most options are relevant only on one side of the replication. However, max_replication_slots is used on both the publisher and th...
+[2] 29.2. Subscription :: 29.2. Subscription > 29.2.2. Examples: Set Up Logical Replication
+    grouped fragments: 1 (logical-replication-subscription.html#LOGICAL-REPLICATION-SUBSCRIPTION-EXAMPLES#1)
+    test_sub=# SELECT * FROM t1; a | b ---+------- 1 | one 2 | two 3 | three 4 | four 5 | five 6 | six (6 rows) test_sub=# SELECT * FROM t2; c | d ---+--- 1 | A 2 | B 3 | C (3 rows) test_sub=# SELECT * FR...
+[3] Chapter 29. Logical Replication :: Chapter 29. Logical Replication
+    grouped fragments: 1 (logical-replication.html#LOGICAL-REPLICATION#0)
+    Logical replication is a method of replicating data objects and their changes, based upon their replication identity (usually a primary key). We use the term logical in contrast to physical replicatio...
+[4] 47.2. Logical Decoding Concepts :: 47.2. Logical Decoding Concepts > 47.2.4. Output Plugins
+    grouped fragments: 1 (logicaldecoding-explanation.html#LOGICALDECODING-EXPLANATION-OUTPUT-PLUGINS#0)
+    Output plugins transform the data from the write-ahead log's internal representation into the format the consumer of a replication slot desires. When a new replication slot is created using the stream...
+[5] 29.8. Architecture :: 29.8. Architecture
+    grouped fragments: 1 (logical-replication-architecture.html#LOGICAL-REPLICATION-ARCHITECTURE#0)
+    Logical replication starts by copying a snapshot of the data on the publisher database. Once that is done, changes on the publisher are sent to the subscriber as they occur in real time. The subscribe...
+[6] pg_createsubscriber :: Examples
+    grouped fragments: 1 (app-pgcreatesubscriber.html#id-1.9.5.7.8#0)
+    To create a logical replica for databases hr and finance from a physical replica at foo : $ pg_createsubscriber -D /usr/local/pgsql/data -P "host=foo" -d hr -d finance...
+[7] 47.2. Logical Decoding Concepts :: 47.2. Logical Decoding Concepts > 47.2.3. Replication Slot Synchronization
+    grouped fragments: 2 (logicaldecoding-explanation.html#LOGICALDECODING-REPLICATION-SLOTS-SYNCHRONIZATION#0, logicaldecoding-explanation.html#LOGICALDECODING-REPLICATION-SLOTS-SYNCHRONIZATION#1)
+    The logical replication slots on the primary can be synchronized to the hot standby by using the failover parameter of pg_create_logical_replication_slot , or by using the failover option of CREATE SU...
+[8] 29.7. Restrictions :: 29.7. Restrictions
+    grouped fragments: 1 (logical-replication-restrictions.html#LOGICAL-REPLICATION-RESTRICTIONS#0)
+    Logical replication currently has the following restrictions or missing functionality. These might be addressed in future releases. The database schema and DDL commands are not replicated. The initial...
+
+######## new policy es-stopwords+downweight
+store + model load: 2420.3 ms (excluded from latency)
+query: "¿cómo configuro la replicación lógica?"
+lang: es   policy: es-stopwords+downweight   lexical index: stem   stopwords dropped: yes
+results: 8   latency: 40.2 ms
+
+ #      rrf   lex   vec  frags  url
+-----------------------------------------------------------------------------------------------
+ 1  0.01639     -     1      1  https://www.postgresql.org/docs/17/logical-replication-config.html#LOGICAL-REPLICATION-CONFIG
+ 2  0.01613     -     2      1  https://www.postgresql.org/docs/17/logical-replication-subscription.html#LOGICAL-REPLICATION-SUBSCRIPTION-EXAMPLES
+ 3  0.01587     -     3      1  https://www.postgresql.org/docs/17/logical-replication.html#LOGICAL-REPLICATION
+ 4  0.01562     -     4      1  https://www.postgresql.org/docs/17/logicaldecoding-explanation.html#LOGICALDECODING-EXPLANATION-OUTPUT-PLUGINS
+ 5  0.01538     -     5      1  https://www.postgresql.org/docs/17/logical-replication-architecture.html#LOGICAL-REPLICATION-ARCHITECTURE
+ 6  0.01515     -     6      1  https://www.postgresql.org/docs/17/app-pgcreatesubscriber.html#id-1.9.5.7.8
+ 7  0.01493     -     7      2  https://www.postgresql.org/docs/17/logicaldecoding-explanation.html#LOGICALDECODING-REPLICATION-SLOTS-SYNCHRONIZATION
+ 8  0.01471     -     8      1  https://www.postgresql.org/docs/17/logical-replication-restrictions.html#LOGICAL-REPLICATION-RESTRICTIONS
+
+[1] 29.11. Configuration Settings :: 29.11. Configuration Settings
+    grouped fragments: 1 (logical-replication-config.html#LOGICAL-REPLICATION-CONFIG#0)
+    Logical replication requires several configuration options to be set. Most options are relevant only on one side of the replication. However, max_replication_slots is used on both the publisher and th...
+[2] 29.2. Subscription :: 29.2. Subscription > 29.2.2. Examples: Set Up Logical Replication
+    grouped fragments: 1 (logical-replication-subscription.html#LOGICAL-REPLICATION-SUBSCRIPTION-EXAMPLES#1)
+    test_sub=# SELECT * FROM t1; a | b ---+------- 1 | one 2 | two 3 | three 4 | four 5 | five 6 | six (6 rows) test_sub=# SELECT * FROM t2; c | d ---+--- 1 | A 2 | B 3 | C (3 rows) test_sub=# SELECT * FR...
+[3] Chapter 29. Logical Replication :: Chapter 29. Logical Replication
+    grouped fragments: 1 (logical-replication.html#LOGICAL-REPLICATION#0)
+    Logical replication is a method of replicating data objects and their changes, based upon their replication identity (usually a primary key). We use the term logical in contrast to physical replicatio...
+[4] 47.2. Logical Decoding Concepts :: 47.2. Logical Decoding Concepts > 47.2.4. Output Plugins
+    grouped fragments: 1 (logicaldecoding-explanation.html#LOGICALDECODING-EXPLANATION-OUTPUT-PLUGINS#0)
+    Output plugins transform the data from the write-ahead log's internal representation into the format the consumer of a replication slot desires. When a new replication slot is created using the stream...
+[5] 29.8. Architecture :: 29.8. Architecture
+    grouped fragments: 1 (logical-replication-architecture.html#LOGICAL-REPLICATION-ARCHITECTURE#0)
+    Logical replication starts by copying a snapshot of the data on the publisher database. Once that is done, changes on the publisher are sent to the subscriber as they occur in real time. The subscribe...
+[6] pg_createsubscriber :: Examples
+    grouped fragments: 1 (app-pgcreatesubscriber.html#id-1.9.5.7.8#0)
+    To create a logical replica for databases hr and finance from a physical replica at foo : $ pg_createsubscriber -D /usr/local/pgsql/data -P "host=foo" -d hr -d finance...
+[7] 47.2. Logical Decoding Concepts :: 47.2. Logical Decoding Concepts > 47.2.3. Replication Slot Synchronization
+    grouped fragments: 2 (logicaldecoding-explanation.html#LOGICALDECODING-REPLICATION-SLOTS-SYNCHRONIZATION#0, logicaldecoding-explanation.html#LOGICALDECODING-REPLICATION-SLOTS-SYNCHRONIZATION#1)
+    The logical replication slots on the primary can be synchronized to the hot standby by using the failover parameter of pg_create_logical_replication_slot , or by using the failover option of CREATE SU...
+[8] 29.7. Restrictions :: 29.7. Restrictions
+    grouped fragments: 1 (logical-replication-restrictions.html#LOGICAL-REPLICATION-RESTRICTIONS#0)
+    Logical replication currently has the following restrictions or missing functionality. These might be addressed in future releases. The database schema and DDL commands are not replicated. The initial...
+
+######## bare identifiers: lang "other" is treated like English (stem, weights 1/1, no stopword filter)
+store + model load: 2367.1 ms (excluded from latency)
+query: "pg_dump"
+lang: other   policy: downweight   lexical index: stem   stopwords dropped: no
+results: 8   latency: 64.1 ms
+
+ #      rrf   lex   vec  frags  url
+-----------------------------------------------------------------------------------------------
+ 1  0.03202     4     1      1  https://www.postgresql.org/docs/17/app-pgdump.html#PG-DUMP-NOTES
+ 2  0.03178     1     5      1  https://www.postgresql.org/docs/17/backup-dump.html#BACKUP-DUMP
+ 3  0.03128     2     6      1  https://www.postgresql.org/docs/17/app-pgdump.html#PG-DUMP-EXAMPLES
+ 4  0.03058     3     8      1  https://www.postgresql.org/docs/17/backup-dump.html#BACKUP-DUMP-ALL
+ 5  0.02988     5     9     10  https://www.postgresql.org/docs/17/app-pgdump.html#PG-DUMP-OPTIONS
+ 6  0.02932    13     4      1  https://www.postgresql.org/docs/17/app-pgrestore.html#APP-PGRESTORE-DESCRIPTION
+ 7  0.02862     7    13      1  https://www.postgresql.org/docs/17/app-pgdump.html#PG-DUMP-DESCRIPTION
+ 8  0.02848     6    15      1  https://www.postgresql.org/docs/17/app-pgdump.html#id-1.9.4.14.7
+
+[1] pg_dump :: Notes
+    grouped fragments: 1 (app-pgdump.html#PG-DUMP-NOTES#0)
+    If your database cluster has any local additions to the template1 database, be careful to restore the output of pg_dump into a truly empty database; otherwise you are likely to get errors due to dupli...
+[2] 25.1. SQL Dump :: 25.1. SQL Dump
+    grouped fragments: 1 (backup-dump.html#BACKUP-DUMP#0)
+    The idea behind this dump method is to generate a file with SQL commands that, when fed back to the server, will recreate the database in the same state as it was at the time of the dump. PostgreSQL p...
+[3] pg_dump :: Examples
+    grouped fragments: 1 (app-pgdump.html#PG-DUMP-EXAMPLES#0)
+    To dump a database called mydb into an SQL-script file: $ pg_dump mydb > db.sql To reload such a script into a (freshly created) database named newdb : $ psql -X -d newdb -f db.sql To dump a database ...
+[4] 25.1. SQL Dump :: 25.1. SQL Dump > 25.1.2. Using pg_dumpall
+    grouped fragments: 1 (backup-dump.html#BACKUP-DUMP-ALL#0)
+    pg_dump dumps only a single database at a time, and it does not dump information about roles or tablespaces (because those are cluster-wide rather than per-database). To support convenient dumping of ...
+[5] pg_dump :: Options
+    grouped fragments: 10 (app-pgdump.html#PG-DUMP-OPTIONS#9, app-pgdump.html#PG-DUMP-OPTIONS#7, app-pgdump.html#PG-DUMP-OPTIONS#8, app-pgdump.html#PG-DUMP-OPTIONS#2, app-pgdump.html#PG-DUMP-OPTIONS#1, app-pgdump.html#PG-DUMP-OPTIONS#3, app-pgdump.html#PG-DUMP-OPTIONS#6, app-pgdump.html#PG-DUMP-OPTIONS#0, app-pgdump.html#PG-DUMP-OPTIONS#4, app-pgdump.html#PG-DUMP-OPTIONS#5)
+    Specifies the TCP port or local Unix domain socket file extension on which the server is listening for connections. Defaults to the PGPORT environment variable, if set, or a compiled-in default. -U us...
+[6] pg_restore :: Description
+    grouped fragments: 1 (app-pgrestore.html#APP-PGRESTORE-DESCRIPTION#0)
+    pg_restore is a utility for restoring a PostgreSQL database from an archive created by pg_dump in one of the non-plain-text formats. It will issue the commands necessary to reconstruct the database to...
+[7] pg_dump :: Description
+    grouped fragments: 1 (app-pgdump.html#PG-DUMP-DESCRIPTION#0)
+    pg_dump is a utility for backing up a PostgreSQL database. It makes consistent backups even if the database is being used concurrently. pg_dump does not block other users accessing the database (reade...
+[8] pg_dump :: Environment
+    grouped fragments: 1 (app-pgdump.html#id-1.9.4.14.7#0)
+    PGDATABASE PGHOST PGOPTIONS PGPORT PGUSER Default connection parameters. PG_COLOR Specifies whether to use color in diagnostic messages. Possible values are always , auto and never . This utility, lik...
+
+store + model load: 2312.2 ms (excluded from latency)
+query: "VACUUM FREEZE"
+lang: other   policy: downweight   lexical index: stem   stopwords dropped: no
+results: 8   latency: 48.0 ms
+
+ #      rrf   lex   vec  frags  url
+-----------------------------------------------------------------------------------------------
+ 1  0.03252     2     1      5  https://www.postgresql.org/docs/17/routine-vacuuming.html#VACUUM-FOR-WRAPAROUND
+ 2  0.03200     3     2      2  https://www.postgresql.org/docs/17/runtime-config-client.html#RUNTIME-CONFIG-CLIENT-STATEMENT
+ 3  0.03150     4     3      3  https://www.postgresql.org/docs/17/sql-vacuum.html#id-1.9.3.184.6
+ 4  0.03009     1    13      1  https://www.postgresql.org/docs/17/sql-createtable.html#SQL-CREATETABLE-STORAGE-PARAMETERS
+ 5  0.03008     6     7      2  https://www.postgresql.org/docs/17/routine-vacuuming.html#AUTOVACUUM
+ 6  0.02947    11     5      2  https://www.postgresql.org/docs/17/runtime-config-autovacuum.html#RUNTIME-CONFIG-AUTOVACUUM
+ 7  0.02838    12     9      2  https://www.postgresql.org/docs/17/progress-reporting.html#VACUUM-PROGRESS-REPORTING
+ 8  0.02742    15    11      1  https://www.postgresql.org/docs/17/sql-vacuum.html#id-1.9.3.184.7
+
+[1] 24.1. Routine Vacuuming :: 24.1. Routine Vacuuming > 24.1.5. Preventing Transaction ID Wraparound Failures
+    grouped fragments: 5 (routine-vacuuming.html#VACUUM-FOR-WRAPAROUND#1, routine-vacuuming.html#VACUUM-FOR-WRAPAROUND#2, routine-vacuuming.html#VACUUM-FOR-WRAPAROUND#4, routine-vacuuming.html#VACUUM-FOR-WRAPAROUND#0, routine-vacuuming.html#VACUUM-FOR-WRAPAROUND#3)
+    VACUUM uses the visibility map to determine which pages of a table must be scanned. Normally, it will skip pages that don't have any dead row versions even if those pages might still have row versions...
+[2] 19.11. Client Connection Defaults :: 19.11. Client Connection Defaults > 19.11.1. Statement Behavior
+    grouped fragments: 2 (runtime-config-client.html#RUNTIME-CONFIG-CLIENT-STATEMENT#4, runtime-config-client.html#RUNTIME-CONFIG-CLIENT-STATEMENT#5)
+    Be wary of enforcing this timeout on connections made through connection-pooling software or other middleware, as such a layer may not react well to unexpected connection closure. It may be helpful to...
+[3] VACUUM :: Parameters
+    grouped fragments: 3 (sql-vacuum.html#id-1.9.3.184.6#0, sql-vacuum.html#id-1.9.3.184.6#2, sql-vacuum.html#id-1.9.3.184.6#1)
+    FULL Selects “ full ” vacuum, which can reclaim more space, but takes much longer and exclusively locks the table. This method also requires extra disk space, since it writes a new copy of the table a...
+[4] CREATE TABLE :: Parameters > Storage Parameters
+    grouped fragments: 1 (sql-createtable.html#SQL-CREATETABLE-STORAGE-PARAMETERS#1)
+    Forces or disables index cleanup when VACUUM is run on this table. The default value is AUTO . With OFF , index cleanup is disabled, with ON it is enabled, and with AUTO a decision is made dynamically...
+[5] 24.1. Routine Vacuuming :: 24.1. Routine Vacuuming > 24.1.6. The Autovacuum Daemon
+    grouped fragments: 2 (routine-vacuuming.html#AUTOVACUUM#0, routine-vacuuming.html#AUTOVACUUM#1)
+    PostgreSQL has an optional but highly recommended feature called autovacuum , whose purpose is to automate the execution of VACUUM and ANALYZE commands. When enabled, autovacuum checks for tables that...
+[6] 19.10. Automatic Vacuuming :: 19.10. Automatic Vacuuming
+    grouped fragments: 2 (runtime-config-autovacuum.html#RUNTIME-CONFIG-AUTOVACUUM#1, runtime-config-autovacuum.html#RUNTIME-CONFIG-AUTOVACUUM#0)
+    Specifies a fraction of the table size to add to autovacuum_analyze_threshold when deciding whether to trigger an ANALYZE . The default is 0.1 (10% of table size). This parameter can only be set in th...
+[7] 27.4. Progress Reporting :: 27.4. Progress Reporting > 27.4.5. VACUUM Progress Reporting
+    grouped fragments: 2 (progress-reporting.html#VACUUM-PROGRESS-REPORTING#1, progress-reporting.html#VACUUM-PROGRESS-REPORTING#0)
+    Phase | Description initializing | VACUUM is preparing to begin scanning the heap. This phase is expected to be very brief. scanning heap | VACUUM is currently scanning the heap. It will prune and def...
+[8] VACUUM :: Outputs
+    grouped fragments: 1 (sql-vacuum.html#id-1.9.3.184.7#0)
+    When VERBOSE is specified, VACUUM emits progress messages to indicate which table is currently being processed. Various statistics about the tables are printed as well. To vacuum a table, one must ord...
+
+######## weights actually applied for identifiers (JSON head)
+{
+  "query": "VACUUM FREEZE",
+  "lang": "other",
+  "policy": "downweight",
+  "lexical_mode": "stem",
+  "weights": [
+    1.0,
+    1.0
+  ],
+  "drop_stopwords": false,
+  "latency_ms": 32.23,
+  "model_load_ms": 2195.34,
+
+######## VACUUM FREEZE --json: lang / policy / lexical_mode / weights / drop_stopwords
+{
+  "query": "VACUUM FREEZE",
+  "lang": "other",
+  "policy": "downweight",
+  "lexical_mode": "stem",
+  "weights": [
+    1.0,
+    1.0
+  ],
+  "drop_stopwords": false,
+  "latency_ms": 57.12,
+  "model_load_ms": 2433.34,
+  "results": [
+    {
+      "id": "routine-vacuuming.html#VACUUM-FOR-WRAPAROUND#1",
+      "rrf": 0.03252247488101534,
+      "url": "https://www.postgresql.org/docs/17/routine-vacuuming.html#VACUUM-FOR-WRAPAROUND",
+      "page_title": "24.1. Routine Vacuuming",
+      "section_path": [
+        "24.1. Routine Vacuuming",
