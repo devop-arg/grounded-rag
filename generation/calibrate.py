@@ -48,15 +48,26 @@ def measure_signals(
     store=None,
     embedder=None,
     k: int = 8,
+    remote=None,
     log=None,
 ) -> list[dict]:
-    """One row per question with its retrieval signals (no model call)."""
+    """One row per question with its retrieval signals (no model call).
+
+    ``remote`` are the optional remote retrieval parts: the ``vector_cosine``
+    signal then comes from the index the search really used, so the threshold of
+    a remote index is calibrated on its own scale instead of the local one.
+    """
+    from retrieval.remote import RemoteStats
+
     store = store or get_store()
-    embedder = embedder or get_embedder()
+    stats = RemoteStats() if remote is not None else None
     rows: list[dict] = []
     for position, question in enumerate(questions, start=1):
-        results = hybrid_search(question["question"], k=k, store=store, embedder=embedder)
-        signals = retrieval_signals(question["question"], results, store, embedder)
+        info: dict = {}
+        results = hybrid_search(
+            question["question"], k=k, store=store, embedder=embedder, remote=remote, stats=stats, info=info
+        )
+        signals = retrieval_signals(question["question"], results, store, embedder, info=info)
         rows.append(
             {
                 "id": question["id"],
@@ -67,6 +78,8 @@ def measure_signals(
         )
         if log and position % 10 == 0:
             log(f"  retrieved {position}/{len(questions)}")
+    if stats is not None and log:
+        log(f"  remote: {json.dumps(stats.as_dict())}")
     return rows
 
 
@@ -151,15 +164,39 @@ def main(argv: list[str] | None = None) -> int:
         default=DEFAULT_MAX_LOST,
         help="answerable questions the threshold may abstain (default: 2 of 50)",
     )
-    parser.add_argument("--out", default=str(THRESHOLD_PATH), help="threshold file to write")
+    parser.add_argument("--out", default=None, help="threshold file to write")
     parser.add_argument("--k", type=int, default=8, help="retrieved URLs per question (default: 8)")
+    parser.add_argument(
+        "--remote",
+        action="store_true",
+        help="calibrate against the configured remote retrieval parts (their own cosine scale)",
+    )
     args = parser.parse_args(argv)
+
+    remote = None
+    if args.remote:
+        from retrieval.remote import build_remote
+
+        from .config import load_config
+
+        remote = build_remote(load_config())
+        if remote is None:
+            print("ERROR: --remote but no remote part is configured", flush=True)
+            return 2
+        print(f"remote: {json.dumps(remote.describe())}", flush=True)
+    out_path = Path(args.out) if args.out else (THRESHOLD_PATH.with_name("threshold-remote.json") if args.remote else THRESHOLD_PATH)
 
     questions = load_questions(Path(args.file))
     answerable = sum(1 for question in questions if question["answerable"])
     print(f"questions: {len(questions)} ({answerable} answerable, {len(questions) - answerable} not)")
     print("retrieving (no LLM is called)...", flush=True)
-    rows = measure_signals(questions, k=args.k, log=lambda message: print(message, flush=True))
+    rows = measure_signals(
+        questions,
+        embedder=None if (remote is not None and remote.remote_vectors) else get_embedder(),
+        k=args.k,
+        remote=remote,
+        log=lambda message: print(message, flush=True),
+    )
 
     table = {signal: [row for row in sweep(rows, signal, args.max_lost)[1]] for signal in SIGNAL_NAMES}
     best: dict[str, dict] = {}
@@ -190,6 +227,7 @@ def main(argv: list[str] | None = None) -> int:
         "calibrated_on": display_path(args.file),
         "calibrated_at": datetime.now(timezone.utc).strftime("%Y-%m-%dT%H:%M:%SZ"),
         "note": "calibrated on the same 80-question eval set used for reporting: optimistically biased",
+        "retrieval": "remote" if remote is not None else "local",
         "signals": {
             name: {
                 "threshold": best[name]["threshold"],
@@ -199,7 +237,7 @@ def main(argv: list[str] | None = None) -> int:
             for name in SIGNAL_NAMES
         },
     }
-    out = Path(args.out)
+    out = Path(out_path)
     out.write_text(json.dumps(payload, indent=2) + "\n")
     print(f"wrote {out}")
     return 0

@@ -2,6 +2,9 @@
 
 Besides the single-policy report, ``--compare`` runs every fusion policy over the
 same set and prints recall@5 / MRR per policy and per question language.
+``--compare-remote`` measures the optional remote retrieval parts (rerank,
+remote embeddings, translation) against the local baseline and writes
+``eval/reports/<date>-compare-remote.json`` (see :mod:`eval.remote_compare`).
 Expected URLs that do not exist in the corpus are reported up front and dropped
 from the metrics (``--strict`` turns that into a non-zero exit).
 """
@@ -209,6 +212,81 @@ def compare(
     return table
 
 
+def compare_remote_main(questions: list[dict], args) -> int:
+    """``--compare-remote``: every remote part against the local baseline.
+
+    The models come from the flags, which default to the ``GROUNDED_RAG_*``
+    variables of the run: nothing is hardcoded here.
+    """
+    from dataclasses import replace
+
+    from eval import remote_compare
+    from generation.config import load_config
+    from retrieval.search import get_embedder, get_store
+
+    config = load_config()
+    overrides: dict = {}
+    if args.rerank_model is not None:
+        overrides["rerank_model"] = args.rerank_model
+    if args.translate_model is not None:
+        overrides["translate_model"] = args.translate_model
+    if overrides:
+        config = replace(config, **overrides)
+
+    indexes = [name.strip() for name in (args.embed_index or "").split(",") if name.strip()]
+    dims = [value.strip() for value in (args.embed_dims or "").split(",")]
+    models = [
+        model.strip()
+        for chunk in (args.embed_model or [])
+        for model in chunk.split(",")
+        if model.strip()
+    ]
+    variants: list[tuple[str, str, int]] = []
+    for position, model in enumerate(models):
+        name = indexes[position] if position < len(indexes) else ""
+        width = dims[position] if position < len(dims) and dims[position] else "0"
+        try:
+            width_value = int(width)
+        except ValueError:
+            print(f"ERROR: --embed-dims must be integers (got {width!r})", flush=True)
+            return 2
+        index_name = replace(config, embed_model=model, embed_index=name).embed_index_name
+        variants.append((model, index_name, width_value))
+
+    if not (config.rerank_model or config.translate_model or variants):
+        print("ERROR: nothing to compare: pass --rerank-model, --embed-model or --translate-model", flush=True)
+        print("       (or set GROUNDED_RAG_RERANK_MODEL / _EMBED_MODEL / _TRANSLATE_MODEL)", flush=True)
+        return 2
+
+    selected = questions[: args.limit] if args.limit else questions
+    print(f"remote comparison over {len(selected)} questions (policy {args.policy})")
+    print(f"  rerank model: {config.rerank_model.rsplit('/', 1)[-1] or '(off)'}")
+    print(f"  embedding models: {', '.join(model.rsplit('/', 1)[-1] for model, _, _ in variants) or '(off)'}")
+    print(f"  translation model: {config.translate_model.rsplit('/', 1)[-1] or '(off)'}")
+    print(f"  prices per env: embed={config.embed_price_per_m}/M rerank={config.rerank_price_per_search}/search "
+          f"translate={config.translate_price_input_per_m}/{config.translate_price_output_per_m} per M")
+    print()
+
+    report = remote_compare.run(
+        selected,
+        config=config,
+        policy=args.policy,
+        store=get_store(),
+        embedder=get_embedder(),
+        url_matches=url_matches,
+        rerank_model=config.rerank_model,
+        embeddings=variants,
+        translate_model=config.translate_model,
+        k=MRR_K,
+        log=lambda message: print(message, flush=True),
+    )
+    print()
+    print(remote_compare.format_table(report))
+    path = remote_compare.write_report(report)
+    print(f"report: {path}")
+    return 0
+
+
 def print_compare_table(table: list[dict], label: str) -> None:
     print(f"file: {label}")
     header = f"{'policy':<18}  {'lang':<5}  {'n':>3}  {'recall@5':>9}  {'mrr@8':>7}"
@@ -232,6 +310,40 @@ def main(argv: list[str] | None = None) -> int:
         help=f"fusion policy (default: {DEFAULT_POLICY})",
     )
     parser.add_argument("--compare", action="store_true", help="evaluate every policy and print one table")
+    parser.add_argument(
+        "--compare-remote",
+        action="store_true",
+        help="compare the local baseline against the configured remote parts and write a report",
+    )
+    parser.add_argument(
+        "--rerank-model",
+        default=None,
+        help="with --compare-remote: rerank model (default: GROUNDED_RAG_RERANK_MODEL)",
+    )
+    parser.add_argument(
+        "--embed-model",
+        action="append",
+        default=None,
+        metavar="MODEL[,MODEL]",
+        help="with --compare-remote: remote embedding model(s), repeatable or comma separated",
+    )
+    parser.add_argument(
+        "--embed-index",
+        default=None,
+        metavar="NAME[,NAME]",
+        help="with --compare-remote: the vector index of each --embed-model, in the same order",
+    )
+    parser.add_argument(
+        "--embed-dims",
+        default=None,
+        metavar="N[,N]",
+        help="with --compare-remote: output dimensions of each --embed-model (empty = model default)",
+    )
+    parser.add_argument(
+        "--translate-model",
+        default=None,
+        help="with --compare-remote: translation model (default: GROUNDED_RAG_TRANSLATE_MODEL)",
+    )
     parser.add_argument(
         "--lexical-weight",
         type=float,
@@ -259,8 +371,8 @@ def main(argv: list[str] | None = None) -> int:
     if args.mock and not args.generate:
         print("ERROR: --mock only makes sense with --generate", flush=True)
         return 2
-    if args.limit is not None and not args.generate:
-        print("ERROR: --limit only makes sense with --generate", flush=True)
+    if args.limit is not None and not (args.generate or args.compare_remote):
+        print("ERROR: --limit only makes sense with --generate or --compare-remote", flush=True)
         return 2
 
     llm = None
@@ -327,6 +439,9 @@ def main(argv: list[str] | None = None) -> int:
             return 0
         print_compare_table(table, args.file)
         return 0
+
+    if args.compare_remote:
+        return compare_remote_main(questions, args)
 
     report = evaluate(questions, k=MRR_K, policy=args.policy, lexical_weight=args.lexical_weight)
     summary = report["summary"]

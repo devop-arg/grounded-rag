@@ -8,22 +8,35 @@ fragment is not inflated by the many fragments that share its page.  The group
 keeps every fragment of that page that made it into the fused list (``chunk_ids``,
 in rank order) and their full URLs (``urls``), so an expected ``#anchor`` matches
 even when another fragment of the same page is the representative.
+
+Every part also has an optional remote counterpart (see :mod:`retrieval.remote`)
+that only runs when the caller passes one in: a remote embedding of the query
+(the local model is then never loaded, unless that call fails and the local index
+is the fallback), a rerank of the top :data:`RERANK_CANDIDATES` fragments *before*
+grouping, and an English translation used **only** for the lexical query.  Any
+remote failure keeps the local behaviour for that part, counts a fallback and
+never fails the search.
 """
 
 from __future__ import annotations
 
+import logging
 from pathlib import Path
 from typing import NamedTuple
-
-import numpy as np
 
 from .embed import Embedder
 from .fusion import rank_map, rrf_fuse
 from .lang import detect_lang, strip_spanish_stopwords
+from .remote import RERANK_DOCUMENT_CHARS, RemoteRetrieval, RemoteStats
 from .store import SqliteNumpyStore, Store
 
 CANDIDATES = 50
 SNIPPET_CHARS = 400
+#: Fragments sent to the reranker, before grouping by page.
+RERANK_CANDIDATES = 20
+
+logger = logging.getLogger("grounded_rag.search")
+
 
 class PolicyConfig(NamedTuple):
     """Weights and lexical index a query gets, plus whether the stopword filter applies."""
@@ -87,6 +100,11 @@ def snippet(text: str, limit: int = SNIPPET_CHARS) -> str:
     return text if len(text) <= limit else text[:limit].rstrip() + "…"
 
 
+def _local_embedder(embedder: Embedder | None) -> Embedder:
+    """The injected embedder, or the process-wide one (loaded on first use only)."""
+    return embedder if embedder is not None else get_embedder()
+
+
 def resolve_policy(
     query: str, policy: str | None = None, lexical_weight: float | None = None
 ) -> PolicyConfig:
@@ -116,6 +134,7 @@ def resolve_policy(
 def group_by_page(
     fused: list[tuple[str, float]],
     rows: dict[str, dict],
+    order: list[str] | None = None,
 ) -> list[dict]:
     """Collapse fused chunks into one entry per page, best fragment first.
 
@@ -126,6 +145,10 @@ def group_by_page(
     anchor), title, section and snippet.  Every chunk of the page that made it
     into ``fused`` is kept in ``chunk_ids`` (rank order) and its full URL in
     ``urls``.
+
+    ``order`` (chunk ids, best first) overrides the sort: the reranker returns a
+    new order for the head of the fused list while the groups keep their RRF
+    score.  Groups it does not mention keep their RRF place, after it.
     """
     groups: dict[str, dict] = {}
     for chunk_id, score in fused:
@@ -151,10 +174,113 @@ def group_by_page(
             group["chunk_ids"].append(chunk_id)
             if url not in group["urls"]:
                 group["urls"].append(url)
-    ordered = sorted(groups.values(), key=lambda group: (-group["rrf"], group["page_url"]))
+    if order is None:
+        ordered = sorted(groups.values(), key=lambda group: (-group["rrf"], group["page_url"]))
+    else:
+        ordered = []
+        taken: set[str] = set()
+        for chunk_id in order:
+            row = rows.get(chunk_id)
+            if row is None:
+                continue
+            page_url = row["url"].split("#", 1)[0]
+            if page_url in taken or page_url not in groups:
+                continue
+            taken.add(page_url)
+            ordered.append(groups[page_url])
+        rest = sorted(
+            (group for page_url, group in groups.items() if page_url not in taken),
+            key=lambda group: (-group["rrf"], group["page_url"]),
+        )
+        ordered.extend(rest)
     for group in ordered:
         group["n_chunks"] = len(group["chunk_ids"])
     return ordered
+
+
+def _lexical_query(
+    query: str, config: PolicyConfig, remote: RemoteRetrieval | None, stats: RemoteStats | None
+) -> str:
+    """The query the lexical index sees: the translation for non-English questions.
+
+    Only the FTS5 query changes: the vector search and the prompt keep the
+    original question.  A failed translation keeps the local behaviour (the
+    stopword filter included) instead of failing the search.
+    """
+    if remote is not None and remote.translator is not None and config.lang != "en":
+        translated = remote.translator.translate(query, stats)
+        if translated:
+            return translated
+        if stats is not None:
+            stats.fallbacks += 1
+    return strip_spanish_stopwords(query) if config.drop_stopwords else query
+
+
+def _vector_candidates(
+    query: str,
+    store: Store,
+    embedder: Embedder | None,
+    candidates: int,
+    remote: RemoteRetrieval | None,
+    stats: RemoteStats | None,
+    info: dict | None,
+) -> list[tuple[str, float]]:
+    """Vector hits from the remote index, or from the local one (also as fallback)."""
+    if remote is not None and remote.remote_vectors:
+        assert remote.embeddings is not None and remote.index is not None
+        qvec = remote.embeddings.encode_query(query, stats)
+        if qvec is not None:
+            try:
+                hits = remote.index.search(qvec, candidates)
+            except (ValueError, OSError) as error:
+                # A damaged index or a dimension mismatch is a remote failure too.
+                if stats is not None:
+                    stats.embed_errors += 1
+                    stats.fallbacks += 1
+                logger.warning("embeddings: remote index unusable, using the local one (%s)", error)
+            else:
+                if info is not None:
+                    info["embedding"] = "remote"
+                    info["vector_cosine"] = float(hits[0][1]) if hits else 0.0
+                return hits
+        elif stats is not None:
+            stats.fallbacks += 1
+    hits = store.vector(_local_embedder(embedder).encode_query(query), candidates)
+    if info is not None:
+        info["embedding"] = "local"
+        info["vector_cosine"] = float(hits[0][1]) if hits else 0.0
+    return hits
+
+
+def _rerank_order(
+    query: str,
+    fused: list[tuple[str, float]],
+    rows: dict[str, dict],
+    remote: RemoteRetrieval | None,
+    stats: RemoteStats | None,
+) -> tuple[list[str] | None, dict[str, float] | None]:
+    """Rerank the first :data:`RERANK_CANDIDATES` fragments, before grouping."""
+    if remote is None or remote.reranker is None or not fused:
+        return None, None
+    head = [chunk_id for chunk_id, _ in fused[:RERANK_CANDIDATES]]
+    documents = []
+    for chunk_id in head:
+        row = rows.get(chunk_id) or {}
+        documents.append(" ".join(str(row.get("text") or "").split())[:RERANK_DOCUMENT_CHARS])
+    ranked = remote.reranker.rerank(query, documents, top_n=len(head), stats=stats)
+    if not ranked:
+        if stats is not None:
+            stats.fallbacks += 1
+        return None, None
+    scores: dict[str, float] = {}
+    order: list[str] = []
+    for index, score in ranked:
+        if 0 <= index < len(head):
+            scores[head[index]] = score
+            order.append(head[index])
+    order.extend(chunk_id for chunk_id in head if chunk_id not in scores)
+    return order, scores
+
 
 
 def hybrid_search(
@@ -165,6 +291,9 @@ def hybrid_search(
     embedder: Embedder | None = None,
     candidates: int = CANDIDATES,
     lexical_weight: float | None = None,
+    remote: RemoteRetrieval | None = None,
+    stats: RemoteStats | None = None,
+    info: dict | None = None,
 ) -> list[dict]:
     """Return the top ``k`` distinct pages for ``query``.
 
@@ -172,22 +301,31 @@ def hybrid_search(
     grouped by page (see :func:`group_by_page`).  ``policy`` picks the lexical
     index, the fusion weights and whether Spanish function words are dropped from
     the lexical query (see :data:`POLICIES`).
+
+    ``remote`` turns the optional remote parts on (see :mod:`retrieval.remote`);
+    ``stats`` is the counter they report to (``remote.stats`` by default) and
+    ``info`` is filled with ``{"embedding": "remote"|"local", "vector_cosine"}``
+    so a caller gets the signal without embedding the query twice.
     """
     store = store or get_store()
-    embedder = embedder or get_embedder()
+    tracker = stats if stats is not None else (remote.stats if remote is not None else None)
     config = resolve_policy(query, policy, lexical_weight)
 
-    lexical_query = strip_spanish_stopwords(query) if config.drop_stopwords else query
+    lexical_query = _lexical_query(query, config, remote, tracker)
     lexical = store.lexical(lexical_query, candidates, mode=config.lexical_mode)
-    vector = store.vector(np.asarray(embedder.encode_query(query), dtype=np.float32), candidates)
+    vector = _vector_candidates(query, store, embedder, candidates, remote, tracker, info)
+
     fused = rrf_fuse([lexical, vector], weights=config.weights)
+    rows = {row["chunk_id"]: row for row in store.get([chunk_id for chunk_id, _ in fused])}
+    order, rerank_scores = _rerank_order(query, fused, rows, remote, tracker)
 
     lexical_ranks = rank_map(lexical)
     vector_ranks = rank_map(vector)
-    rows = {row["chunk_id"]: row for row in store.get([chunk_id for chunk_id, _ in fused])}
-
-    results = group_by_page(fused, rows)
+    results = group_by_page(fused, rows, order=order)
     for result in results:
         result["lexical_rank"] = lexical_ranks.get(result["id"])
         result["vector_rank"] = vector_ranks.get(result["id"])
+        if rerank_scores is not None:
+            result["rerank_score"] = rerank_scores.get(result["id"])
     return results[:k]
+

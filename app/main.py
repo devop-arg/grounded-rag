@@ -1,14 +1,17 @@
 """HTTP API and web UI: ``/api/*`` plus the static files in ``web/`` (loopback only).
 
 The embedding model is loaded once at startup (``lifespan``); a request never
-loads it.  No CORS is enabled on purpose.  Nothing here logs the API key, the
-IP salt or a client IP.  Every response (API and static) carries the same
-security headers, and the ``/api/*`` routes are declared before the static
-mount so they always win.
+loads it.  When a remote embedding model is configured (see
+:mod:`retrieval.remote`) the local model is **not** loaded at startup: it is only
+built if a remote call fails and the local index is the fallback.  No CORS is
+enabled on purpose.  Nothing here logs the API key, the IP salt or a client IP.
+Every response (API and static) carries the same security headers, and the
+``/api/*`` routes are declared before the static mount so they always win.
 
 The monthly USD budget is checked before the model is called: once the month's
 spending reaches the cap the API answers 503 with ``reason: "budget_exhausted"``
-and no request leaves the server.
+and no request leaves the server.  The cost of the remote retrieval parts of a
+request is added to the same monthly total.
 """
 
 from __future__ import annotations
@@ -26,6 +29,7 @@ from pydantic import BaseModel, field_validator
 from generation.config import Config, LLMNotConfigured, load_config
 from generation.generate import answer_question, load_threshold
 from generation.llm import LLMError, build_llm
+from retrieval.remote import RemoteRetrieval, RemoteStats, build_remote
 from retrieval.search import get_embedder, get_store, hybrid_search
 
 from .limits import RateLimiter
@@ -67,6 +71,16 @@ def _retrieved_sources(results: list[dict]) -> list[dict]:
     ]
 
 
+def _remote_vectors(remote: RemoteRetrieval | None) -> bool:
+    return bool(remote is not None and remote.remote_vectors)
+
+
+def _charge_remote(state, stats: RemoteStats) -> None:
+    """Add one request's remote retrieval cost to the month's spending."""
+    if stats.cost_usd:
+        state.usage.add_cost(stats.cost_usd)
+
+
 def create_app(
     config: Config | None = None,
     *,
@@ -76,15 +90,19 @@ def create_app(
     usage: UsageStore | None = None,
     limiter: RateLimiter | None = None,
     threshold: dict | None = None,
+    remote: RemoteRetrieval | None = None,
 ) -> FastAPI:
     """Build the app; every dependency is injectable (tests use fakes)."""
     settings = config or load_config()
+    remote_parts = remote if remote is not None else build_remote(settings)
 
     @asynccontextmanager
     async def lifespan(app: FastAPI):
         if app.state.store is None:
             app.state.store = get_store()
-        if app.state.embedder is None:
+        # With a remote embedding index the local model stays unloaded: it is
+        # only built if a remote call fails and the local vectors are needed.
+        if app.state.embedder is None and not _remote_vectors(app.state.remote):
             app.state.embedder = get_embedder()
         yield
 
@@ -106,6 +124,7 @@ def create_app(
     app.state.store = store
     app.state.embedder = embedder
     app.state.llm = llm
+    app.state.remote = remote_parts
     app.state.usage = usage or UsageStore(
         settings.usage_db,
         settings.budget_usd_per_month,
@@ -124,10 +143,16 @@ def create_app(
     @app.get("/api/health")
     def health(request: Request) -> dict:
         state = request.app.state
+        remote = state.remote
         return {
             "status": "ok",
             "generation": bool(state.config.generation),
             "llm_configured": state.config.llm_configured or state.config.llm_fake == "mock",
+            "retrieval_remote": {
+                "embeddings": _remote_vectors(remote),
+                "rerank": bool(remote and remote.reranker),
+                "translate": bool(remote and remote.translator),
+            },
             "budget": state.usage.status(),
         }
 
@@ -143,13 +168,24 @@ def create_app(
         state = request.app.state
         settings = state.config
         ip = request.client.host if request.client else ""
+        # Counters of this request only, so the remote cost is charged once and
+        # to the right month (the remote parts are shared across requests).
+        stats = RemoteStats()
 
         if not state.limiter.allow(ip):
             raise HTTPException(status_code=429, detail="too many requests, slow down")
 
         if not settings.generation:
             started = time.perf_counter()
-            results = hybrid_search(payload.question, k=DEFAULT_K, store=state.store, embedder=state.embedder)
+            results = hybrid_search(
+                payload.question,
+                k=DEFAULT_K,
+                store=state.store,
+                embedder=state.embedder,
+                remote=state.remote,
+                stats=stats,
+            )
+            _charge_remote(state, stats)
             logger.info("ask (generation off): %d sources in %.0f ms", len(results), (time.perf_counter() - started) * 1000)
             return {
                 "abstain": True,
@@ -186,23 +222,30 @@ def create_app(
                 k=DEFAULT_K,
                 threshold=state.threshold,
                 use_threshold=state.threshold is not None,
+                remote=state.remote,
+                stats=stats,
             )
         except LLMError as error:
             # Status codes only: no headers, no key, no upstream body.
             logger.warning("ask: LLM call failed (%s)", type(error).__name__)
+            _charge_remote(state, stats)
             raise HTTPException(status_code=502, detail="generation failed")
 
         state.usage.add(answer["prompt_tokens"], answer["completion_tokens"])
+        _charge_remote(state, stats)
         body = {"abstain": answer["abstain"], "sentences": answer["sentences"], "sources": answer["sources"]}
         if answer["abstain"]:
             body["reason"] = answer["reason"]
         logger.info(
-            "ask: abstain=%s reason=%s sentences=%d tokens=%d cost_usd=%.6f",
+            "ask: abstain=%s reason=%s sentences=%d tokens=%d cost_usd=%.6f remote_cost_usd=%.6f"
+            " remote_fallbacks=%d",
             answer["abstain"],
             answer["reason"],
             len(answer["sentences"]),
             answer["prompt_tokens"] + answer["completion_tokens"],
             settings.cost_usd(answer["prompt_tokens"], answer["completion_tokens"]),
+            stats.cost_usd,
+            stats.fallbacks,
         )
         return body
 

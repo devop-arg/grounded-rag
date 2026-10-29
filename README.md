@@ -57,8 +57,9 @@ seconds and index file sizes.
 
 Chunks are cut at `h2`/`h3` section boundaries, merged when small and split on
 block boundaries (never inside a `pre`) when large, targeting 300–600 words.
-The lexical index is SQLite FTS5 with `bm25()` ranking; the vector index is
-`intfloat/multilingual-e5-small` through fastembed, L2-normalised `float32` in
+The lexical index is SQLite FTS5 with `bm25()` ranking; the vector index is an
+E5 *small* multilingual checkpoint (int8 ONNX, 384 dims, the id lives in
+`retrieval/embed.py`) driven through fastembed, L2-normalised `float32` in
 `data/vectors.npy`. Both rankings are fused with weighted reciprocal rank
 fusion and grouped by page, so one page never takes two of the eight slots.
 
@@ -119,6 +120,69 @@ metrics are optimistically biased: treat them as a smoke test, not a benchmark.
 A `--generate --mock` run exercises the whole pipeline offline and is never
 presented as a real evaluation: only a report without the `-mock` suffix is
 summarised by the API.
+
+## Optional remote retrieval
+
+Retrieval runs fully offline by default. Three parts can be switched on through
+the same OpenAI-compatible endpoint and key as generation. Each one is off while
+its variable is empty, and each one falls back to the local path on any error
+(network, 4xx/5xx, a 10 s timeout, a malformed body): the search is not failed,
+the error is counted and the local behaviour for that part is used.
+
+| Variable | What it does |
+| --- | --- |
+| `GROUNDED_RAG_RERANK_MODEL` | reranks the 20 best fused fragments (`POST /rerank`) before grouping by page; a failure keeps the RRF order |
+| `GROUNDED_RAG_EMBED_MODEL`, `GROUNDED_RAG_EMBED_INDEX`, `GROUNDED_RAG_EMBED_DIMS` | embeds the query remotely (`POST /embeddings`) against `data/vectors-<index>.npy`; the local model is not loaded at all, and only built if the remote call fails and the local vectors are the fallback |
+| `GROUNDED_RAG_TRANSLATE_MODEL` | translates a non-English question into English for the lexical (FTS5) query only: the vector search and the prompt keep the original question |
+
+Model names containing `e5` get the `query: `/`passage: ` prefixes those
+checkpoints expect. The `*_PRICE_*` variables (`GROUNDED_RAG_EMBED_PRICE_PER_M`,
+`GROUNDED_RAG_RERANK_PRICE_PER_SEARCH`, `GROUNDED_RAG_TRANSLATE_PRICE_INPUT_PER_M`
+and `_OUTPUT_PER_M`) are only used when the endpoint reports no `usage.cost`;
+either way the cost of a request is added to the same monthly budget as the
+answers.
+
+```bash
+.venv/bin/python -m retrieval.reindex --index <name> --model <model>   # batched, resumable
+.venv/bin/python -m eval --compare-remote --rerank-model <model> \
+    --embed-model <model>[,<model>] --embed-index <name>[,<name>] \
+    --embed-dims <n>[,<n>] --translate-model <model>
+```
+
+`reindex` writes `data/vectors-<name>.npy` and `data/vector_ids-<name>.json` batch
+by batch — every finished batch is flushed next to a progress file, so an
+interrupted run resumes where it stopped — and it never touches `data/vectors.npy`
+or `data/vector_ids.json`. `--compare-remote` measures the local baseline, every
+part on its own and the combination of the parts that help, then writes
+`eval/reports/<date>-compare-remote.json` with recall@5 / MRR@8 per language, the
+median and p95 latency per query, the remote errors/fallbacks and the USD cost of
+each combination. The models come from the flags or from the environment of the
+run, never from a default in the code.
+
+Measured on the 80-question set (`eval/reports/2026-10-29-compare-remote.json`,
+policy `downweight`; the two embedding rows are the same model at 1536 and 512
+dimensions, because that is what the endpoint served; the rerank row is the
+fallback path, every call to the configured rerank model failed):
+
+| Combination | recall@5 | MRR@8 | MRR EN | MRR ES | median / p95 ms |
+| --- | --- | --- | --- | --- | --- |
+| local baseline | 0.8800 | 0.7336 | 0.8048 | 0.6624 | 80.5 / 115.0 |
+| + rerank | 0.8800 | 0.7336 | 0.8048 | 0.6624 | 180.6 / 234.8 |
+| + remote embeddings (1536) | 0.9600 | 0.8180 | 0.8613 | 0.7747 | 583.6 / 726.8 |
+| + remote embeddings (512) | 0.9800 | 0.8093 | 0.8493 | 0.7693 | 546.2 / 660.8 |
+| + translation | 0.9200 | 0.7982 | 0.8048 | 0.7917 | 570.8 / 1663.0 |
+| embeddings (1536) + translation | **0.9600** | **0.8563** | 0.8613 | 0.8513 | 1602.3 / 2335.3 |
+
+The last row is the combination kept: it is the best MRR that does not lower
+recall@5, and it is the only one that gains on both languages at once (Spanish
+MRR 0.6624 → 0.8513). Rerank stays off because no rerank model answered. The
+remote index costs a network round trip per query (about +0.5 s) and the
+translation another one per non-English query, so the offline baseline is still
+the fastest configuration. The app still reads `generation/threshold.json`, which
+was calibrated for the local model, so a deployment that turns the remote index on
+should recalibrate on the remote scale (`python -m generation.calibrate --remote`,
+which writes `generation/threshold-remote.json`) and use that file; leaving the
+local threshold in place would compare two different cosine scales.
 
 ## API
 

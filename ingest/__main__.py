@@ -28,6 +28,13 @@ MIN_AVAILABLE_MB = 900
 PARSE_LOG_EVERY = 500
 
 
+def embedding_model_name() -> str:
+    """The local checkpoint's id, named only in :mod:`retrieval.embed`."""
+    from retrieval.embed import MODEL_NAME
+
+    return MODEL_NAME
+
+
 def available_mb() -> int:
     with open("/proc/meminfo", encoding="ascii") as fh:
         for line in fh:
@@ -95,7 +102,6 @@ def build_chunks(html_dir: Path, limit: int | None = None) -> tuple[list[dict], 
 
 def embed_chunks(chunks: list[dict], batch: int = 64):
     from retrieval.embed import Embedder, chunk_documents
-
     documents = chunk_documents(chunks)
     embedder = Embedder()
     parts = []
@@ -301,7 +307,7 @@ def main(argv: list[str] | None = None) -> int:
             "vector_ids.json": file_size(VECTOR_IDS_PATH),
         },
         "available_mb_at_embed": available_at_embed,
-        "embedding_model": None if args.skip_embed else "intfloat/multilingual-e5-small",
+        "embedding_model": None if args.skip_embed else embedding_model_name(),
     }
 
     stats_path = DATA_DIR / "ingest_stats.json"

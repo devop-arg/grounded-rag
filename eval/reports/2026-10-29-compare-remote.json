@@ -1,0 +1,326 @@
+{
+  "generated_at": "2026-10-29T14:14:22Z",
+  "questions": 80,
+  "answerable": 50,
+  "policy": "downweight",
+  "k": 8,
+  "models": {
+    "rerank": "nemotron-3.5-rerank-8b:free",
+    "embeddings": [
+      "text-embedding-3-small",
+      "text-embedding-3-small@512"
+    ],
+    "translate": "deepseek-v4.1-flash"
+  },
+  "combinations": [
+    {
+      "name": "local base",
+      "models": {
+        "embeddings": "",
+        "rerank": "",
+        "translate": "",
+        "index": ""
+      },
+      "status": "ok",
+      "summary": {
+        "all": {
+          "n": 50,
+          "recall@5": 0.88,
+          "mrr@8": 0.7336,
+          "hits@5": 44
+        },
+        "en": {
+          "n": 25,
+          "recall@5": 0.92,
+          "mrr@8": 0.8048,
+          "hits@5": 23
+        },
+        "es": {
+          "n": 25,
+          "recall@5": 0.84,
+          "mrr@8": 0.6624,
+          "hits@5": 21
+        }
+      },
+      "latency_ms": {
+        "median": 80.5,
+        "p95": 115.0
+      },
+      "remote": {
+        "embed_calls": 0,
+        "embed_errors": 0,
+        "embed_tokens": 0,
+        "rerank_calls": 0,
+        "rerank_errors": 0,
+        "translate_calls": 0,
+        "translate_errors": 0,
+        "translate_prompt_tokens": 0,
+        "translate_completion_tokens": 0,
+        "calls": 0,
+        "errors": 0,
+        "fallbacks": 0,
+        "cost_usd": 0.0
+      },
+      "cost_usd": 0.0
+    },
+    {
+      "name": "+rerank",
+      "models": {
+        "embeddings": "",
+        "rerank": "nemotron-3.5-rerank-8b:free",
+        "translate": "",
+        "index": ""
+      },
+      "status": "unavailable (every remote call failed)",
+      "summary": {
+        "all": {
+          "n": 50,
+          "recall@5": 0.88,
+          "mrr@8": 0.7336,
+          "hits@5": 44
+        },
+        "en": {
+          "n": 25,
+          "recall@5": 0.92,
+          "mrr@8": 0.8048,
+          "hits@5": 23
+        },
+        "es": {
+          "n": 25,
+          "recall@5": 0.84,
+          "mrr@8": 0.6624,
+          "hits@5": 21
+        }
+      },
+      "latency_ms": {
+        "median": 180.6,
+        "p95": 234.8
+      },
+      "remote": {
+        "embed_calls": 0,
+        "embed_errors": 0,
+        "embed_tokens": 0,
+        "rerank_calls": 80,
+        "rerank_errors": 80,
+        "translate_calls": 0,
+        "translate_errors": 0,
+        "translate_prompt_tokens": 0,
+        "translate_completion_tokens": 0,
+        "calls": 80,
+        "errors": 80,
+        "fallbacks": 80,
+        "cost_usd": 0.0
+      },
+      "cost_usd": 0.0
+    },
+    {
+      "name": "+embeddings text-embedding-3-small",
+      "models": {
+        "embeddings": "text-embedding-3-small",
+        "rerank": "",
+        "translate": "",
+        "index": "text-embedding-3-small"
+      },
+      "status": "ok",
+      "summary": {
+        "all": {
+          "n": 50,
+          "recall@5": 0.96,
+          "mrr@8": 0.818,
+          "hits@5": 48
+        },
+        "en": {
+          "n": 25,
+          "recall@5": 0.96,
+          "mrr@8": 0.8613,
+          "hits@5": 24
+        },
+        "es": {
+          "n": 25,
+          "recall@5": 0.96,
+          "mrr@8": 0.7747,
+          "hits@5": 24
+        }
+      },
+      "latency_ms": {
+        "median": 583.6,
+        "p95": 726.8
+      },
+      "remote": {
+        "embed_calls": 80,
+        "embed_errors": 0,
+        "embed_tokens": 1112,
+        "rerank_calls": 0,
+        "rerank_errors": 0,
+        "translate_calls": 0,
+        "translate_errors": 0,
+        "translate_prompt_tokens": 0,
+        "translate_completion_tokens": 0,
+        "calls": 80,
+        "errors": 0,
+        "fallbacks": 0,
+        "cost_usd": 2.2e-05
+      },
+      "cost_usd": 2.2e-05
+    },
+    {
+      "name": "+embeddings text-embedding-3-small@512",
+      "models": {
+        "embeddings": "text-embedding-3-small",
+        "rerank": "",
+        "translate": "",
+        "index": "text-embedding-3-small-512"
+      },
+      "status": "ok",
+      "summary": {
+        "all": {
+          "n": 50,
+          "recall@5": 0.98,
+          "mrr@8": 0.8093,
+          "hits@5": 49
+        },
+        "en": {
+          "n": 25,
+          "recall@5": 1.0,
+          "mrr@8": 0.8493,
+          "hits@5": 25
+        },
+        "es": {
+          "n": 25,
+          "recall@5": 0.96,
+          "mrr@8": 0.7693,
+          "hits@5": 24
+        }
+      },
+      "latency_ms": {
+        "median": 546.2,
+        "p95": 660.8
+      },
+      "remote": {
+        "embed_calls": 80,
+        "embed_errors": 0,
+        "embed_tokens": 1112,
+        "rerank_calls": 0,
+        "rerank_errors": 0,
+        "translate_calls": 0,
+        "translate_errors": 0,
+        "translate_prompt_tokens": 0,
+        "translate_completion_tokens": 0,
+        "calls": 80,
+        "errors": 0,
+        "fallbacks": 0,
+        "cost_usd": 2.2e-05
+      },
+      "cost_usd": 2.2e-05
+    },
+    {
+      "name": "+translation",
+      "models": {
+        "embeddings": "",
+        "rerank": "",
+        "translate": "deepseek-v4.1-flash",
+        "index": ""
+      },
+      "status": "ok",
+      "summary": {
+        "all": {
+          "n": 50,
+          "recall@5": 0.92,
+          "mrr@8": 0.7982,
+          "hits@5": 46
+        },
+        "en": {
+          "n": 25,
+          "recall@5": 0.92,
+          "mrr@8": 0.8048,
+          "hits@5": 23
+        },
+        "es": {
+          "n": 25,
+          "recall@5": 0.92,
+          "mrr@8": 0.7917,
+          "hits@5": 23
+        }
+      },
+      "latency_ms": {
+        "median": 570.8,
+        "p95": 1663.0
+      },
+      "remote": {
+        "embed_calls": 0,
+        "embed_errors": 0,
+        "embed_tokens": 0,
+        "rerank_calls": 0,
+        "rerank_errors": 0,
+        "translate_calls": 40,
+        "translate_errors": 0,
+        "translate_prompt_tokens": 2712,
+        "translate_completion_tokens": 2983,
+        "calls": 40,
+        "errors": 0,
+        "fallbacks": 0,
+        "cost_usd": 0.0
+      },
+      "cost_usd": 0.0
+    },
+    {
+      "name": "best combination",
+      "models": {
+        "embeddings": "text-embedding-3-small",
+        "rerank": "",
+        "translate": "deepseek-v4.1-flash",
+        "index": "text-embedding-3-small"
+      },
+      "status": "ok",
+      "summary": {
+        "all": {
+          "n": 50,
+          "recall@5": 0.96,
+          "mrr@8": 0.8563,
+          "hits@5": 48
+        },
+        "en": {
+          "n": 25,
+          "recall@5": 0.96,
+          "mrr@8": 0.8613,
+          "hits@5": 24
+        },
+        "es": {
+          "n": 25,
+          "recall@5": 0.96,
+          "mrr@8": 0.8513,
+          "hits@5": 24
+        }
+      },
+      "latency_ms": {
+        "median": 1602.3,
+        "p95": 2335.3
+      },
+      "remote": {
+        "embed_calls": 80,
+        "embed_errors": 0,
+        "embed_tokens": 1112,
+        "rerank_calls": 0,
+        "rerank_errors": 0,
+        "translate_calls": 40,
+        "translate_errors": 0,
+        "translate_prompt_tokens": 2712,
+        "translate_completion_tokens": 2879,
+        "calls": 120,
+        "errors": 0,
+        "fallbacks": 0,
+        "cost_usd": 2.2e-05
+      },
+      "cost_usd": 2.2e-05
+    }
+  ],
+  "chosen": "best combination",
+  "chosen_models": {
+    "embeddings": "text-embedding-3-small",
+    "rerank": "",
+    "translate": "deepseek-v4.1-flash",
+    "index": "text-embedding-3-small"
+  },
+  "reason": "best combination has the best MRR@8 among the combinations that do not lower recall@5 against the local baseline; best combination keeps every part that raised the MRR (one embedding index) and keeps recall@5",
+  "cost_usd": 6.6e-05
+}
