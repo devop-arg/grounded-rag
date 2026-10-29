@@ -1,8 +1,10 @@
-"""HTTP API: ``POST /api/ask`` and ``GET /api/health`` (127.0.0.1 only).
+"""HTTP API and web UI: ``/api/*`` plus the static files in ``web/`` (loopback only).
 
 The embedding model is loaded once at startup (``lifespan``); a request never
 loads it.  No CORS is enabled on purpose.  Nothing here logs the API key, the
-IP salt or a client IP.
+IP salt or a client IP.  Every response (API and static) carries the same
+security headers, and the ``/api/*`` routes are declared before the static
+mount so they always win.
 """
 
 from __future__ import annotations
@@ -13,6 +15,8 @@ from contextlib import asynccontextmanager
 from typing import Literal
 
 from fastapi import FastAPI, HTTPException, Request
+from fastapi.responses import Response
+from fastapi.staticfiles import StaticFiles
 from pydantic import BaseModel, field_validator
 
 from generation.config import Config, LLMNotConfigured, load_config
@@ -21,10 +25,17 @@ from generation.llm import LLMError, build_llm
 from retrieval.search import get_embedder, get_store, hybrid_search
 
 from .limits import RateLimiter
+from .metrics import WEB_DIR, build_metrics
 from .usage import UsageStore
 
 MAX_QUESTION_CHARS = 500
 DEFAULT_K = 8
+#: No inline script/style, no CDN except the Google Fonts CSS/woff2 files.
+CONTENT_SECURITY_POLICY = (
+    "default-src 'self'; style-src 'self' https://fonts.googleapis.com; "
+    "font-src https://fonts.gstatic.com; img-src 'self' data:; connect-src 'self'; "
+    "frame-ancestors 'none'; base-uri 'none'"
+)
 logger = logging.getLogger("grounded_rag.app")
 
 
@@ -73,7 +84,20 @@ def create_app(
             app.state.embedder = get_embedder()
         yield
 
-    app = FastAPI(title="grounded-rag", version="0.2.0", lifespan=lifespan)
+    app = FastAPI(title="grounded-rag", version="0.3.0", lifespan=lifespan)
+
+    @app.middleware("http")
+    async def security_headers(request: Request, call_next):
+        # ``web/`` also holds the recorder module and its bytecode: neither is served.
+        path = request.url.path
+        if path.endswith((".py", ".pyc")) or "__pycache__" in path:
+            return Response(status_code=404)
+        response = await call_next(request)
+        response.headers["Content-Security-Policy"] = CONTENT_SECURITY_POLICY
+        response.headers["X-Content-Type-Options"] = "nosniff"
+        response.headers["Referrer-Policy"] = "no-referrer"
+        return response
+
     app.state.config = settings
     app.state.store = store
     app.state.embedder = embedder
@@ -96,6 +120,11 @@ def create_app(
             "generation": bool(state.config.generation),
             "llm_configured": state.config.llm_configured or state.config.llm_fake == "mock",
         }
+
+    @app.get("/api/metrics")
+    def metrics() -> dict:
+        """Retrieval, abstention threshold and generation, read from the reports."""
+        return build_metrics()
 
     @app.post("/api/ask")
     def ask(payload: AskRequest, request: Request) -> dict:
@@ -159,6 +188,8 @@ def create_app(
         )
         return body
 
+    # Mounted last on purpose: every ``/api/*`` route above wins over ``/``.
+    app.mount("/", StaticFiles(directory=WEB_DIR, html=True), name="web")
     return app
 
 
