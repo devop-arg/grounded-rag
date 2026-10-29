@@ -48,11 +48,32 @@ def url_matches(result_url: str, expected_url: str) -> bool:
     return result_url == expected_url
 
 
-def first_hit_rank(urls: list[str], expected_urls: list[str]) -> int | None:
-    for rank, url in enumerate(urls, start=1):
-        if any(url_matches(url, expected) for expected in expected_urls):
-            return rank
-    return None
+def group_urls(result: dict) -> list[str]:
+    """Every fragment URL of a search result, representative first.
+
+    ``hybrid_search`` groups by page, so a result stands for several anchors; the
+    group's ``urls`` holds them all.  A result without it (an older shape) is
+    scored by its representative URL only.
+    """
+    urls = result.get("urls") or []
+    return list(urls) or [result["url"]]
+
+
+def first_hit(results: list[dict], expected_urls: list[str]) -> tuple[int | None, str | None]:
+    """Rank of the first result holding an expected URL, plus the URL that matched.
+
+    An expected ``#anchor`` matches when any fragment grouped into the result has
+    that anchor, not only the representative; without ``#`` the page must match.
+    """
+    for rank, result in enumerate(results, start=1):
+        for url in group_urls(result):
+            if any(url_matches(url, expected) for expected in expected_urls):
+                return rank, url
+    return None, None
+
+
+def first_hit_rank(results: list[dict], expected_urls: list[str]) -> int | None:
+    return first_hit(results, expected_urls)[0]
 
 
 def corpus_urls(chunks_path: Path | str | None = None) -> tuple[set[str], set[str]]:
@@ -132,7 +153,7 @@ def evaluate(
             lexical_weight=lexical_weight,
         )
         urls = [result["url"] for result in results]
-        rank = first_hit_rank(urls, question.get("expected_urls", []))
+        rank, hit_url = first_hit(results, question.get("expected_urls", []))
         rows.append(
             {
                 "id": question["id"],
@@ -144,7 +165,9 @@ def evaluate(
                 "expected_urls": question.get("expected_urls", []),
                 "invalid_urls": question.get("invalid_urls", []),
                 "hit_rank": rank,
+                "hit_url": hit_url,
                 "top_urls": urls[:RECALL_K],
+                "top_group_urls": [group_urls(result) for result in results[:RECALL_K]],
             }
         )
 
@@ -323,12 +346,20 @@ def main(argv: list[str] | None = None) -> int:
         rank = row["hit_rank"] if row["hit_rank"] is not None else "-"
         print(f"[{row['id']}] ({row['lang']}, detected {row['detected_lang']}) {status} rank={rank} :: {row['question']}")
         for expected in row["expected_urls"]:
-            found = any(url_matches(url, expected) for url in row["top_urls"])
+            found = any(
+                url_matches(url, expected)
+                for group in row["top_group_urls"]
+                for url in group
+            )
             print(f"    expected: {expected}  ({'in top-5' if found else 'not in top-5'})")
         for url in row["invalid_urls"]:
             print(f"    ignored (not in corpus): {url}")
         for position, url in enumerate(row["top_urls"], start=1):
-            print(f"    {position}. {url}")
+            group = row["top_group_urls"][position - 1]
+            extra = len(group) - 1
+            suffix = f"  (+{extra} more fragment{'s' if extra != 1 else ''} of the page)" if extra else ""
+            marker = "  <- matched" if url == row["hit_url"] else ""
+            print(f"    {position}. {url}{suffix}{marker}")
         print()
 
     print("summary")

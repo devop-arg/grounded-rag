@@ -1,12 +1,12 @@
 {
-  "generated_at": "2026-10-29T01:58:31Z",
+  "generated_at": "2026-10-29T02:08:01Z",
   "report": null,
   "entries": [
     {
       "id": "a01",
       "lang": "en",
       "question": "How do I build an index without blocking writes on the table?",
-      "recorded_at": "2026-10-29T01:58:30Z",
+      "recorded_at": "2026-10-29T02:08:01Z",
       "source": "retrieval-only",
       "status": "retrieval_only",
       "sources": [
@@ -17,38 +17,38 @@
         },
         {
           "n": 2,
-          "url": "https://www.postgresql.org/docs/17/sql-createindex.html#id-1.9.3.69.7",
-          "title": "CREATE INDEX"
-        },
-        {
-          "n": 3,
           "url": "https://www.postgresql.org/docs/17/indexes-intro.html#INDEXES-INTRO",
           "title": "11.1. Introduction"
         },
         {
-          "n": 4,
+          "n": 3,
           "url": "https://www.postgresql.org/docs/17/progress-reporting.html#CREATE-INDEX-PROGRESS-REPORTING",
           "title": "27.4. Progress Reporting"
         },
         {
-          "n": 5,
-          "url": "https://www.postgresql.org/docs/17/sql-createindex.html#id-1.9.3.69.6",
-          "title": "CREATE INDEX"
-        },
-        {
-          "n": 6,
+          "n": 4,
           "url": "https://www.postgresql.org/docs/17/sql-reindex.html#id-1.9.3.163.5",
           "title": "REINDEX"
         },
         {
+          "n": 5,
+          "url": "https://www.postgresql.org/docs/17/gist.html#GIST-IMPLEMENTATION",
+          "title": "64.2. GiST Indexes"
+        },
+        {
+          "n": 6,
+          "url": "https://www.postgresql.org/docs/17/index-functions.html#INDEX-FUNCTIONS",
+          "title": "62.2. Index Access Method Functions"
+        },
+        {
           "n": 7,
-          "url": "https://www.postgresql.org/docs/17/sql-reindex.html#SQL-REINDEX-CONCURRENTLY",
-          "title": "REINDEX"
+          "url": "https://www.postgresql.org/docs/17/runtime-config-wal.html#RUNTIME-CONFIG-WAL-RECOVERY",
+          "title": "19.5. Write Ahead Log"
         },
         {
           "n": 8,
-          "url": "https://www.postgresql.org/docs/17/sql-reindex.html#id-1.9.3.163.7",
-          "title": "REINDEX"
+          "url": "https://www.postgresql.org/docs/17/bloom.html#BLOOM-EXAMPLES",
+          "title": "F.6. bloom — bloom filter index access method"
         }
       ],
       "answer": null
@@ -57,7 +57,7 @@
       "id": "a15",
       "lang": "en",
       "question": "What is the difference between json and jsonb?",
-      "recorded_at": "2026-10-29T01:58:31Z",
+      "recorded_at": "2026-10-29T02:08:01Z",
       "source": "retrieval-only",
       "status": "retrieval_only",
       "sources": [
@@ -73,33 +73,33 @@
         },
         {
           "n": 3,
-          "url": "https://www.postgresql.org/docs/17/datatype-json.html#DATATYPE-JSON-TRANSFORMS",
-          "title": "8.14. JSON Types"
-        },
-        {
-          "n": 4,
-          "url": "https://www.postgresql.org/docs/17/datatype-json.html#JSON-INDEXING",
-          "title": "8.14. JSON Types"
-        },
-        {
-          "n": 5,
-          "url": "https://www.postgresql.org/docs/17/functions-json.html#SQLJSON-QUERY-FUNCTIONS",
-          "title": "9.16. JSON Functions and Operators"
-        },
-        {
-          "n": 6,
           "url": "https://www.postgresql.org/docs/17/functions-textsearch.html#FUNCTIONS-TEXTSEARCH",
           "title": "9.13. Text Search Functions and Operators"
         },
         {
+          "n": 4,
+          "url": "https://www.postgresql.org/docs/17/hstore.html#HSTORE-OPS-FUNCS",
+          "title": "F.17. hstore — hstore key/value datatype"
+        },
+        {
+          "n": 5,
+          "url": "https://www.postgresql.org/docs/17/functions-aggregate.html#FUNCTIONS-AGGREGATE",
+          "title": "9.21. Aggregate Functions"
+        },
+        {
+          "n": 6,
+          "url": "https://www.postgresql.org/docs/17/features-sql-standard.html#FEATURES-SQL-STANDARD",
+          "title": "D.1. Supported Features"
+        },
+        {
           "n": 7,
-          "url": "https://www.postgresql.org/docs/17/functions-json.html#FUNCTIONS-SQLJSON-PATH",
-          "title": "9.16. JSON Functions and Operators"
+          "url": "https://www.postgresql.org/docs/17/sql-keywords-appendix.html#SQL-KEYWORDS-APPENDIX",
+          "title": "Appendix C. SQL Key Words"
         },
         {
           "n": 8,
-          "url": "https://www.postgresql.org/docs/17/datatype-json.html#JSON-KEYS-ELEMENTS",
-          "title": "8.14. JSON Types"
+          "url": "https://www.postgresql.org/docs/17/unsupported-features-sql-standard.html#UNSUPPORTED-FEATURES-SQL-STANDARD",
+          "title": "D.2. Unsupported Features"
         }
       ],
       "answer": null
@@ -108,7 +108,7 @@
       "id": "a16",
       "lang": "es",
       "question": "¿Cómo convierto un documento JSON en filas y columnas con JSON_TABLE?",
-      "recorded_at": "2026-10-29T01:58:31Z",
+      "recorded_at": "2026-10-29T02:08:01Z",
       "source": "retrieval-only",
       "status": "retrieval_only",
       "sources": [
@@ -124,33 +124,33 @@
         },
         {
           "n": 3,
-          "url": "https://www.postgresql.org/docs/17/functions-json.html#FUNCTIONS-SQLJSON-PATH",
-          "title": "9.16. JSON Functions and Operators"
-        },
-        {
-          "n": 4,
-          "url": "https://www.postgresql.org/docs/17/functions-json.html#FUNCTIONS-JSON-PROCESSING",
-          "title": "9.16. JSON Functions and Operators"
-        },
-        {
-          "n": 5,
           "url": "https://www.postgresql.org/docs/17/functions-aggregate.html#FUNCTIONS-AGGREGATE",
           "title": "9.21. Aggregate Functions"
         },
         {
-          "n": 6,
+          "n": 4,
           "url": "https://www.postgresql.org/docs/17/unsupported-features-sql-standard.html#UNSUPPORTED-FEATURES-SQL-STANDARD",
           "title": "D.2. Unsupported Features"
         },
         {
+          "n": 5,
+          "url": "https://www.postgresql.org/docs/17/errcodes-appendix.html#ERRCODES-APPENDIX",
+          "title": "Appendix A. PostgreSQL Error Codes"
+        },
+        {
+          "n": 6,
+          "url": "https://www.postgresql.org/docs/17/datatype-json.html#DATATYPE-JSON",
+          "title": "8.14. JSON Types"
+        },
+        {
           "n": 7,
-          "url": "https://www.postgresql.org/docs/17/functions-json.html#FUNCTIONS-JSON",
-          "title": "9.16. JSON Functions and Operators"
+          "url": "https://www.postgresql.org/docs/17/release-17.html#RELEASE-17",
+          "title": "E.12. Release 17"
         },
         {
           "n": 8,
-          "url": "https://www.postgresql.org/docs/17/errcodes-appendix.html#ERRCODES-APPENDIX",
-          "title": "Appendix A. PostgreSQL Error Codes"
+          "url": "https://www.postgresql.org/docs/17/features-sql-standard.html#FEATURES-SQL-STANDARD",
+          "title": "D.1. Supported Features"
         }
       ],
       "answer": null
@@ -159,7 +159,7 @@
       "id": "a06",
       "lang": "es",
       "question": "¿Qué diferencia hay entre VACUUM y VACUUM FULL?",
-      "recorded_at": "2026-10-29T01:58:31Z",
+      "recorded_at": "2026-10-29T02:08:01Z",
       "source": "retrieval-only",
       "status": "retrieval_only",
       "sources": [
@@ -175,33 +175,33 @@
         },
         {
           "n": 3,
-          "url": "https://www.postgresql.org/docs/17/sql-vacuum.html#id-1.9.3.184.5",
-          "title": "VACUUM"
-        },
-        {
-          "n": 4,
-          "url": "https://www.postgresql.org/docs/17/sql-vacuum.html#id-1.9.3.184.6",
-          "title": "VACUUM"
-        },
-        {
-          "n": 5,
-          "url": "https://www.postgresql.org/docs/17/routine-vacuuming.html#ROUTINE-VACUUMING",
-          "title": "24.1. Routine Vacuuming"
-        },
-        {
-          "n": 6,
           "url": "https://www.postgresql.org/docs/17/app-vacuumdb.html#id-1.9.4.23.6",
           "title": "vacuumdb"
         },
         {
-          "n": 7,
+          "n": 4,
           "url": "https://www.postgresql.org/docs/17/runtime-config-client.html#RUNTIME-CONFIG-CLIENT-STATEMENT",
           "title": "19.11. Client Connection Defaults"
         },
         {
+          "n": 5,
+          "url": "https://www.postgresql.org/docs/17/runtime-config-resource.html#RUNTIME-CONFIG-RESOURCE-VACUUM-COST",
+          "title": "19.4. Resource Consumption"
+        },
+        {
+          "n": 6,
+          "url": "https://www.postgresql.org/docs/17/sql-createtable.html#SQL-CREATETABLE-STORAGE-PARAMETERS",
+          "title": "CREATE TABLE"
+        },
+        {
+          "n": 7,
+          "url": "https://www.postgresql.org/docs/17/runtime-config-autovacuum.html#RUNTIME-CONFIG-AUTOVACUUM",
+          "title": "19.10. Automatic Vacuuming"
+        },
+        {
           "n": 8,
-          "url": "https://www.postgresql.org/docs/17/routine-vacuuming.html#VACUUM-FOR-WRAPAROUND",
-          "title": "24.1. Routine Vacuuming"
+          "url": "https://www.postgresql.org/docs/17/progress-reporting.html#VACUUM-PROGRESS-REPORTING",
+          "title": "27.4. Progress Reporting"
         }
       ],
       "answer": null
@@ -210,7 +210,7 @@
       "id": "a33",
       "lang": "en",
       "question": "How do I rank full-text search results by relevance?",
-      "recorded_at": "2026-10-29T01:58:31Z",
+      "recorded_at": "2026-10-29T02:08:01Z",
       "source": "retrieval-only",
       "status": "retrieval_only",
       "sources": [
@@ -231,28 +231,28 @@
         },
         {
           "n": 4,
-          "url": "https://www.postgresql.org/docs/17/textsearch-controls.html#TEXTSEARCH-HEADLINE",
-          "title": "12.3. Controlling Text Search"
-        },
-        {
-          "n": 5,
-          "url": "https://www.postgresql.org/docs/17/textsearch-intro.html#TEXTSEARCH-DOCUMENT",
-          "title": "12.1. Introduction"
-        },
-        {
-          "n": 6,
           "url": "https://www.postgresql.org/docs/17/functions-textsearch.html#FUNCTIONS-TEXTSEARCH",
           "title": "9.13. Text Search Functions and Operators"
         },
         {
-          "n": 7,
+          "n": 5,
           "url": "https://www.postgresql.org/docs/17/textsearch-indexes.html#TEXTSEARCH-INDEXES",
           "title": "12.9. Preferred Index Types for Text Search"
         },
         {
-          "n": 8,
+          "n": 6,
           "url": "https://www.postgresql.org/docs/17/textsearch-tables.html#TEXTSEARCH-TABLES",
           "title": "12.2. Tables and Indexes"
+        },
+        {
+          "n": 7,
+          "url": "https://www.postgresql.org/docs/17/dict-int.html#DICT-INT",
+          "title": "F.12. dict_int — example full-text search dictionary for integers"
+        },
+        {
+          "n": 8,
+          "url": "https://www.postgresql.org/docs/17/ltree.html#LTREE-DEFINITIONS",
+          "title": "F.22. ltree — hierarchical tree-like data type"
         }
       ],
       "answer": null
@@ -261,7 +261,7 @@
       "id": "a42",
       "lang": "es",
       "question": "¿Qué diferencia hay entre timestamp y timestamptz?",
-      "recorded_at": "2026-10-29T01:58:31Z",
+      "recorded_at": "2026-10-29T02:08:01Z",
       "source": "retrieval-only",
       "status": "retrieval_only",
       "sources": [
@@ -302,8 +302,8 @@
         },
         {
           "n": 8,
-          "url": "https://www.postgresql.org/docs/17/ecpg-pgtypes.html#ECPG-PGTYPES-CONSTANTS",
-          "title": "34.6. pgtypes Library"
+          "url": "https://www.postgresql.org/docs/17/functions-admin.html#FUNCTIONS-ADMIN-GENFILE",
+          "title": "9.28. System Administration Functions"
         }
       ],
       "answer": null
@@ -312,7 +312,7 @@
       "id": "u01",
       "lang": "en",
       "question": "How do I enable the query cache in PostgreSQL 17?",
-      "recorded_at": "2026-10-29T01:58:31Z",
+      "recorded_at": "2026-10-29T02:08:01Z",
       "source": "retrieval-only",
       "status": "retrieval_only",
       "sources": [
@@ -348,13 +348,13 @@
         },
         {
           "n": 7,
-          "url": "https://www.postgresql.org/docs/17/runtime-config-resource.html#RUNTIME-CONFIG-RESOURCE-ASYNC-BEHAVIOR",
-          "title": "19.4. Resource Consumption"
+          "url": "https://www.postgresql.org/docs/17/release-17.html#RELEASE-17",
+          "title": "E.12. Release 17"
         },
         {
           "n": 8,
-          "url": "https://www.postgresql.org/docs/17/release-17.html#RELEASE-17",
-          "title": "E.12. Release 17"
+          "url": "https://www.postgresql.org/docs/17/release-17-9.html#RELEASE-17-9",
+          "title": "E.3. Release 17.9"
         }
       ],
       "answer": null
@@ -363,7 +363,7 @@
       "id": "u30",
       "lang": "es",
       "question": "¿Cuándo sale PostgreSQL 19 y qué funciones trae?",
-      "recorded_at": "2026-10-29T01:58:31Z",
+      "recorded_at": "2026-10-29T02:08:01Z",
       "source": "retrieval-only",
       "status": "retrieval_only",
       "sources": [
