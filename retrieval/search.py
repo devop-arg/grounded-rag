@@ -51,11 +51,11 @@ POLICIES = (
     "es-stopwords",
     "es-stopwords+downweight",
 )
-#: Best policy measured on ``eval/questions.jsonl`` and ``eval/dev_es.jsonl``
-#: (``logs/es-compare.log``): at lexical weight 0.5 ``downweight``,
-#: ``plain+downweight`` and ``es-stopwords+downweight`` tie at MRR@8 0.8333 / 0.5579,
-#: so the simplest one wins; ``es-stopwords`` alone is worse than ``baseline``
-#: (0.7083 / 0.5437) and ``plain`` too (0.8125 / 0.4552).
+#: Best policy measured on ``eval/questions.jsonl`` and ``eval/dev_es.jsonl``:
+#: at lexical weight 0.5 ``downweight``, ``plain+downweight`` and
+#: ``es-stopwords+downweight`` tie at MRR@8 0.8333 / 0.5579, so the simplest one
+#: wins; ``es-stopwords`` alone is worse than ``baseline`` (0.7083 / 0.5437) and
+#: ``plain`` too (0.8125 / 0.4552).
 DEFAULT_POLICY = "downweight"
 #: Lexical weight for the downweight policies.  ``downweight`` ties at 0.3 and 0.5
 #: on both sets; 0.0 scores best on dev_es (MRR@8 0.5849) but much worse on the

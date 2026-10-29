@@ -42,8 +42,19 @@ def ratio(numerator: float, denominator: float) -> float | None:
     return round(numerator / denominator, 4) if denominator else None
 
 
-def summarize_rows(rows: list[dict]) -> dict:
-    """Aggregate metrics for a list of per-question rows."""
+def cost_usd(rows: list[dict], price_input_per_m: float, price_output_per_m: float) -> float:
+    """USD spent on these rows: prompt and completion tokens times their prices."""
+    prompt = sum(int(row.get("prompt_tokens") or 0) for row in rows)
+    completion = sum(int(row.get("completion_tokens") or 0) for row in rows)
+    return round((prompt * price_input_per_m + completion * price_output_per_m) / 1_000_000, 6)
+
+
+def summarize_rows(rows: list[dict], prices: tuple[float, float] = (0.0, 0.0)) -> dict:
+    """Aggregate metrics for a list of per-question rows.
+
+    ``prices`` is ``(input, output)`` in USD per million tokens, used only for
+    the ``cost_usd`` of the block; the token counts are always summed.
+    """
     answerable = [row for row in rows if row["answerable"]]
     unanswerable = [row for row in rows if not row["answerable"]]
     abstained = [row for row in rows if row["abstain"]]
@@ -54,6 +65,8 @@ def summarize_rows(rows: list[dict]) -> dict:
     retrieval = [row["retrieval_ms"] for row in rows]
     llm = [row["llm_ms"] for row in rows if row["llm_ms"]]
     tokens = [row["tokens"] for row in rows]
+    prompt_tokens = sum(int(row.get("prompt_tokens") or 0) for row in rows)
+    completion_tokens = sum(int(row.get("completion_tokens") or 0) for row in rows)
 
     reasons: dict[str, int] = {}
     for row in abstained:
@@ -87,9 +100,12 @@ def summarize_rows(rows: list[dict]) -> dict:
             ),
         },
         "tokens": {
+            "prompt": prompt_tokens,
+            "completion": completion_tokens,
             "total": sum(tokens),
             "mean_per_question": round(sum(tokens) / len(tokens), 1) if tokens else 0.0,
         },
+        "cost_usd": cost_usd(rows, *prices),
         "latency_ms": {
             "retrieval": {
                 "median": round(percentile(retrieval, 0.5), 1),
@@ -177,15 +193,57 @@ def run_generate(
             )
 
     languages = sorted({row["lang"] for row in rows})
+    prices = (config.llm_price_input_per_m, config.llm_price_output_per_m)
     return {
         "generated_at": datetime.now(timezone.utc).strftime("%Y-%m-%dT%H:%M:%SZ"),
         "seconds": round(time.perf_counter() - started, 1),
         "threshold": threshold,
         "config": config.public(),
-        "summary": summarize_rows(rows),
-        "by_lang": {lang: summarize_rows([row for row in rows if row["lang"] == lang]) for lang in languages},
+        "summary": summarize_rows(rows, prices),
+        "by_lang": {
+            lang: summarize_rows([row for row in rows if row["lang"] == lang], prices)
+            for lang in languages
+        },
         "questions": rows,
     }
+
+
+def public_config(raw: dict) -> dict:
+    """Reduce a serialised ``config`` block (old or new shape) to the public one.
+
+    Accepts a :meth:`Config.public` dict as-is and also a report written before
+    the endpoint and the paths were dropped: the model keeps only the part after
+    the last ``/`` and unknown keys are ignored.
+    """
+    model = str(raw.get("llm_model") or "")
+    return {
+        "llm_model": model.rsplit("/", 1)[-1],
+        "llm_price_input_per_m": float(raw.get("llm_price_input_per_m") or 0.0),
+        "llm_price_output_per_m": float(raw.get("llm_price_output_per_m") or 0.0),
+        "budget_usd_per_month": float(raw.get("budget_usd_per_month") or 0.0),
+        "generation": bool(raw.get("generation", True)),
+    }
+
+
+def refresh_report(report: dict) -> dict:
+    """Rebuild ``config``, ``summary`` and ``by_lang`` of a stored report.
+
+    Uses only the rows already in the file, so the per-question answers,
+    sentences and timings are copied verbatim and no model is called.  Meant for
+    reports written before the public ``config`` and the cost were added.
+    """
+    rows = report.get("questions") or []
+    config = public_config(report.get("config") or {})
+    prices = (config["llm_price_input_per_m"], config["llm_price_output_per_m"])
+    languages = sorted({row["lang"] for row in rows})
+    refreshed = dict(report)
+    refreshed["config"] = config
+    refreshed["summary"] = summarize_rows(rows, prices)
+    refreshed["by_lang"] = {
+        lang: summarize_rows([row for row in rows if row["lang"] == lang], prices)
+        for lang in languages
+    }
+    return refreshed
 
 
 def report_path(when: str | None = None, mock: bool = False) -> Path:
@@ -221,7 +279,10 @@ def print_summary(report: dict) -> None:
         f"sentences with a valid citation: {citations['sentences_with_valid_citation']}/{citations['sentences_total']} "
         f"({citations['sentence_citation_rate']})"
     )
-    print(f"  tokens: total={tokens['total']} mean/question={tokens['mean_per_question']}")
+    print(
+        f"  tokens: input={tokens['prompt']} output={tokens['completion']} total={tokens['total']} "
+        f"mean/question={tokens['mean_per_question']} cost=${summary['cost_usd']:.6f}"
+    )
     print(
         f"  latency: retrieval median={latency['retrieval']['median']}ms p95={latency['retrieval']['p95']}ms; "
         f"llm median={latency['llm']['median']}ms p95={latency['llm']['p95']}ms"

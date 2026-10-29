@@ -39,6 +39,7 @@
       'error.502': 'The generation step failed. Try again.',
       'error.unknown': 'The request failed. Try again.',
       'banner.recorded': 'Recorded mode: the live model is not available. Answers come from the recorded set.',
+      'banner.budget': 'Budget mode: the monthly spending budget of this demo is used up. Answers come from the recorded set.',
       'recorded.badge': 'Recorded answer (no live model)',
       'recorded.retrievalOnly': 'Live generation is unavailable: these are the sources that would be retrieved',
       'recorded.missing': 'There is no recorded answer for this question.',
@@ -103,6 +104,7 @@
       'error.502': 'Falló la generación. Volvé a intentar.',
       'error.unknown': 'Falló la solicitud. Volvé a intentar.',
       'banner.recorded': 'Modo grabado: el modelo en vivo no está disponible. Las respuestas salen del conjunto grabado.',
+      'banner.budget': 'Modo presupuesto: el presupuesto mensual de esta demo está agotado. Las respuestas salen del conjunto grabado.',
       'recorded.badge': 'Respuesta grabada (sin modelo en vivo)',
       'recorded.retrievalOnly': 'Generación en vivo no disponible: estas son las fuentes que se recuperarían',
       'recorded.missing': 'No hay una respuesta grabada para esta pregunta.',
@@ -144,7 +146,8 @@
     last: null,
     recorded: null,
     metrics: null,
-    banner: null
+    banner: null,
+    budgetExhausted: false
   };
   var popSeq = 0;
 
@@ -301,6 +304,11 @@
     state.last = { kind: 'loading' };
     render();
 
+    if (state.budgetExhausted) {
+      // The monthly budget is already known to be spent: no request is wasted.
+      return recordedMode(question).then(function () { setBusy(false); });
+    }
+
     return fetchWithTimeout(
       '/api/ask',
       {
@@ -310,7 +318,7 @@
       },
       ASK_TIMEOUT_MS
     ).then(function (response) {
-      if (response.status === 503) return recordedMode(question);
+      if (response.status === 503) return onUnavailable(response, question);
       if (response.status === 429) { state.last = { kind: 'error', message: t('error.429') }; render(); return; }
       if (response.status === 422) { state.last = { kind: 'error', message: t('error.422') }; render(); return; }
       if (response.status === 502) { state.last = { kind: 'error', message: t('error.502') }; render(); return; }
@@ -344,7 +352,7 @@
   }
 
   function recordedMode(question) {
-    showBanner(t('banner.recorded'));
+    showBanner(state.budgetExhausted ? t('banner.budget') : t('banner.recorded'));
     return loadRecorded().then(function (entries) {
       var key = normalizeQuestion(question);
       var match = entries.filter(function (entry) { return normalizeQuestion(entry.question) === key; })[0];
@@ -354,6 +362,17 @@
         state.last = { kind: 'recorded-missing', question: question, examples: entries.slice(0, 4) };
       }
       render();
+    });
+  }
+
+  // A 503 is "no live model": either the monthly budget is spent (the server
+  // says so with reason=budget_exhausted) or generation is unavailable.
+  function onUnavailable(response, question) {
+    return response.json().then(function (body) {
+      if (body && body.reason === 'budget_exhausted') state.budgetExhausted = true;
+      return recordedMode(question);
+    }).catch(function () {
+      return recordedMode(question);
     });
   }
 
@@ -730,7 +749,15 @@
       return response.ok ? response.json() : null;
     }).then(function (health) {
       if (!health) return;
-      if (!health.generation || !health.llm_configured) showBanner(t('banner.recorded'));
+      if (!health.generation || !health.llm_configured) {
+        showBanner(t('banner.recorded'));
+        return;
+      }
+      if (health.budget && health.budget.exhausted) {
+        // Spent for the month: recorded mode from the first question on.
+        state.budgetExhausted = true;
+        showBanner(t('banner.budget'));
+      }
     }).catch(function () { /* static page: no banner */ });
 
     loadRecorded();

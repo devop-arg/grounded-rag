@@ -25,7 +25,17 @@ from retrieval.search import get_embedder, get_store, hybrid_search
 from .generate import SIGNAL_NAMES, THRESHOLD_PATH, retrieval_signals
 
 QUESTIONS_PATH = Path(__file__).resolve().parent.parent / "eval" / "questions.jsonl"
+REPO_ROOT = Path(__file__).resolve().parent.parent
 DEFAULT_MAX_LOST = 2
+
+
+def display_path(path: Path | str) -> str:
+    """The path as written in the report: relative to the repository when inside it."""
+    resolved = Path(path).expanduser()
+    try:
+        return str(resolved.resolve().relative_to(REPO_ROOT))
+    except ValueError:
+        return str(path)
 
 
 def load_questions(path: Path | str = QUESTIONS_PATH) -> list[dict]:
@@ -177,7 +187,7 @@ def main(argv: list[str] | None = None) -> int:
         "unanswerable_abstained": chosen["unanswerable_abstained"],
         "unanswerable_total": len(questions) - answerable,
         "max_lost": args.max_lost,
-        "calibrated_on": str(Path(args.file)),
+        "calibrated_on": display_path(args.file),
         "calibrated_at": datetime.now(timezone.utc).strftime("%Y-%m-%dT%H:%M:%SZ"),
         "note": "calibrated on the same 80-question eval set used for reporting: optimistically biased",
         "signals": {

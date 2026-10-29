@@ -5,6 +5,10 @@ loads it.  No CORS is enabled on purpose.  Nothing here logs the API key, the
 IP salt or a client IP.  Every response (API and static) carries the same
 security headers, and the ``/api/*`` routes are declared before the static
 mount so they always win.
+
+The monthly USD budget is checked before the model is called: once the month's
+spending reaches the cap the API answers 503 with ``reason: "budget_exhausted"``
+and no request leaves the server.
 """
 
 from __future__ import annotations
@@ -15,7 +19,7 @@ from contextlib import asynccontextmanager
 from typing import Literal
 
 from fastapi import FastAPI, HTTPException, Request
-from fastapi.responses import Response
+from fastapi.responses import JSONResponse, Response
 from fastapi.staticfiles import StaticFiles
 from pydantic import BaseModel, field_validator
 
@@ -102,7 +106,12 @@ def create_app(
     app.state.store = store
     app.state.embedder = embedder
     app.state.llm = llm
-    app.state.usage = usage or UsageStore(settings.usage_db, settings.daily_token_cap)
+    app.state.usage = usage or UsageStore(
+        settings.usage_db,
+        settings.budget_usd_per_month,
+        input_price_per_m=settings.llm_price_input_per_m,
+        output_price_per_m=settings.llm_price_output_per_m,
+    )
     limit, window = settings.rate_limit()
     app.state.limiter = limiter or RateLimiter(limit, window, salt=settings.ip_salt)
     app.state.threshold = load_threshold() if threshold is None else threshold
@@ -119,12 +128,15 @@ def create_app(
             "status": "ok",
             "generation": bool(state.config.generation),
             "llm_configured": state.config.llm_configured or state.config.llm_fake == "mock",
+            "budget": state.usage.status(),
         }
 
     @app.get("/api/metrics")
-    def metrics() -> dict:
-        """Retrieval, abstention threshold and generation, read from the reports."""
-        return build_metrics()
+    def metrics(request: Request) -> dict:
+        """Retrieval, abstention threshold, generation and the monthly budget."""
+        body = build_metrics()
+        body["budget"] = request.app.state.usage.status()
+        return body
 
     @app.post("/api/ask")
     def ask(payload: AskRequest, request: Request) -> dict:
@@ -147,9 +159,14 @@ def create_app(
             }
 
         if state.usage.exhausted():
-            raise HTTPException(
+            logger.info("ask: monthly budget exhausted; the model was not called")
+            return JSONResponse(
                 status_code=503,
-                detail="daily token budget exhausted; the model is not called again until tomorrow (UTC)",
+                content={
+                    "detail": "monthly spending budget exhausted; the model is not called "
+                    "again this month (UTC)",
+                    "reason": "budget_exhausted",
+                },
             )
 
         try:
@@ -175,16 +192,17 @@ def create_app(
             logger.warning("ask: LLM call failed (%s)", type(error).__name__)
             raise HTTPException(status_code=502, detail="generation failed")
 
-        state.usage.add(answer["prompt_tokens"] + answer["completion_tokens"])
+        state.usage.add(answer["prompt_tokens"], answer["completion_tokens"])
         body = {"abstain": answer["abstain"], "sentences": answer["sentences"], "sources": answer["sources"]}
         if answer["abstain"]:
             body["reason"] = answer["reason"]
         logger.info(
-            "ask: abstain=%s reason=%s sentences=%d tokens=%d",
+            "ask: abstain=%s reason=%s sentences=%d tokens=%d cost_usd=%.6f",
             answer["abstain"],
             answer["reason"],
             len(answer["sentences"]),
             answer["prompt_tokens"] + answer["completion_tokens"],
+            settings.cost_usd(answer["prompt_tokens"], answer["completion_tokens"]),
         )
         return body
 

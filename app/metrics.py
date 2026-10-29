@@ -1,4 +1,4 @@
-"""``GET /api/metrics``: retrieval, abstention threshold and generation, from files.
+"""Metrics for the web UI: retrieval, abstention threshold and generation.
 
 Three sources, all read from disk on every request (they change only when a
 report is regenerated):
@@ -10,7 +10,8 @@ report is regenerated):
 
 The generation block never shows the simulated model's numbers: a report whose
 name ends in ``-mock.json`` is counted, never summarised, so a mock run can
-never be presented as a real evaluation.
+never be presented as a real evaluation.  The monthly budget block is added by
+the API endpoint, which owns the ``UsageStore``.
 """
 
 from __future__ import annotations

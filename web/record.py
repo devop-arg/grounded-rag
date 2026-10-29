@@ -129,7 +129,9 @@ def record(
 
     document = {
         "generated_at": datetime.now(timezone.utc).strftime("%Y-%m-%dT%H:%M:%SZ"),
-        "report": str(resolved) if resolved is not None else None,
+        # Only the file name: the recorded document is served publicly and must
+        # not publish a path of the machine that recorded it.
+        "report": resolved.name if resolved is not None else None,
         "entries": entries,
     }
     out_path = Path(out_path)
@@ -143,8 +145,13 @@ def main(argv: list[str] | None = None) -> int:
     parser.add_argument("--out", default=str(OUT_PATH), help="output file (default: web/recorded.json)")
     parser.add_argument(
         "--report",
+        "--from-report",
+        dest="report",
         default="auto",
-        help="real generation report to replay ('auto' = newest *-generate.json, '' = none)",
+        help=(
+            "real generation report to replay ('auto' = newest *-generate.json, '' = none); "
+            "the answers are copied from the report, the model is never called"
+        ),
     )
     args = parser.parse_args(argv)
 
