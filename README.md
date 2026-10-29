@@ -1,8 +1,9 @@
 # grounded-rag
 
 A grounded RAG assistant over the official **PostgreSQL 17** documentation.
-Phase 2 (this repo state) adds **answers with server-verified citations,
-abstention and a small HTTP API** on top of the phase 1 index. Ingestion,
+Phase 2 added **answers with server-verified citations, abstention and a small
+HTTP API** on top of the phase 1 index; phase 3 adds the bilingual web interface
+in `web/`, which keeps working without a model through a recorded set. Ingestion,
 embeddings, retrieval and retrieval evaluation still run offline; a real answer
 needs an OpenAI-compatible endpoint and an API key, and nothing else does.
 
@@ -11,7 +12,8 @@ needs an OpenAI-compatible endpoint and an API key, and nothing else does.
 | `ingest/` | fetch the PG 17 docs, parse HTML into sections, chunk, embed, index |
 | `retrieval/` | SQLite FTS5 + numpy vector store, RRF fusion, `hybrid_search` |
 | `generation/` | config, prompt, OpenAI-compatible client, citation validation, threshold |
-| `app/` | FastAPI: `POST /api/ask`, `GET /api/health` (loopback only) |
+| `app/` | FastAPI: `POST /api/ask`, `GET /api/health`, `GET /api/metrics`, static `web/` |
+| `web/` | the UI (HTML/CSS/vanilla JS), `recorded.json` and its recorder `web/record.py` |
 | `eval/` | recall@5 / MRR, plus `--generate` answer/citation/abstention metrics |
 | `tests/` | unit tests (no network, no model) |
 | `data/` | generated: raw tarball, HTML pages, `chunks.jsonl`, index, stats, `usage.sqlite` |
@@ -48,7 +50,8 @@ python3 -m venv .venv
 .venv/bin/python -m generation.calibrate                    # abstention threshold (retrieval only)
 .venv/bin/python -m eval --generate                         # 80 questions, needs an API key
 .venv/bin/python -m eval --generate --mock --limit 5        # offline pipeline check
-.venv/bin/python -m app                                     # API on 127.0.0.1:8790
+.venv/bin/python -m app                                     # API + web UI on 127.0.0.1:8790
+.venv/bin/python -m web.record                              # rewrite web/recorded.json (offline mode)
 .venv/bin/python -m pytest -q
 ```
 
@@ -94,11 +97,13 @@ expected URLs are otherwise listed up front and dropped from the metrics), and
 * **Fusion** — weighted reciprocal rank fusion,
   `score = Σ w_i / (60 + rank)`, over the top 50 lexical and top 50 vector hits.
   Without weights it is the original `Σ 1/(60 + rank)`.
-* **Grouping** — candidates are grouped by URL before returning: the best ranked
-  fragment of a URL is its representative, the score of a group is *that
+* **Grouping** — candidates are grouped by **page** (the URL without its `#anchor`)
+  before returning: the best ranked fragment of a page is its representative (the
+  result keeps *that* fragment's URL and anchor), the score of a group is *that
   fragment's* score (not the sum, so a page is not inflated by having many
-  fragments), and `chunk_ids` lists every candidate fragment of the page. The
-  search returns `k` distinct URLs.
+  fragments), `chunk_ids` lists every candidate fragment of the page and `urls`
+  their full URLs. The search returns `k` distinct pages, so one page never takes
+  two slots.
 
 **Language-aware policies.** `detect_lang()` (`retrieval/lang.py`) is a pure
 heuristic: `¿ ¡ ñ`, accented vowels and short function-word lists for Spanish and
@@ -110,7 +115,7 @@ signal matters most) always keep the stemmed index with weights 1/1:
 
 | Policy | Spanish queries |
 | --- | --- |
-| `baseline` | stemmed index, weights 1/1 (the old behaviour, still URL-grouped) |
+| `baseline` | stemmed index, weights 1/1 (the old behaviour, still page-grouped) |
 | `plain` | plain index |
 | `downweight` | lexical weight 0.5 |
 | `plain+downweight` | plain index and lexical weight 0.5 |
@@ -161,9 +166,9 @@ offline model used by `eval --generate --mock` and by the app smoke test.
 
 ## Generation
 
-`hybrid_search` returns 8 URL groups; each group becomes one numbered source
-(`[1]..[8]`) with title, section path and the **full text** of its
-representative fragment plus its other fragments up to ~1200 words, wrapped in
+`hybrid_search` returns 8 page groups; each group becomes one numbered source
+(`[1]..[8]`) with title, section path and the **full text** of all its fragments
+(representative first) up to ~1200 words, wrapped in
 `<<<PASSAGES>>>`/`<<<SOURCE n>>>` delimiters. The system prompt is English and
 states the rules: answer only from the passages, in the question's language
 (`lang` or `detect_lang`; `other` means English), treat question and passages as
@@ -209,6 +214,54 @@ optimistically biased — treat them as a smoke test, not a benchmark.
   row per UTC day with a token count and nothing else. The embedding model is
   loaded once at startup.
 * `GET /api/health` → `{status, generation, llm_configured}`.
+* `GET /api/metrics` → `{retrieval, threshold, generation}` for the "How it is
+  evaluated" panel (see below).
+
+## Web interface
+
+`python -m app` also serves the UI: `web/` is mounted at `/` with
+`StaticFiles(html=True)` **after** the `/api/*` routes, so the API always wins.
+It still listens on `127.0.0.1` only (default port `8790`): open
+<http://127.0.0.1:8790/>.
+
+* Question form (Enter sends, Shift+Enter adds a line, `n/500` counter), four
+  real example questions, EN/ES and light/dark selectors (`localStorage`, and
+  `?lang=es` works too), link to the repository.
+* Each sentence lists its citations as `[n]`; hover, keyboard focus or a tap
+  opens the verbatim quote, the source title and the link to the section on
+  postgresql.org (new tab, `rel="noopener"`). The "Sources" panel lists `n`,
+  title and URL.
+* Abstention has its own amber state and still lists what retrieval found.
+* `GET /api/metrics` reads `eval/reports/retrieval.json` (recall@5 and MRR@8,
+  overall and per question language), the calibrated threshold
+  (`generation/threshold.json`, with its bias note) and the last **real**
+  generation report. A `-generate-mock.json` report is counted, never
+  summarised: until a real run exists the generation block says "pending:
+  evaluated only with the simulated model" and shows no numbers.
+* Every response (API and static) carries `Content-Security-Policy` (no inline
+  script or style, no JS CDN, only the Google Fonts CSS/woff2), `X-Content-Type-Options:
+  nosniff` and `Referrer-Policy: no-referrer`.
+
+**Recorded mode.** `web/recorded.json` is written by `python -m web.record` (no
+model, no network; the embedder loads once): for the four examples plus four
+extra questions (two answerable, two not, half EN and half ES) it stores the
+question, its language and the **real** `hybrid_search` sources. When a real
+generation report exists it also copies that question's `abstain`, `sentences`
+and `sources`; without one the entry keeps `"answer": null` and
+`"status": "retrieval_only"`. Answers from the simulated model are never used.
+If `/api/ask` times out (30 s), fails with 503 or a network error — or
+generation is off — the page replays the recorded entry for that exact
+question, labelled "Recorded answer (no live model)", behind a discreet
+recorded-mode banner.
+
+Regenerate the metrics and the recording:
+
+```bash
+.venv/bin/python -m eval --strict --json | sed -n '/^{/,$p' > eval/reports/retrieval.json
+.venv/bin/python -m web.record      # rewrites web/recorded.json
+```
+
+![Web interface, dark theme, after an English example](logs/f3-desktop.png)
 
 ## Status
 
@@ -217,8 +270,11 @@ dropping the alphabetical index (1143 pages read, 1 index page excluded, 45
 discarded, **2808 chunks** instead of 2835) the default `downweight` policy on
 the 80-question set scores **recall@5 0.88 / MRR@8 0.7336** (it was 0.88 /
 0.7324 with the index page in the corpus; `plain+downweight` is the best policy
-at 0.90 / 0.7376). See `logs/f2-reindex.log` and
-`f2-eval-retrieval.log`.
+at 0.90 / 0.7380). Grouping by page instead of by anchored URL left those
+numbers untouched: the repeated fragments sat below the hit, so the gain is in
+the result list (40 of 80 questions had a page twice in their top-5; now none
+does). See `logs/f2-reindex.log`, `f2-eval-retrieval.log` and
+`f3-group-page-eval.log`.
 
 `eval --generate --mock` (deterministic offline model, so the numbers prove the
 pipeline and the metrics, not model quality) over the same 80 questions:
@@ -231,8 +287,8 @@ loading anything. The mock run's token counts are synthetic. See
 `eval/reports/<date>-generate-mock.json`.
 
 The real generation run is **not** included: no API key is configured on this
-box, and the brief forbids obtaining one. 213 tests pass
-(`logs/f2-pytest.log`), the app smoke test
+box, and the brief forbids obtaining one. 234 tests pass
+(`logs/f3-pytest.log`), the app smoke test
 (`f2-app-smoke.log`) covers health, generation off, 422 (empty and 501
 characters), 429, a mock answer with citations, the released port and the
 absence of IPs/keys in logs and `usage.sqlite`. The Spanish dev set is small and

@@ -2,7 +2,7 @@
 
 from __future__ import annotations
 
-from eval.__main__ import url_exists, validate_urls
+from eval.__main__ import first_hit, first_hit_rank, url_exists, validate_urls
 
 PAGES = {"https://d/x.html", "https://d/y.html"}
 URLS = {"https://d/x.html#X", "https://d/y.html#Y"}
@@ -46,3 +46,29 @@ def test_validation_does_not_mutate_the_input() -> None:
     validate_urls(QUESTIONS, PAGES, URLS)
 
     assert QUESTIONS[1]["expected_urls"] == ["https://d/x.html#NOPE"]
+
+
+RESULTS = [
+    {"url": "https://d/y.html#Y", "urls": ["https://d/y.html#Y"]},
+    {
+        "url": "https://d/x.html#A",  # representative
+        "urls": ["https://d/x.html#A", "https://d/x.html#B"],  # a second fragment of the same page
+    },
+]
+
+
+def test_expected_anchor_matches_a_secondary_fragment_of_the_page() -> None:
+    assert first_hit_rank(RESULTS, ["https://d/x.html#B"]) == 2
+    assert first_hit(RESULTS, ["https://d/x.html#B"]) == (2, "https://d/x.html#B")
+
+
+def test_expected_anchor_still_needs_that_anchor() -> None:
+    assert first_hit_rank(RESULTS, ["https://d/x.html#NOPE"]) is None
+    assert first_hit_rank(RESULTS, ["https://d/x.html"]) == 2  # page-level match
+
+
+def test_a_result_without_group_urls_is_scored_by_its_representative() -> None:
+    representative_only = [{"url": "https://d/x.html#A"}]
+
+    assert first_hit_rank(representative_only, ["https://d/x.html#A"]) == 1
+    assert first_hit_rank(representative_only, ["https://d/x.html#B"]) is None
