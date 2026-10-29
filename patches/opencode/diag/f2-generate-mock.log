@@ -1,0 +1,106 @@
+== python -m eval --generate (sin API key configurada) ==
+ERROR: the generation model is not configured: GROUNDED_RAG_LLM_API_KEY is empty (set it in the environment or in ~/.config/grounded-rag/env)
+       set the variables in ~/.config/grounded-rag/env, or use --generate --mock
+exit: 2
+
+== python -m eval --generate --mock (80 preguntas, concurrencia 1) ==
+corpus: 1097 pages, 1866 chunk URLs
+expected URLs not in the corpus: 0
+
+[ 1/80] a01  en abstain=False reason=None         sentences=1 citations=1/1 tokens=9689
+[ 2/80] a02  es abstain=False reason=None         sentences=1 citations=1/1 tokens=3940
+[ 3/80] a03  en abstain=False reason=None         sentences=1 citations=1/1 tokens=6575
+[ 4/80] a04  es abstain=False reason=None         sentences=1 citations=1/1 tokens=6546
+[ 5/80] a05  en abstain=False reason=None         sentences=1 citations=1/1 tokens=8917
+[ 6/80] a06  es abstain=False reason=None         sentences=1 citations=1/1 tokens=10083
+[ 7/80] a07  en abstain=False reason=None         sentences=1 citations=1/1 tokens=8723
+[ 8/80] a08  es abstain=False reason=None         sentences=1 citations=1/1 tokens=10468
+[ 9/80] a09  en abstain=False reason=None         sentences=1 citations=1/1 tokens=7974
+[10/80] a10  es abstain=False reason=None         sentences=1 citations=1/1 tokens=6569
+[11/80] a11  en abstain=False reason=None         sentences=1 citations=1/1 tokens=7583
+[12/80] a12  es abstain=False reason=None         sentences=1 citations=1/1 tokens=9399
+[13/80] a13  en abstain=False reason=None         sentences=1 citations=1/1 tokens=8004
+[14/80] a14  es abstain=False reason=None         sentences=1 citations=1/1 tokens=8483
+[15/80] a15  en abstain=False reason=None         sentences=1 citations=1/1 tokens=11557
+[16/80] a16  es abstain=False reason=None         sentences=1 citations=1/1 tokens=10117
+[17/80] a17  en abstain=False reason=None         sentences=1 citations=1/1 tokens=6275
+[18/80] a18  es abstain=False reason=None         sentences=1 citations=1/1 tokens=7530
+[19/80] a19  en abstain=False reason=None         sentences=1 citations=1/1 tokens=7171
+[20/80] a20  es abstain=False reason=None         sentences=1 citations=1/1 tokens=6588
+[21/80] a21  en abstain=False reason=None         sentences=1 citations=1/1 tokens=5831
+[22/80] a22  es abstain=False reason=None         sentences=1 citations=1/1 tokens=7412
+[23/80] a23  en abstain=False reason=None         sentences=1 citations=1/1 tokens=8639
+[24/80] a24  es abstain=False reason=None         sentences=1 citations=1/1 tokens=6274
+[25/80] a25  en abstain=False reason=None         sentences=1 citations=1/1 tokens=7965
+[26/80] a26  es abstain=False reason=None         sentences=1 citations=1/1 tokens=4769
+[27/80] a27  en abstain=False reason=None         sentences=1 citations=1/1 tokens=10909
+[28/80] a28  es abstain=False reason=None         sentences=1 citations=1/1 tokens=6531
+[29/80] a29  en abstain=False reason=None         sentences=1 citations=1/1 tokens=8758
+[30/80] a30  es abstain=False reason=None         sentences=1 citations=1/1 tokens=7393
+[31/80] a31  en abstain=False reason=None         sentences=1 citations=1/1 tokens=6026
+[32/80] a32  es abstain=False reason=None         sentences=1 citations=1/1 tokens=5932
+[33/80] a33  en abstain=False reason=None         sentences=1 citations=1/1 tokens=8444
+[34/80] a34  es abstain=False reason=None         sentences=1 citations=1/1 tokens=7524
+[35/80] a35  en abstain=False reason=None         sentences=1 citations=1/1 tokens=5382
+[36/80] a36  es abstain=False reason=None         sentences=1 citations=1/1 tokens=7411
+[37/80] a37  en abstain=False reason=None         sentences=1 citations=1/1 tokens=9374
+[38/80] a38  es abstain=False reason=None         sentences=1 citations=1/1 tokens=6345
+[39/80] a39  en abstain=False reason=None         sentences=1 citations=1/1 tokens=7776
+[40/80] a40  es abstain=False reason=None         sentences=1 citations=1/1 tokens=8083
+[41/80] a41  en abstain=False reason=None         sentences=1 citations=1/1 tokens=7570
+[42/80] a42  es abstain=False reason=None         sentences=1 citations=1/1 tokens=8690
+[43/80] a43  en abstain=False reason=None         sentences=1 citations=1/1 tokens=8030
+[44/80] a44  es abstain=True  reason=threshold    sentences=0 citations=0/0 tokens=0
+[45/80] a45  en abstain=False reason=None         sentences=1 citations=1/1 tokens=10837
+[46/80] a46  es abstain=True  reason=threshold    sentences=0 citations=0/0 tokens=0
+[47/80] a47  en abstain=False reason=None         sentences=1 citations=1/1 tokens=6426
+[48/80] a48  es abstain=False reason=None         sentences=1 citations=1/1 tokens=9971
+[49/80] a49  en abstain=False reason=None         sentences=1 citations=1/1 tokens=4860
+[50/80] a50  es abstain=False reason=None         sentences=1 citations=1/1 tokens=5827
+[51/80] u01  en abstain=False reason=None         sentences=1 citations=1/1 tokens=8729
+[52/80] u02  es abstain=False reason=None         sentences=1 citations=1/1 tokens=8357
+[53/80] u03  en abstain=False reason=None         sentences=1 citations=1/1 tokens=8289
+[54/80] u04  es abstain=False reason=None         sentences=1 citations=1/1 tokens=7661
+[55/80] u05  en abstain=False reason=None         sentences=1 citations=1/1 tokens=6769
+[56/80] u06  es abstain=True  reason=threshold    sentences=0 citations=0/0 tokens=0
+[57/80] u07  en abstain=False reason=None         sentences=1 citations=1/1 tokens=5721
+[58/80] u08  es abstain=False reason=None         sentences=1 citations=1/1 tokens=5722
+[59/80] u09  en abstain=False reason=None         sentences=1 citations=1/1 tokens=6449
+[60/80] u10  es abstain=False reason=None         sentences=1 citations=1/1 tokens=6771
+[61/80] u11  en abstain=False reason=None         sentences=1 citations=1/1 tokens=7282
+[62/80] u12  es abstain=False reason=None         sentences=1 citations=1/1 tokens=4857
+[63/80] u13  en abstain=False reason=None         sentences=1 citations=1/1 tokens=5247
+[64/80] u14  es abstain=True  reason=threshold    sentences=0 citations=0/0 tokens=0
+[65/80] u15  en abstain=True  reason=threshold    sentences=0 citations=0/0 tokens=0
+[66/80] u16  es abstain=True  reason=threshold    sentences=0 citations=0/0 tokens=0
+[67/80] u17  en abstain=False reason=None         sentences=1 citations=1/1 tokens=7029
+[68/80] u18  es abstain=False reason=None         sentences=1 citations=1/1 tokens=4902
+[69/80] u19  en abstain=True  reason=threshold    sentences=0 citations=0/0 tokens=0
+[70/80] u20  es abstain=True  reason=threshold    sentences=0 citations=0/0 tokens=0
+[71/80] u21  en abstain=False reason=None         sentences=1 citations=1/1 tokens=8154
+[72/80] u22  es abstain=True  reason=threshold    sentences=0 citations=0/0 tokens=0
+[73/80] u23  en abstain=False reason=None         sentences=1 citations=1/1 tokens=5467
+[74/80] u24  es abstain=True  reason=threshold    sentences=0 citations=0/0 tokens=0
+[75/80] u25  en abstain=False reason=None         sentences=1 citations=1/1 tokens=5474
+[76/80] u26  es abstain=False reason=None         sentences=1 citations=1/1 tokens=7950
+[77/80] u27  en abstain=True  reason=threshold    sentences=0 citations=0/0 tokens=0
+[78/80] u28  es abstain=False reason=None         sentences=1 citations=1/1 tokens=8043
+[79/80] u29  en abstain=True  reason=threshold    sentences=0 citations=0/0 tokens=0
+[80/80] u30  es abstain=False reason=None         sentences=1 citations=1/1 tokens=8157
+
+summary
+  questions: 80 (50 answerable, 30 not)
+  answered (answerable): 48/50 (0.96)
+  abstention: precision=0.8333 recall=0.3333 (tp=10 fp=2 fn=20)
+  abstain reasons: {'threshold': 12}
+  citations: 68/68 valid (1.0); sentences with a valid citation: 68/68 (1.0)
+  tokens: total=508210 mean/question=6352.6
+  latency: retrieval median=84.2ms p95=128.6ms; llm median=0.8ms p95=3.7ms
+  [en] answer rate=1.0 abstain precision=1.0 recall=0.2667
+  [es] answer rate=0.92 abstain precision=0.75 recall=0.4
+report: /home/capw/projects/grounded-rag/eval/reports/2026-10-29-generate-mock.json
+exit: 0
+
+== reporte escrito ==
+total 60
+-rw-rw-r-- 1 capw capw 59337 Oct 28 22:24 2026-10-29-generate-mock.json
