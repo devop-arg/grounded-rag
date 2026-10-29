@@ -12,6 +12,13 @@ The endpoint, the model and the key are never hardcoded: they only come from
 ``GROUNDED_RAG_LLM_BASE_URL``, ``GROUNDED_RAG_LLM_MODEL`` and
 ``GROUNDED_RAG_LLM_API_KEY`` (or the key file pair below).
 
+The optional remote retrieval parts (:mod:`retrieval.remote`) share that
+endpoint and key and are off unless their own variable names a model, so an
+empty value means "keep the local behaviour": ``GROUNDED_RAG_RERANK_MODEL``,
+``GROUNDED_RAG_EMBED_MODEL`` (plus ``GROUNDED_RAG_EMBED_INDEX``, the name of the
+alternative vector index), ``GROUNDED_RAG_TRANSLATE_MODEL`` and the three prices
+used when the endpoint does not report a cost.
+
 The API key and the IP salt are secrets: this module never logs them, its
 ``repr`` masks them and :meth:`Config.public` is the only shape meant for
 reports (it also drops the endpoint, every path and the model's provider
@@ -45,6 +52,16 @@ DEFAULT_PRICE_OUTPUT_PER_M = 0.0
 DEFAULT_BUDGET_USD_PER_MONTH = 0.50
 DEFAULT_RATE_PER_IP = "10/hour"
 DEFAULT_PORT = 8790
+#: Optional remote retrieval parts: empty means "off" (the local path is used).
+DEFAULT_RERANK_MODEL = ""
+DEFAULT_EMBED_MODEL = ""
+DEFAULT_EMBED_INDEX = ""
+DEFAULT_TRANSLATE_MODEL = ""
+DEFAULT_EMBED_PRICE_PER_M = 0.0
+DEFAULT_EMBED_DIMS = 0
+DEFAULT_RERANK_PRICE_PER_SEARCH = 0.0
+DEFAULT_TRANSLATE_PRICE_INPUT_PER_M = 0.0
+DEFAULT_TRANSLATE_PRICE_OUTPUT_PER_M = 0.0
 USAGE_DB = REPO_ROOT / "data" / "usage.sqlite"
 
 
@@ -155,6 +172,16 @@ ENV_FIELDS = {
     f"{PREFIX}RATE_PER_IP": "rate_per_ip",
     f"{PREFIX}IP_SALT": "ip_salt",
     f"{PREFIX}PORT": "port",
+    # Optional remote retrieval: every part is off while its model is empty.
+    f"{PREFIX}RERANK_MODEL": "rerank_model",
+    f"{PREFIX}EMBED_MODEL": "embed_model",
+    f"{PREFIX}EMBED_INDEX": "embed_index",
+    f"{PREFIX}TRANSLATE_MODEL": "translate_model",
+    f"{PREFIX}EMBED_PRICE_PER_M": "embed_price_per_m",
+    f"{PREFIX}EMBED_DIMS": "embed_dims",
+    f"{PREFIX}RERANK_PRICE_PER_SEARCH": "rerank_price_per_search",
+    f"{PREFIX}TRANSLATE_PRICE_INPUT_PER_M": "translate_price_input_per_m",
+    f"{PREFIX}TRANSLATE_PRICE_OUTPUT_PER_M": "translate_price_output_per_m",
     # Test-only switch: ``GROUNDED_RAG_LLM_FAKE=mock`` uses the deterministic
     # offline model (see generation.mock) instead of a network client.
     f"{PREFIX}LLM_FAKE": "llm_fake",
@@ -169,6 +196,11 @@ TYPED_FIELDS = frozenset(
         "llm_price_input_per_m",
         "llm_price_output_per_m",
         "budget_usd_per_month",
+        "embed_price_per_m",
+        "embed_dims",
+        "rerank_price_per_search",
+        "translate_price_input_per_m",
+        "translate_price_output_per_m",
     }
 )
 
@@ -194,6 +226,16 @@ class Config:
     ip_salt: str = ""
     port: int = DEFAULT_PORT
     llm_fake: str = ""
+    # Optional remote retrieval (see retrieval.remote): off when empty.
+    rerank_model: str = DEFAULT_RERANK_MODEL
+    embed_model: str = DEFAULT_EMBED_MODEL
+    embed_index: str = DEFAULT_EMBED_INDEX
+    translate_model: str = DEFAULT_TRANSLATE_MODEL
+    embed_price_per_m: float = DEFAULT_EMBED_PRICE_PER_M
+    embed_dims: int = DEFAULT_EMBED_DIMS
+    rerank_price_per_search: float = DEFAULT_RERANK_PRICE_PER_SEARCH
+    translate_price_input_per_m: float = DEFAULT_TRANSLATE_PRICE_INPUT_PER_M
+    translate_price_output_per_m: float = DEFAULT_TRANSLATE_PRICE_OUTPUT_PER_M
     usage_db: Path = USAGE_DB
 
     # ------------------------------------------------------------- secrets
@@ -255,6 +297,42 @@ class Config:
 
     def rate_limit(self) -> tuple[int, float]:
         return parse_rate(self.rate_per_ip)
+
+    # --------------------------------------------------- remote retrieval
+    @property
+    def remote_rerank(self) -> bool:
+        """True when a rerank model is configured (the call itself may still fail)."""
+        return bool(self.rerank_model)
+
+    @property
+    def remote_embeddings(self) -> bool:
+        """True when a remote embedding model is configured."""
+        return bool(self.embed_model)
+
+    @property
+    def remote_translate(self) -> bool:
+        """True when a translation model is configured."""
+        return bool(self.translate_model)
+
+    @property
+    def remote_active(self) -> bool:
+        """True when at least one remote retrieval part is configured."""
+        return self.remote_rerank or self.remote_embeddings or self.remote_translate
+
+    @property
+    def embed_index_name(self) -> str:
+        """Name of the alternative vector index (``GROUNDED_RAG_EMBED_INDEX``).
+
+        Falls back to a slug of the model's last path segment, so pointing
+        ``GROUNDED_RAG_EMBED_MODEL`` at a new model never overwrites the local
+        ``vectors.npy``.
+        """
+        if self.embed_index:
+            return self.embed_index
+        if not self.embed_model:
+            return ""
+        slug = re.sub(r"[^a-z0-9]+", "-", self.embed_model.rsplit("/", 1)[-1].lower()).strip("-")
+        return slug or "remote"
 
     def cost_usd(self, prompt_tokens: int, completion_tokens: int) -> float:
         """USD cost of one completion at the configured prices per million tokens."""
@@ -362,6 +440,14 @@ def load_config(
             kwargs["port"] = int(port)
         except ValueError as error:
             raise ConfigError(f"{PREFIX}PORT must be an integer (got {port!r})") from error
+    dims = _present(values, f"{PREFIX}EMBED_DIMS")
+    if dims is not None:
+        try:
+            kwargs["embed_dims"] = int(dims)
+        except ValueError as error:
+            raise ConfigError(f"{PREFIX}EMBED_DIMS must be an integer (got {dims!r})") from error
+        if kwargs["embed_dims"] < 0:
+            raise ConfigError(f"{PREFIX}EMBED_DIMS cannot be negative (got {dims!r})")
     rate = _present(values, f"{PREFIX}RATE_PER_IP")
     if rate is not None:
         parse_rate(rate)  # fail fast on a malformed rate
@@ -370,6 +456,10 @@ def load_config(
         (f"{PREFIX}LLM_PRICE_INPUT_PER_M", "llm_price_input_per_m"),
         (f"{PREFIX}LLM_PRICE_OUTPUT_PER_M", "llm_price_output_per_m"),
         (f"{PREFIX}BUDGET_USD_PER_MONTH", "budget_usd_per_month"),
+        (f"{PREFIX}EMBED_PRICE_PER_M", "embed_price_per_m"),
+        (f"{PREFIX}RERANK_PRICE_PER_SEARCH", "rerank_price_per_search"),
+        (f"{PREFIX}TRANSLATE_PRICE_INPUT_PER_M", "translate_price_input_per_m"),
+        (f"{PREFIX}TRANSLATE_PRICE_OUTPUT_PER_M", "translate_price_output_per_m"),
     ):
         amount = _present(values, env_name)
         if amount is not None:

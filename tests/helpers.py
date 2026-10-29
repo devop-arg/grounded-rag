@@ -132,12 +132,16 @@ def make_settings(tmp_path: Path, **overrides) -> Config:
     return Config(**base)
 
 
-def make_client(tmp_path: Path, *, llm=None, store=None, embedder=None, threshold=None, **overrides):
+def make_client(tmp_path: Path, *, llm=None, store=None, embedder=None, thresholds=None, **overrides):
     """TestClient plus the injected fakes, so no model or network is touched."""
     from fastapi.testclient import TestClient
 
+    from generation.generate import Thresholds
+
     config = make_settings(tmp_path, **overrides)
     limit, window = config.rate_limit()
+    if thresholds is None:
+        thresholds = Thresholds(local={"signal": "vector_cosine", "value": 0.0})
     application = create_app(
         config,
         store=store or FakeStore(),
@@ -150,6 +154,6 @@ def make_client(tmp_path: Path, *, llm=None, store=None, embedder=None, threshol
             output_price_per_m=config.llm_price_output_per_m,
         ),
         limiter=RateLimiter(limit, window, salt=config.ip_salt),
-        threshold={"signal": "vector_cosine", "value": 0.0} if threshold is None else threshold,
+        thresholds=thresholds,
     )
     return TestClient(application), application

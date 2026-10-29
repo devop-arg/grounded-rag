@@ -123,6 +123,24 @@ class UsageStore:
         return prompt, completion
 
     # -------------------------------------------------------------- writes
+    def add_cost(self, amount_usd: float, month: str | None = None) -> float:
+        """Add a cost that has no token count of its own (remote retrieval parts).
+
+        Embeddings, rerank and translation are priced per call, not per
+        completion, so they only contribute dollars to the month's spending.
+        """
+        amount = round(max(0.0, float(amount_usd)), DIGITS)
+        key = month or utc_month()
+        if not amount:
+            return self.spent(key)
+        with sqlite3.connect(self.path) as conn:
+            conn.execute(
+                "INSERT INTO budget (month, cost_usd) VALUES (?, ?)"
+                " ON CONFLICT(month) DO UPDATE SET cost_usd = cost_usd + excluded.cost_usd",
+                (key, amount),
+            )
+        return self.spent(key)
+
     def add(
         self,
         prompt_tokens: int,

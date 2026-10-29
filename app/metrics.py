@@ -5,8 +5,12 @@ report is regenerated):
 
 * ``eval/reports/retrieval.json`` — the ``python -m eval --strict --json``
   output, versioned: recall@5 / MRR@8 overall and per question language;
-* ``generation/threshold.json`` — the calibrated abstention threshold;
-* ``eval/reports/<date>-generate.json`` — a **real** generation report.
+* ``generation/threshold.json`` — the calibrated abstention threshold of the
+  local index, or ``generation/threshold-remote.json`` for the remote one: the
+  block shows the threshold that is active under the running configuration;
+* ``eval/reports/<date>-generate.json`` — a **real** generation report.  Only the
+  local-index run is summarised here; the ``-generate-remote.json`` variant of the
+  same day is published in the README and is not shown by this panel.
 
 The generation block never shows the simulated model's numbers: a report whose
 name ends in ``-mock.json`` is counted, never summarised, so a mock run can
@@ -25,6 +29,7 @@ REPO_ROOT = Path(__file__).resolve().parent.parent
 REPORTS_DIR = REPO_ROOT / "eval" / "reports"
 RETRIEVAL_REPORT = "retrieval.json"
 THRESHOLD_PATH = REPO_ROOT / "generation" / "threshold.json"
+REMOTE_THRESHOLD_PATH = REPO_ROOT / "generation" / "threshold-remote.json"
 MOCK_SUFFIX = "-generate-mock.json"
 REAL_SUFFIX = "-generate.json"
 WEB_DIR = REPO_ROOT / "web"
@@ -87,6 +92,25 @@ def threshold_metrics(path: Path | str = THRESHOLD_PATH) -> dict | None:
     }
 
 
+def active_threshold(
+    config=None,
+    *,
+    local_path: Path | str = THRESHOLD_PATH,
+    remote_path: Path | str = REMOTE_THRESHOLD_PATH,
+) -> dict | None:
+    """The threshold of the index the configuration uses (never a path).
+
+    A remote embedding model configured means the remote index, whose cosine
+    lives on its own scale and has its own calibration; anything else is the
+    local one.  An absent file leaves the block empty, exactly like a server
+    running without a threshold.  Without ``config`` the local index is assumed,
+    so a caller that has no settings gets the historical behaviour.
+    """
+    index = "remote" if (config is not None and config.remote_embeddings) else "local"
+    block = threshold_metrics(remote_path if index == "remote" else local_path)
+    return None if block is None else {**block, "index": index}
+
+
 def generation_metrics(reports_dir: Path | str = REPORTS_DIR) -> dict:
     """The last **real** generation report, or an explicit ``pending`` status.
 
@@ -142,11 +166,15 @@ def build_metrics(
     *,
     reports_dir: Path | str = REPORTS_DIR,
     threshold_path: Path | str = THRESHOLD_PATH,
+    remote_threshold_path: Path | str = REMOTE_THRESHOLD_PATH,
+    config=None,
 ) -> dict:
     """Everything the "How it is evaluated" panel shows."""
     reports_dir = Path(reports_dir)
     return {
         "retrieval": retrieval_metrics(reports_dir / RETRIEVAL_REPORT),
-        "threshold": threshold_metrics(threshold_path),
+        "threshold": active_threshold(
+            config, local_path=threshold_path, remote_path=remote_threshold_path
+        ),
         "generation": generation_metrics(reports_dir),
     }

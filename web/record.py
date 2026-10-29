@@ -4,11 +4,12 @@ For the four example questions plus four extra ones (two answerable, two not,
 half EN and half ES) it stores the question, its language and the **real**
 sources that ``hybrid_search`` returns.  The embedding model is loaded once.
 
-If a **real** generation report (``eval/reports/<date>-generate.json``) exists
-and holds that question, its ``abstain`` / ``sentences`` / ``sources`` are
-copied verbatim.  A ``-mock.json`` report is never read: without a real one the
-entry keeps ``"answer": null`` and ``"status": "retrieval_only"``, so the web UI
-can never replay a simulated answer as if it came from the model.
+If a **real** generation report (``eval/reports/<date>-generate.json``, or
+``<date>-generate-remote.json`` when the retrieval used remote parts) exists and
+holds that question, its ``abstain`` / ``sentences`` / ``sources`` are copied
+verbatim.  A ``-mock.json`` report is never read: without a real one the entry
+keeps ``"answer": null`` and ``"status": "retrieval_only"``, so the web UI can
+never replay a simulated answer as if it came from the model.
 """
 
 from __future__ import annotations
@@ -39,12 +40,24 @@ def load_questions(path: Path | str = QUESTIONS_PATH) -> dict[str, dict]:
 
 
 def latest_real_report(reports_dir: Path | str = REPORTS_DIR) -> Path | None:
-    """Newest ``*-generate.json`` that is not a mock report."""
+    """Newest real ``*-generate.json``, remote runs included, never a mock one.
+
+    A remote run is a real report too, and it sorts after the local one of the
+    same day (its name carries the ``-remote`` suffix, which is not
+    alphabetical), so the tie is broken explicitly.
+    """
+
+    def order(path: Path) -> tuple[str, bool]:
+        name = path.name.removesuffix(".json")
+        return (name.split("-generate", 1)[0], "-remote" in name)
+
     reports_dir = Path(reports_dir)
     candidates = [
-        path for path in sorted(reports_dir.glob("*-generate.json")) if not path.name.endswith("-generate-mock.json")
+        path
+        for path in reports_dir.glob("*-generate*.json")
+        if not path.name.endswith("-generate-mock.json")
     ]
-    return candidates[-1] if candidates else None
+    return max(candidates, key=order) if candidates else None
 
 
 def report_answers(report_path: Path | None) -> tuple[dict[str, dict], str | None]:
@@ -149,8 +162,8 @@ def main(argv: list[str] | None = None) -> int:
         dest="report",
         default="auto",
         help=(
-            "real generation report to replay ('auto' = newest *-generate.json, '' = none); "
-            "the answers are copied from the report, the model is never called"
+            "real generation report to replay ('auto' = newest real one, remote runs "
+            "included; '' = none); the answers are copied from the report, the model is never called"
         ),
     )
     args = parser.parse_args(argv)

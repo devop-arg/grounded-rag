@@ -7,6 +7,7 @@ import logging
 import pytest
 
 from app.usage import UsageStore
+from generation.generate import Thresholds
 from generation.llm import LLMError
 
 from helpers import (
@@ -199,7 +200,9 @@ def test_missing_key_is_503_not_a_crash(tmp_path) -> None:
 def test_threshold_abstention_skips_the_model(tmp_path) -> None:
     llm = ScriptedLLM([VALID_ANSWER])
     client, _ = make_client(
-        tmp_path, llm=llm, threshold={"signal": "vector_cosine", "value": 0.99, "note": "test"}
+        tmp_path,
+        llm=llm,
+        thresholds=Thresholds(local={"signal": "vector_cosine", "value": 0.99, "note": "test"}),
     )
     with client:
         response = client.post("/api/ask", json={"question": "q"})
@@ -236,7 +239,9 @@ def test_client_ip_is_neither_logged_nor_stored(tmp_path, caplog) -> None:
 
 def test_threshold_rejection_does_not_consume_the_budget(tmp_path) -> None:
     client, application = make_client(
-        tmp_path, llm=ScriptedLLM([VALID_ANSWER]), threshold={"signal": "rrf", "value": 1.0}
+        tmp_path,
+        llm=ScriptedLLM([VALID_ANSWER]),
+        thresholds=Thresholds(local={"signal": "rrf", "value": 1.0}),
     )
     with client:
         client.post("/api/ask", json={"question": "q"})

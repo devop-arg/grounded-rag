@@ -15,11 +15,13 @@ from datetime import datetime, timezone
 from pathlib import Path
 
 from generation.config import Config
-from generation.generate import answer_question, load_threshold
+from generation.generate import Thresholds, answer_question, load_thresholds
 from generation.llm import ChatModel
 
 REPORTS_DIR = Path(__file__).resolve().parent / "reports"
 K = 8
+#: Suffix of a generation report whose retrieval used remote parts.
+REMOTE_SUFFIX = "-remote"
 
 
 def percentile(values: list[float], fraction: float) -> float:
@@ -127,10 +129,19 @@ def run_generate(
     llm: ChatModel,
     config: Config,
     limit: int | None = None,
+    remote=None,
+    thresholds: Thresholds | None = None,
     log=None,
 ) -> dict:
-    """Answer every question (concurrency 1) and return the report dict."""
-    threshold = load_threshold()
+    """Answer every question (concurrency 1) and return the report dict.
+
+    ``remote`` turns the optional remote retrieval parts on (see
+    :mod:`retrieval.remote`) and ``thresholds`` is the pair read once here, so
+    each answer is compared with the threshold of the index its search used.
+    Without ``remote`` the run is local and the report is the local one.  The
+    counters of ``remote`` are the run's remote cost, so it is built for it.
+    """
+    table = thresholds if thresholds is not None else load_thresholds()
     selected = questions[:limit] if limit else questions
     rows: list[dict] = []
     started = time.perf_counter()
@@ -143,8 +154,9 @@ def run_generate(
             embedder=embedder,
             llm=llm,
             k=K,
-            threshold=threshold,
-            use_threshold=threshold is not None,
+            thresholds=table,
+            use_threshold=table.active,
+            remote=remote,
         )
         row = {
             "id": question["id"],
@@ -154,6 +166,8 @@ def run_generate(
             "abstain": bool(answer["abstain"]),
             "reason": answer["reason"],
             "outcome": answer.get("outcome"),
+            # ``remote`` only when the remote embedding of a query really worked.
+            "embedding": answer["embedding"],
             "n_sentences": len(answer["sentences"]),
             "citations_valid": answer["stats"]["citations_valid"],
             "citations_total": answer["stats"]["citations_total"],
@@ -194,18 +208,46 @@ def run_generate(
 
     languages = sorted({row["lang"] for row in rows})
     prices = (config.llm_price_input_per_m, config.llm_price_output_per_m)
-    return {
+    summary = summarize_rows(rows, prices)
+    remote_run = bool(remote is not None and remote.active)
+    remote_stats = remote.stats if remote_run else None
+    report = {
         "generated_at": datetime.now(timezone.utc).strftime("%Y-%m-%dT%H:%M:%SZ"),
         "seconds": round(time.perf_counter() - started, 1),
-        "threshold": threshold,
-        "config": config.public(),
-        "summary": summarize_rows(rows, prices),
+        # The threshold of the index this run compared its searches against.
+        "threshold": table.for_index("remote" if remote_run else "local"),
+        "config": config_block(config, summary, table, remote if remote_run else None),
+        "summary": summary,
         "by_lang": {
             lang: summarize_rows([row for row in rows if row["lang"] == lang], prices)
             for lang in languages
         },
         "questions": rows,
     }
+    if remote_stats is not None:
+        report["remote"] = remote_stats.as_dict()
+    return report
+
+
+def config_block(config: Config, summary: dict, thresholds: Thresholds, remote=None) -> dict:
+    """The public ``config`` of a report, plus the remote run when there is one.
+
+    A local run keeps the five public settings; a run with remote parts adds
+    which of them were on (last path segment of each model), both thresholds and
+    the cost split between the model and the remote calls.  No endpoint, path or
+    provider route is ever added.
+    """
+    block = config.public()
+    if remote is None:
+        return block
+    block["retrieval_remote"] = remote.describe()
+    block["thresholds"] = thresholds.public()
+    block["cost_usd"] = {
+        "llm": round(float(summary["cost_usd"]), 6),
+        "remote": round(float(remote.stats.cost_usd), 6),
+        "total": round(float(summary["cost_usd"]) + float(remote.stats.cost_usd), 6),
+    }
+    return block
 
 
 def public_config(raw: dict) -> dict:
@@ -213,16 +255,41 @@ def public_config(raw: dict) -> dict:
 
     Accepts a :meth:`Config.public` dict as-is and also a report written before
     the endpoint and the paths were dropped: the model keeps only the part after
-    the last ``/`` and unknown keys are ignored.
+    the last ``/`` and unknown keys are ignored.  The remote-run keys
+    (``retrieval_remote``, ``thresholds``, the cost split) are kept when the
+    report has them, with every model name reduced the same way.
     """
     model = str(raw.get("llm_model") or "")
-    return {
+    block = {
         "llm_model": model.rsplit("/", 1)[-1],
         "llm_price_input_per_m": float(raw.get("llm_price_input_per_m") or 0.0),
         "llm_price_output_per_m": float(raw.get("llm_price_output_per_m") or 0.0),
         "budget_usd_per_month": float(raw.get("budget_usd_per_month") or 0.0),
         "generation": bool(raw.get("generation", True)),
     }
+    remote = raw.get("retrieval_remote")
+    if isinstance(remote, dict):
+        parts = {
+            name: bool(remote.get(name))
+            for name in ("embeddings", "rerank", "translate")
+        }
+        for name in ("embed_model", "rerank_model", "translate_model"):
+            parts[name] = str(remote.get(name) or "").rsplit("/", 1)[-1]
+        block["retrieval_remote"] = parts
+    thresholds = raw.get("thresholds")
+    if isinstance(thresholds, dict):
+        block["thresholds"] = {
+            name: None
+            if not isinstance(value, dict)
+            else {"signal": value.get("signal"), "value": value.get("value")}
+            for name, value in thresholds.items()
+        }
+    cost = raw.get("cost_usd")
+    if isinstance(cost, dict):
+        block["cost_usd"] = {
+            name: round(float(cost.get(name) or 0.0), 6) for name in ("llm", "remote", "total")
+        }
+    return block
 
 
 def refresh_report(report: dict) -> dict:
@@ -236,9 +303,16 @@ def refresh_report(report: dict) -> dict:
     config = public_config(report.get("config") or {})
     prices = (config["llm_price_input_per_m"], config["llm_price_output_per_m"])
     languages = sorted({row["lang"] for row in rows})
+    summary = summarize_rows(rows, prices)
+    if "cost_usd" in config:
+        # The model part is repriced from the rows, the remote one is not.
+        config["cost_usd"]["llm"] = round(float(summary["cost_usd"]), 6)
+        config["cost_usd"]["total"] = round(
+            config["cost_usd"]["llm"] + config["cost_usd"]["remote"], 6
+        )
     refreshed = dict(report)
     refreshed["config"] = config
-    refreshed["summary"] = summarize_rows(rows, prices)
+    refreshed["summary"] = summary
     refreshed["by_lang"] = {
         lang: summarize_rows([row for row in rows if row["lang"] == lang], prices)
         for lang in languages
@@ -246,15 +320,21 @@ def refresh_report(report: dict) -> dict:
     return refreshed
 
 
-def report_path(when: str | None = None, mock: bool = False) -> Path:
+def report_path(when: str | None = None, mock: bool = False, remote: bool = False) -> Path:
     stamp = when or datetime.now(timezone.utc).strftime("%Y-%m-%d")
-    suffix = "-generate-mock.json" if mock else "-generate.json"
+    suffix = "-generate-mock.json" if mock else f"-generate{REMOTE_SUFFIX if remote else ''}.json"
     return REPORTS_DIR / f"{stamp}{suffix}"
 
 
-def write_report(report: dict, mock: bool = False) -> Path:
-    REPORTS_DIR.mkdir(parents=True, exist_ok=True)
-    path = report_path(mock=mock)
+def write_report(
+    report: dict,
+    mock: bool = False,
+    remote: bool = False,
+    out: Path | str | None = None,
+) -> Path:
+    """Write the report; ``out`` wins over the dated name of the run's kind."""
+    path = Path(out) if out is not None else report_path(mock=mock, remote=remote)
+    path.parent.mkdir(parents=True, exist_ok=True)
     path.write_text(json.dumps(report, indent=2, ensure_ascii=False) + "\n", encoding="utf-8")
     return path
 
@@ -287,6 +367,16 @@ def print_summary(report: dict) -> None:
         f"  latency: retrieval median={latency['retrieval']['median']}ms p95={latency['retrieval']['p95']}ms; "
         f"llm median={latency['llm']['median']}ms p95={latency['llm']['p95']}ms"
     )
+    cost = report.get("config", {}).get("cost_usd")
+    if isinstance(cost, dict):
+        print(
+            f"  cost: llm=${cost['llm']:.6f} remote=${cost['remote']:.6f} total=${cost['total']:.6f}"
+        )
+    remote = report.get("remote")
+    if isinstance(remote, dict):
+        print(
+            f"  remote calls: {remote['calls']} (errors={remote['errors']} fallbacks={remote['fallbacks']})"
+        )
     for lang in sorted(report["by_lang"]):
         block = report["by_lang"][lang]["abstention"]
         print(

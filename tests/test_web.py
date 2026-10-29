@@ -15,7 +15,7 @@ from app.metrics import build_metrics, generation_metrics, retrieval_metrics
 from app.main import CONTENT_SECURITY_POLICY
 from web.record import build_entry, latest_real_report, report_answers
 
-from helpers import make_client
+from helpers import make_client, make_settings
 
 REPO_ROOT = Path(__file__).resolve().parent.parent
 WEB_DIR = REPO_ROOT / "web"
@@ -170,6 +170,38 @@ def test_missing_retrieval_report_is_null(tmp_path, reports: Path) -> None:
     assert metrics["threshold"]["value"] == 0.820859
 
 
+def test_the_threshold_block_follows_the_configured_index(reports: Path, tmp_path) -> None:
+    remote_threshold = dict(THRESHOLD, value=0.436503, unanswerable_abstained=11)
+    (tmp_path / "threshold-remote.json").write_text(json.dumps(remote_threshold), encoding="utf-8")
+
+    def metrics(**kwargs):
+        return build_metrics(
+            reports_dir=reports,
+            threshold_path=tmp_path / "threshold.json",
+            remote_threshold_path=tmp_path / "threshold-remote.json",
+            **kwargs,
+        )
+
+    remote = metrics(config=make_settings(tmp_path, embed_model="vendor/embed-model"))
+    assert remote["threshold"]["index"] == "remote"
+    assert remote["threshold"]["value"] == 0.436503
+    assert "threshold.json" not in json.dumps(remote["threshold"])
+
+    local = metrics(config=make_settings(tmp_path))
+    assert local["threshold"]["index"] == "local"
+    assert local["threshold"]["value"] == 0.820859
+    # Without settings the historical behaviour is kept: the local index.
+    assert metrics()["threshold"]["index"] == "local"
+
+    missing = build_metrics(
+        reports_dir=reports,
+        threshold_path=tmp_path / "threshold.json",
+        remote_threshold_path=tmp_path / "none.json",
+        config=make_settings(tmp_path, embed_model="vendor/embed-model"),
+    )
+    assert missing["threshold"] is None
+
+
 def test_a_mock_report_is_never_presented_as_real(reports: Path) -> None:
     (reports / "2026-10-29-generate-mock.json").write_text(
         json.dumps(generation_report(48, 0.8333)), encoding="utf-8"
@@ -263,6 +295,17 @@ def test_latest_real_report_ignores_mock_files(reports: Path) -> None:
     real = reports / "2026-10-28-generate.json"
     real.write_text("{}", encoding="utf-8")
     assert latest_real_report(reports) == real
+
+
+def test_latest_real_report_prefers_the_remote_run_of_the_same_day(reports: Path) -> None:
+    (reports / "2026-10-29-generate.json").write_text("{}", encoding="utf-8")
+    remote = reports / "2026-10-29-generate-remote.json"
+    remote.write_text("{}", encoding="utf-8")
+    (reports / "2026-10-29-generate-mock.json").write_text("{}", encoding="utf-8")
+    assert latest_real_report(reports) == remote
+    later = reports / "2026-10-30-generate.json"
+    later.write_text("{}", encoding="utf-8")
+    assert latest_real_report(reports) == later
 
 
 def test_build_entry_keeps_a_real_answer_and_otherwise_stays_retrieval_only() -> None:

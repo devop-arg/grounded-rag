@@ -26,6 +26,19 @@ INDEX_PATH = DATA_DIR / "index.sqlite"
 VECTORS_PATH = DATA_DIR / "vectors.npy"
 VECTOR_IDS_PATH = DATA_DIR / "vector_ids.json"
 CHUNKS_PATH = DATA_DIR / "chunks.jsonl"
+#: A named (remote) vector index lives beside the local one and never replaces it.
+VECTORS_TEMPLATE = "vectors-{name}.npy"
+VECTOR_IDS_TEMPLATE = "vector_ids-{name}.json"
+
+
+def vectors_path_for(name: str, data_dir: Path | str = DATA_DIR) -> Path:
+    """``data/vectors-<name>.npy``: the vectors of the alternative index ``name``."""
+    return Path(data_dir) / VECTORS_TEMPLATE.format(name=name)
+
+
+def vector_ids_path_for(name: str, data_dir: Path | str = DATA_DIR) -> Path:
+    """``data/vector_ids-<name>.json``: the chunk ids aligned with those vectors."""
+    return Path(data_dir) / VECTOR_IDS_TEMPLATE.format(name=name)
 
 TOKEN_RE = re.compile(r"\w+", re.UNICODE)
 #: English porter stemmer (the original index).  It also folds Spanish tokens onto
@@ -231,11 +244,7 @@ class SqliteNumpyStore:
         if norm == 0.0:
             return []
         query = query / norm
-        scores = self._vectors @ query
-        k = min(k, scores.shape[0])
-        top = np.argpartition(-scores, k - 1)[:k]
-        top = top[np.argsort(-scores[top], kind="stable")]
-        return [(self._vector_ids[i], float(scores[i])) for i in top]
+        return top_k(self._vectors @ query, self._vector_ids, k)
 
     def get(self, ids: list[str]) -> list[dict]:
         if not ids:
@@ -256,6 +265,77 @@ def _row_to_dict(row: sqlite3.Row) -> dict:
     data = dict(row)
     data["section_path"] = json.loads(data["section_path"])
     return data
+
+
+def top_k(scores: np.ndarray, ids: Sequence[str], k: int) -> list[tuple[str, float]]:
+    """Best ``k`` ``(chunk_id, score)`` pairs of a score vector, best first."""
+    if not len(ids) or k <= 0:
+        return []
+    k = min(k, len(ids))
+    if k == len(ids):
+        order = np.argsort(-scores, kind="stable")
+    else:
+        top = np.argpartition(-scores, k - 1)[:k]
+        order = top[np.argsort(-scores[top], kind="stable")]
+    return [(ids[i], float(scores[i])) for i in order]
+
+
+class VectorIndex:
+    """A dense vector index stored as ``.npy`` plus its ordered id list.
+
+    Used for the alternative (remote) embedding index: the local
+    ``vectors.npy``/``vector_ids.json`` pair is never opened or written here, so
+    a remote index with other dimensions coexists with it.  A missing file pair
+    behaves like an empty index (no hits) instead of raising, exactly like
+    :meth:`SqliteNumpyStore.vector`.
+    """
+
+    def __init__(self, vectors_path: Path | str, vector_ids_path: Path | str) -> None:
+        self.vectors_path = Path(vectors_path)
+        self.vector_ids_path = Path(vector_ids_path)
+        self._vectors: np.ndarray | None = None
+        self._ids: list[str] | None = None
+
+    def exists(self) -> bool:
+        return self.vectors_path.exists() and self.vector_ids_path.exists()
+
+    def _load(self) -> None:
+        if self._vectors is not None:
+            return
+        if not self.exists():
+            self._vectors = np.zeros((0, 0), dtype=np.float32)
+            self._ids = []
+            return
+        self._vectors = np.load(self.vectors_path).astype(np.float32, copy=False)
+        self._ids = json.loads(self.vector_ids_path.read_text())
+
+    @property
+    def size(self) -> int:
+        self._load()
+        assert self._ids is not None
+        return len(self._ids)
+
+    @property
+    def dim(self) -> int:
+        self._load()
+        assert self._vectors is not None
+        return int(self._vectors.shape[1]) if self._vectors.ndim == 2 else 0
+
+    def search(self, qvec: np.ndarray, k: int) -> list[tuple[str, float]]:
+        """Top-``k`` chunk ids by cosine (vectors are stored L2-normalised)."""
+        self._load()
+        assert self._vectors is not None and self._ids is not None
+        if not self._ids or k <= 0:
+            return []
+        query = np.asarray(qvec, dtype=np.float32).ravel()
+        norm = float(np.linalg.norm(query))
+        if norm == 0.0:
+            return []
+        if self._vectors.shape[1] != query.shape[0]:
+            raise ValueError(
+                f"query has {query.shape[0]} dimensions but the index has {self._vectors.shape[1]}"
+            )
+        return top_k(self._vectors @ (query / norm), self._ids, k)
 
 
 def iter_chunks(path: Path | str = CHUNKS_PATH) -> Iterable[dict]:

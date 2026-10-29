@@ -40,19 +40,39 @@ def main(argv: list[str] | None = None) -> int:
         help=f"lexical fusion policy (default: {DEFAULT_POLICY})",
     )
     parser.add_argument("--json", action="store_true", help="print JSON instead of a table")
+    parser.add_argument(
+        "--remote",
+        action="store_true",
+        help="use the configured remote parts (rerank, embeddings, translation) instead of the local ones",
+    )
     args = parser.parse_args(argv)
 
     query = " ".join(args.query)
     config = resolve_policy(query, args.policy)
 
+    remote = None
+    if args.remote:
+        from generation.config import load_config
+        from .remote import build_remote
+
+        remote = build_remote(load_config())
+        if remote is None:
+            print("remote: nothing configured (the local path is used)", flush=True)
+        else:
+            print(f"remote: {json.dumps(remote.describe())}", flush=True)
+
     started = time.perf_counter()
     store = get_store()
-    embedder = get_embedder()
+    embedder = None if (remote is not None and remote.remote_vectors) else get_embedder()
     load_ms = (time.perf_counter() - started) * 1000
 
     started = time.perf_counter()
-    results = hybrid_search(query, k=args.k, policy=args.policy, store=store, embedder=embedder)
+    results = hybrid_search(
+        query, k=args.k, policy=args.policy, store=store, embedder=embedder, remote=remote
+    )
     latency_ms = (time.perf_counter() - started) * 1000
+    if remote is not None:
+        print(f"remote stats: {json.dumps(remote.stats.as_dict())}", flush=True)
 
     if args.json:
         print(
