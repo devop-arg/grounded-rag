@@ -220,7 +220,44 @@ def main(argv: list[str] | None = None) -> int:
         action="store_true",
         help="exit with status 1 if an expected URL is missing from the corpus",
     )
+    parser.add_argument(
+        "--generate",
+        action="store_true",
+        help="run the full generation pipeline (retrieval + LLM + citation validation) and write a report",
+    )
+    parser.add_argument(
+        "--mock",
+        action="store_true",
+        help="with --generate: use the deterministic offline model (no network, no key)",
+    )
+    parser.add_argument("--limit", type=int, default=None, help="with --generate: only the first N questions")
     args = parser.parse_args(argv)
+
+    if args.mock and not args.generate:
+        print("ERROR: --mock only makes sense with --generate", flush=True)
+        return 2
+    if args.limit is not None and not args.generate:
+        print("ERROR: --limit only makes sense with --generate", flush=True)
+        return 2
+
+    llm = None
+    config = None
+    if args.generate:
+        from generation.config import LLMNotConfigured, load_config
+
+        config = load_config()
+        if args.mock:
+            from generation.mock import MockLLM
+
+            llm = MockLLM()
+        else:
+            # Fail fast and clearly before loading the embedding model.
+            try:
+                config.require_llm()
+            except LLMNotConfigured as error:
+                print(f"ERROR: {error}", flush=True)
+                print("       set the variables in ~/.config/grounded-rag/env, or use --generate --mock", flush=True)
+                return 2
 
     questions = load_questions(Path(args.file))
     pages, urls = corpus_urls()
@@ -240,6 +277,25 @@ def main(argv: list[str] | None = None) -> int:
     if problems and args.strict:
         print("strict: refusing to report metrics with invalid expected URLs")
         return 1
+
+    if args.generate:
+        from eval.generate import print_summary, run_generate, write_report
+        from retrieval.search import get_embedder, get_store
+
+        report = run_generate(
+            questions,
+            store=get_store(),
+            embedder=get_embedder(),
+            llm=llm,
+            config=config,
+            limit=args.limit,
+            log=lambda message: print(message, flush=True),
+        )
+        path = write_report(report, mock=args.mock)
+        print()
+        print_summary(report)
+        print(f"report: {path}")
+        return 0
 
     if args.compare:
         table = compare(questions, k=MRR_K, lexical_weight=args.lexical_weight)

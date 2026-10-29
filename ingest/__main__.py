@@ -61,13 +61,17 @@ def build_chunks(html_dir: Path, limit: int | None = None) -> tuple[list[dict], 
     if limit is not None:
         files = files[:limit]
     chunks: list[dict] = []
-    used = discarded = 0
+    used = discarded = index_pages = 0
     logged = 0
     started = time.perf_counter()
     for page_file in files:
         page = parse_html(page_file.read_text("utf-8", "replace"), page_file.name)
         if page is None:
             discarded += 1
+            continue
+        if page.is_index:
+            # Crawl seed, not documentation: see ingest.chunk.page_chunks.
+            index_pages += 1
             continue
         used += 1
         chunks.extend(page_chunks(page))
@@ -77,10 +81,16 @@ def build_chunks(html_dir: Path, limit: int | None = None) -> tuple[list[dict], 
     seconds = time.perf_counter() - started
     print(
         f"parse: {len(files)} pages read, {used} kept, {discarded} discarded "
-        f"(<40 words), {len(chunks)} chunks in {seconds:.1f}s",
+        f"(<40 words), {index_pages} alphabetical index page(s) excluded, {len(chunks)} chunks in {seconds:.1f}s",
         flush=True,
     )
-    return chunks, {"pages_read": len(files), "pages_used": used, "pages_discarded": discarded, "seconds": seconds}
+    return chunks, {
+        "pages_read": len(files),
+        "pages_used": used,
+        "pages_discarded": discarded,
+        "pages_index_excluded": index_pages,
+        "seconds": seconds,
+    }
 
 
 def embed_chunks(chunks: list[dict], batch: int = 64):
@@ -108,48 +118,56 @@ def file_size(path: Path) -> int:
     return path.stat().st_size if path.exists() else 0
 
 
-def reuse_vectors() -> int:
-    """Rebuild ``index.sqlite`` (both FTS tables) from ``chunks.jsonl``, keep the vectors.
+def reuse_vectors(limit: int | None = None) -> int:
+    """Re-chunk the cached HTML and rebuild ``index.sqlite``, reusing embeddings.
 
-    The embeddings cost ~34 minutes, so this path never re-embeds: it verifies
-    that ``vector_ids.json`` matches the chunk ids of ``chunks.jsonl`` in the same
-    order (and that the vector matrix has that many rows) and aborts otherwise.
+    The embeddings cost ~34 minutes, so this path never re-embeds.  It re-reads
+    ``data/html`` (the corpus rules may have changed), reconciles the new chunk
+    ids with ``data/vector_ids.json``: identical ids keep ``vectors.npy`` as is,
+    a strict subset filters its rows by id (see :func:`ingest.reuse.reconcile_vectors`)
+    and anything else aborts **before any file is written**.
     """
     import numpy as np
 
-    from retrieval.store import INDEX_PATH, VECTORS_PATH, VECTOR_IDS_PATH, SqliteNumpyStore, iter_chunks
+    from retrieval.store import INDEX_PATH, VECTORS_PATH, VECTOR_IDS_PATH, SqliteNumpyStore
 
-    if not CHUNKS_PATH.exists():
-        print(f"ERROR: {CHUNKS_PATH} not found; --reuse-vectors needs an existing chunk file", flush=True)
+    from .reuse import VectorReuseError, reconcile_vectors
+
+    if not HTML_DIR.exists() or not any(HTML_DIR.glob("*.html")):
+        print(f"ERROR: {HTML_DIR} has no pages; --reuse-vectors needs the cached HTML", flush=True)
         return 2
-    chunks = list(iter_chunks(CHUNKS_PATH))
-    chunk_ids = [chunk["id"] for chunk in chunks]
     if not VECTOR_IDS_PATH.exists() or not VECTORS_PATH.exists():
         print(f"ERROR: {VECTORS_PATH.name} / {VECTOR_IDS_PATH.name} missing; nothing to reuse", flush=True)
         return 2
 
+    chunks, parse_info = build_chunks(HTML_DIR, limit=limit)
+    chunk_ids = [chunk["id"] for chunk in chunks]
+
     stored_ids = json.loads(VECTOR_IDS_PATH.read_text())
-    if stored_ids != chunk_ids:
-        mismatch = next(
-            (index for index, (a, b) in enumerate(zip(stored_ids, chunk_ids)) if a != b),
-            min(len(stored_ids), len(chunk_ids)),
-        )
+    stored_vectors = np.load(VECTORS_PATH)
+    try:
+        vectors, vector_ids, mode = reconcile_vectors(chunk_ids, stored_ids, stored_vectors)
+    except VectorReuseError as error:
+        print(f"ERROR: cannot reuse the stored vectors: {error}; aborting (nothing written)", flush=True)
+        return 2
+    if mode == "filtered":
         print(
-            f"ERROR: {VECTOR_IDS_PATH.name} does not match {CHUNKS_PATH.name}"
-            f" ({len(stored_ids)} vs {len(chunk_ids)} ids, first mismatch at {mismatch}); aborting",
+            f"vectors: kept {len(vector_ids)}/{len(stored_ids)} rows by id (dropped {len(stored_ids) - len(vector_ids)})",
             flush=True,
         )
-        return 2
+    else:
+        print(f"vectors: {len(vector_ids)} ids unchanged", flush=True)
 
-    rows = int(np.load(VECTORS_PATH, mmap_mode="r").shape[0])
-    if rows != len(chunk_ids):
-        print(f"ERROR: {VECTORS_PATH.name} has {rows} vectors for {len(chunk_ids)} chunks; aborting", flush=True)
-        return 2
+    # Everything is consistent: only now touch the files.
+    write_chunks(chunks)
+    if mode == "filtered":
+        np.save(VECTORS_PATH, np.asarray(vectors, dtype=np.float32))
+        VECTOR_IDS_PATH.write_text(json.dumps(vector_ids))
 
     started = time.perf_counter()
     store = SqliteNumpyStore.build(
         chunks,
-        vectors=None,  # keep data/vectors.npy and data/vector_ids.json untouched
+        vectors=None,  # written above, in chunk order
         index_path=INDEX_PATH,
         vectors_path=VECTORS_PATH,
         vector_ids_path=VECTOR_IDS_PATH,
@@ -157,13 +175,18 @@ def reuse_vectors() -> int:
     seconds = time.perf_counter() - started
     print(
         f"index: {store.size} chunks indexed in {seconds:.1f}s from {CHUNKS_PATH.name}"
-        f" (vectors reused: {rows} x {np.load(VECTORS_PATH, mmap_mode='r').shape[1]})",
+        f" (vectors reused: {len(vector_ids)} x {np.load(VECTORS_PATH, mmap_mode='r').shape[1]}, {mode})",
         flush=True,
     )
 
     stats_path = DATA_DIR / "ingest_stats.json"
     stats = json.loads(stats_path.read_text()) if stats_path.exists() else {}
     stats.setdefault("seconds", {})["index"] = round(seconds, 2)
+    stats["pages_read"] = parse_info["pages_read"]
+    stats["pages_used"] = parse_info["pages_used"]
+    stats["pages_discarded"] = parse_info["pages_discarded"]
+    stats["pages_index_excluded"] = parse_info["pages_index_excluded"]
+    stats["chunks"] = len(chunks)
     stats["index_bytes"] = {
         "chunks.jsonl": file_size(CHUNKS_PATH),
         "index.sqlite": file_size(INDEX_PATH),
@@ -171,6 +194,7 @@ def reuse_vectors() -> int:
         "vector_ids.json": file_size(VECTOR_IDS_PATH),
     }
     stats["vectors_reused"] = True
+    stats["vectors_reuse_mode"] = mode
     stats_path.write_text(json.dumps(stats, indent=2, ensure_ascii=False) + "\n")
     print(json.dumps(stats, indent=2, ensure_ascii=False), flush=True)
     return 0
@@ -183,7 +207,7 @@ def main(argv: list[str] | None = None) -> int:
     parser.add_argument(
         "--reuse-vectors",
         action="store_true",
-        help="rebuild index.sqlite from data/chunks.jsonl and keep data/vectors.npy as is (no re-embedding)",
+        help="re-chunk data/html and rebuild index.sqlite, reusing data/vectors.npy (no re-embedding)",
     )
     parser.add_argument("--limit", type=int, default=None, help="only process the first N pages (for tests)")
     parser.add_argument("--refresh", action="store_true", help="re-fetch cached docs pages from the site")
@@ -193,7 +217,7 @@ def main(argv: list[str] | None = None) -> int:
         if args.skip_embed:
             print("ERROR: --reuse-vectors and --skip-embed are incompatible (--skip-embed deletes the vectors)", flush=True)
             return 2
-        return reuse_vectors()
+        return reuse_vectors(limit=args.limit)
 
     timings: dict[str, float] = {}
     total_started = time.perf_counter()
@@ -260,6 +284,7 @@ def main(argv: list[str] | None = None) -> int:
         "pages_read": parse_info["pages_read"],
         "pages_used": parse_info["pages_used"],
         "pages_discarded": parse_info["pages_discarded"],
+        "pages_index_excluded": parse_info["pages_index_excluded"],
         "chunks": len(chunks),
         "words": {
             "min": min(words),

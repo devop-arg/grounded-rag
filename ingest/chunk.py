@@ -97,7 +97,14 @@ def chunk_url(page_file: str, anchor: str) -> str:
 
 
 def page_chunks(page: Page, min_words: int = MIN_WORDS, max_words: int = MAX_WORDS) -> list[dict]:
-    """Turn one parsed page into a list of chunk dicts."""
+    """Turn one parsed page into a list of chunk dicts.
+
+    The alphabetical index of the manual (``bookindex.html``, see
+    :func:`ingest.parse.is_book_index`) yields no chunks: it is a crawl seed,
+    not documentation, and its ``term, page`` fragments match almost any query.
+    """
+    if page.is_index:
+        return []
     chunks: list[dict] = []
     counters: dict[str, int] = defaultdict(int)
     for group in group_units(page.units, min_words=min_words, max_words=max_words):

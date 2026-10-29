@@ -3,3 +3,5 @@ data/
 __pycache__/
 .pytest_cache/
 *.egg-info/
+# deterministic offline runs (eval --generate --mock) are not versioned
+eval/reports/*-mock.json
