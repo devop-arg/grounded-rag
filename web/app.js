@@ -310,7 +310,7 @@
     }
 
     return fetchWithTimeout(
-      '/api/ask',
+      'api/ask',
       {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -338,7 +338,7 @@
   // -------------------------------------------------------------- recorded
   function loadRecorded() {
     if (state.recorded) return Promise.resolve(state.recorded);
-    return window.fetch('/recorded.json').then(function (response) {
+    return window.fetch('recorded.json').then(function (response) {
       if (!response.ok) throw new Error('HTTP ' + response.status);
       return response.json();
     }).then(function (document_) {
@@ -656,7 +656,7 @@
   }
 
   function loadMetrics() {
-    return window.fetch('/api/metrics').then(function (response) {
+    return window.fetch('api/metrics').then(function (response) {
       if (!response.ok) throw new Error('HTTP ' + response.status);
       return response.json();
     }).then(function (data) {
@@ -745,7 +745,7 @@
       if (!event.target.closest || !event.target.closest('.cite-wrap')) closePopovers(null);
     });
 
-    window.fetch('/api/health').then(function (response) {
+    window.fetch('api/health').then(function (response) {
       return response.ok ? response.json() : null;
     }).then(function (health) {
       if (!health) return;

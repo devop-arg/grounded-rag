@@ -228,7 +228,10 @@ configuration, labelled `index: "remote"` or `"local"`.
 
 `python -m app` serves uvicorn on `127.0.0.1` only (a non-loopback `--host` or
 `GROUNDED_RAG_HOST` is refused with exit 2). No systemd unit, no reverse proxy,
-no CORS.
+no CORS. The web page uses relative URLs, so a reverse proxy can serve it under
+a path prefix (for example `/demos/rag/` → `http://127.0.0.1:<port>/`); uvicorn
+trusts `X-Forwarded-For` from `127.0.0.1`, so the per-IP limit sees the client
+address when the proxy sets that header.
 
 * `POST /api/ask` `{question, lang?}` → `{abstain, sentences, sources}` plus
   `reason` when abstaining (`threshold`, `model`, `validation`,
