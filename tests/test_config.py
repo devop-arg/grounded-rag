@@ -7,6 +7,7 @@ from pathlib import Path
 
 import pytest
 
+from generation import config as config_module
 from generation.config import (
     DEFAULT_BASE_URL,
     DEFAULT_BUDGET_USD_PER_MONTH,
@@ -29,6 +30,15 @@ SECRET = "sk-this-must-never-be-printed-123456"
 FILE_SECRET = "sk-only-in-the-json-file-abcdef987654"
 BASE_URL = "https://llm.example/v1"
 MODEL = "deepseek-v4.1-flash"
+REPO_ROOT = Path(__file__).resolve().parent.parent
+#: Captured before the fixture below neutralises it for every test.
+DEFAULT_LOCAL_ENV_FILE = config_module.LOCAL_ENV_FILE
+
+
+@pytest.fixture(autouse=True)
+def _isolated_from_this_machine(monkeypatch: pytest.MonkeyPatch) -> None:
+    """Never open the real ``.env.local`` nor the user env file of this machine."""
+    monkeypatch.setattr(config_module, "LOCAL_ENV_FILE", None)
 
 
 def env_text(variables: dict[str, str]) -> str:
@@ -38,6 +48,12 @@ def env_text(variables: dict[str, str]) -> str:
 
 def write_env(tmp_path: Path, body: str) -> Path:
     path = tmp_path / "env"
+    path.write_text(body, encoding="utf-8")
+    return path
+
+
+def write_local_env(tmp_path: Path, body: str) -> Path:
+    path = tmp_path / ".env.local"
     path.write_text(body, encoding="utf-8")
     return path
 
@@ -84,6 +100,63 @@ def test_the_shipped_env_example_changes_nothing(tmp_path: Path) -> None:
     source = Path(__file__).resolve().parent.parent / ".env.example"
     config = load_config(environ={}, env_file=source)
     assert config == load_config(environ={}, env_file=None)
+
+
+# ------------------------------------------------------- the repo .env.local
+
+
+def test_local_env_file_wins_over_the_user_file(tmp_path: Path) -> None:
+    user = write_env(
+        tmp_path,
+        env_text({"GROUNDED_RAG_LLM_MODEL": "from-user", "GROUNDED_RAG_PORT": "8800"}),
+    )
+    local = write_local_env(tmp_path, env_text({"GROUNDED_RAG_LLM_MODEL": "from-local"}))
+    config = load_config(environ={}, env_file=user, local_env_file=local)
+    assert config.llm_model == "from-local"
+    assert config.port == 8800  # what only the user file sets is kept
+
+
+def test_environment_wins_over_both_files(tmp_path: Path) -> None:
+    user = write_env(tmp_path, env_text({"GROUNDED_RAG_LLM_MODEL": "from-user"}))
+    local = write_local_env(
+        tmp_path,
+        env_text({"GROUNDED_RAG_LLM_MODEL": "from-local", "GROUNDED_RAG_LLM_API_KEY": SECRET}),
+    )
+    config = load_config(
+        environ={"GROUNDED_RAG_LLM_MODEL": "from-env"}, env_file=user, local_env_file=local
+    )
+    assert config.llm_model == "from-env"
+    assert config.llm_api_key == SECRET  # the local file still fills the gaps
+
+
+def test_missing_local_env_file_is_ignored(tmp_path: Path) -> None:
+    user = write_env(tmp_path, env_text({"GROUNDED_RAG_LLM_MODEL": "from-user"}))
+    missing = load_config(environ={}, env_file=user, local_env_file=tmp_path / "nope")
+    assert missing.llm_model == "from-user"
+    assert missing == load_config(environ={}, env_file=user, local_env_file=None)
+
+
+def test_blank_local_values_never_shadow_the_user_file(tmp_path: Path) -> None:
+    """A ``.env.example`` copy left as ``.env.local`` must change nothing."""
+    user = write_env(tmp_path, env_text({"GROUNDED_RAG_LLM_MODEL": "from-user"}))
+    shipped_as_local = load_config(
+        environ={}, env_file=user, local_env_file=REPO_ROOT / ".env.example"
+    )
+    assert shipped_as_local.llm_model == "from-user"
+    blank = write_local_env(tmp_path, env_text({"GROUNDED_RAG_LLM_MODEL": ""}))
+    assert load_config(environ={}, env_file=user, local_env_file=blank).llm_model == "from-user"
+
+
+def test_the_default_local_env_file_is_the_repo_root(tmp_path: Path, monkeypatch) -> None:
+    """The module's location, never the current directory, decides the path."""
+    monkeypatch.chdir(tmp_path)
+    assert DEFAULT_LOCAL_ENV_FILE == REPO_ROOT / ".env.local"
+
+
+def test_omitting_the_local_env_file_uses_the_module_default(tmp_path: Path, monkeypatch) -> None:
+    local = write_local_env(tmp_path, env_text({"GROUNDED_RAG_LLM_MODEL": "from-local"}))
+    monkeypatch.setattr(config_module, "LOCAL_ENV_FILE", local)
+    assert load_config(environ={}, env_file=None).llm_model == "from-local"
 
 
 def test_every_documented_variable_is_honoured(tmp_path: Path) -> None:
@@ -146,19 +219,26 @@ def test_repr_and_str_mask_secrets(tmp_path: Path) -> None:
         assert "***" in text
 
 
-def test_public_view_never_contains_secrets(tmp_path: Path) -> None:
-    path = write_env(
-        tmp_path, env_text({"GROUNDED_RAG_LLM_API_KEY": SECRET, "GROUNDED_RAG_IP_SALT": "salty-salt"})
+def test_public_view_is_the_report_shape_without_secrets_paths_or_host() -> None:
+    config = Config(
+        llm_base_url=BASE_URL,
+        llm_api_key=SECRET,
+        llm_model="deepseek/deepseek-v4.1-flash",
+        llm_price_input_per_m=0.045,
+        llm_price_output_per_m=0.5,
+        ip_salt="salty-salt",
     )
-    config = load_config(environ={}, env_file=path)
     public = config.public()
-    dumped = repr(public)
-    assert SECRET not in dumped
-    assert "salty-salt" not in dumped
-    assert public["llm_api_key"] is True
-    assert public["ip_salt"] is True
-    assert public["budget_usd_per_month"] == 0.5
-    assert public["llm_price_input_per_m"] == 0.0
+    assert public == {
+        "llm_model": "deepseek-v4.1-flash",
+        "llm_price_input_per_m": 0.045,
+        "llm_price_output_per_m": 0.5,
+        "budget_usd_per_month": DEFAULT_BUDGET_USD_PER_MONTH,
+        "generation": True,
+    }
+    dumped = json.dumps(public)
+    for text in (SECRET, "salty-salt", BASE_URL, "deepseek/"):
+        assert text not in dumped
 
 
 def test_missing_key_raises_without_network() -> None:
@@ -365,14 +445,22 @@ def test_empty_or_non_string_value_raises_without_leaking(tmp_path: Path, value)
     assert config.llm_configured is True  # the file exists: only reading can fail
 
 
-def test_repr_and_public_show_the_paths_never_the_key(tmp_path: Path) -> None:
+def test_repr_shows_the_paths_and_public_drops_them(tmp_path: Path) -> None:
     path = write_key_json(tmp_path, {"llm": {"key": FILE_SECRET}})
     config = key_file_config(path)
-    for text in (repr(config), str(config), repr(config.public())):
+    for text in (repr(config), str(config)):
         assert FILE_SECRET not in text
         assert str(path) in text
         assert "llm.key" in text
     public = config.public()
-    assert public["llm_key_file"] == str(path)
-    assert public["llm_key_path"] == "llm.key"
-    assert public["llm_api_key"] is False
+    dumped = json.dumps(public)
+    assert FILE_SECRET not in dumped
+    assert str(path) not in dumped
+    assert "llm.key" not in dumped
+    assert set(public) == {
+        "llm_model",
+        "llm_price_input_per_m",
+        "llm_price_output_per_m",
+        "budget_usd_per_month",
+        "generation",
+    }

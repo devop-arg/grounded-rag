@@ -1,14 +1,14 @@
 {
-  "generated_at": "2026-10-29T02:08:01Z",
-  "report": null,
+  "generated_at": "2026-10-29T13:09:45Z",
+  "report": "2026-10-29-generate.json",
   "entries": [
     {
       "id": "a01",
       "lang": "en",
       "question": "How do I build an index without blocking writes on the table?",
-      "recorded_at": "2026-10-29T02:08:01Z",
-      "source": "retrieval-only",
-      "status": "retrieval_only",
+      "recorded_at": "2026-10-29T13:09:44Z",
+      "source": "eval-report:2026-10-29-generate.json",
+      "status": "answered",
       "sources": [
         {
           "n": 1,
@@ -51,15 +51,79 @@
           "title": "F.6. bloom — bloom filter index access method"
         }
       ],
-      "answer": null
+      "answer": {
+        "abstain": false,
+        "reason": null,
+        "sentences": [
+          {
+            "text": "To build an index without blocking writes, specify the CONCURRENTLY option of CREATE INDEX.",
+            "citations": [
+              {
+                "n": 1,
+                "quote": "PostgreSQL supports building indexes without locking out writes"
+              },
+              {
+                "n": 1,
+                "quote": "specifying the CONCURRENTLY option of CREATE INDEX"
+              }
+            ]
+          },
+          {
+            "text": "When this option is used, PostgreSQL must perform two scans of the table and wait for existing transactions that could modify or use the index to terminate.",
+            "citations": [
+              {
+                "n": 1,
+                "quote": "PostgreSQL must perform two scans of the table"
+              },
+              {
+                "n": 1,
+                "quote": "wait for all existing transactions that could potentially modify or use the index to terminate"
+              }
+            ]
+          },
+          {
+            "text": "This method requires more total work than a standard index build and takes significantly longer to complete.",
+            "citations": [
+              {
+                "n": 1,
+                "quote": "requires more total work than a standard index build"
+              },
+              {
+                "n": 1,
+                "quote": "takes significantly longer to complete"
+              }
+            ]
+          },
+          {
+            "text": "However, it allows normal operations to continue while the index is built, which is useful for adding new indexes in a production environment.",
+            "citations": [
+              {
+                "n": 1,
+                "quote": "allows normal operations to continue while the index is built"
+              },
+              {
+                "n": 1,
+                "quote": "useful for adding new indexes in a production environment"
+              }
+            ]
+          }
+        ],
+        "sources": [
+          {
+            "n": 1,
+            "url": "https://www.postgresql.org/docs/17/sql-createindex.html#SQL-CREATEINDEX-CONCURRENTLY",
+            "title": "CREATE INDEX"
+          }
+        ]
+      }
     },
     {
       "id": "a15",
       "lang": "en",
       "question": "What is the difference between json and jsonb?",
-      "recorded_at": "2026-10-29T02:08:01Z",
-      "source": "retrieval-only",
-      "status": "retrieval_only",
+      "recorded_at": "2026-10-29T13:09:44Z",
+      "source": "eval-report:2026-10-29-generate.json",
+      "status": "answered",
       "sources": [
         {
           "n": 1,
@@ -102,15 +166,105 @@
           "title": "D.2. Unsupported Features"
         }
       ],
-      "answer": null
+      "answer": {
+        "abstain": false,
+        "reason": null,
+        "sentences": [
+          {
+            "text": "PostgreSQL offers two types for storing JSON data: json and jsonb, and they accept almost identical sets of values as input.",
+            "citations": [
+              {
+                "n": 1,
+                "quote": "PostgreSQL offers two types for storing JSON data: json and jsonb"
+              },
+              {
+                "n": 1,
+                "quote": "The json and jsonb data types accept almost identical sets of values as input"
+              }
+            ]
+          },
+          {
+            "text": "The json data type stores an exact copy of the input text, which processing functions must reparse on each execution.",
+            "citations": [
+              {
+                "n": 1,
+                "quote": "The json data type stores an exact copy of the input text, which processing functions must reparse on each execution"
+              }
+            ]
+          },
+          {
+            "text": "In contrast, jsonb data is stored in a decomposed binary format that is slightly slower to input due to conversion overhead but significantly faster to process because no reparsing is needed, and jsonb also supports indexing.",
+            "citations": [
+              {
+                "n": 1,
+                "quote": "jsonb data is stored in a decomposed binary format that makes it slightly slower to input due to added conversion overhead, but significantly faster to process, since no reparsing is needed"
+              },
+              {
+                "n": 1,
+                "quote": "jsonb also supports indexing, which can be a significant advantage"
+              }
+            ]
+          },
+          {
+            "text": "The json type preserves semantically-insignificant white space between tokens and the order of keys within JSON objects, and all duplicate key/value pairs are kept, though processing functions consider the last value as the operative one.",
+            "citations": [
+              {
+                "n": 1,
+                "quote": "it will preserve semantically-insignificant white space between tokens, as well as the order of keys within JSON objects"
+              },
+              {
+                "n": 1,
+                "quote": "all the key/value pairs are kept"
+              },
+              {
+                "n": 1,
+                "quote": "The processing functions consider the last value as the operative one"
+              }
+            ]
+          },
+          {
+            "text": "By contrast, jsonb does not preserve white space, does not preserve the order of object keys, and does not keep duplicate object keys; if duplicate keys are specified in the input, only the last value is kept.",
+            "citations": [
+              {
+                "n": 1,
+                "quote": "jsonb does not preserve white space, does not preserve the order of object keys, and does not keep duplicate object keys"
+              },
+              {
+                "n": 1,
+                "quote": "If duplicate keys are specified in the input, only the last value is kept"
+              }
+            ]
+          },
+          {
+            "text": "In general, most applications should prefer to store JSON data as jsonb, unless there are quite specialized needs, such as legacy assumptions about ordering of object keys.",
+            "citations": [
+              {
+                "n": 1,
+                "quote": "most applications should prefer to store JSON data as jsonb"
+              },
+              {
+                "n": 1,
+                "quote": "unless there are quite specialized needs, such as legacy assumptions about ordering of object keys"
+              }
+            ]
+          }
+        ],
+        "sources": [
+          {
+            "n": 1,
+            "url": "https://www.postgresql.org/docs/17/datatype-json.html#DATATYPE-JSON",
+            "title": "8.14. JSON Types"
+          }
+        ]
+      }
     },
     {
       "id": "a16",
       "lang": "es",
       "question": "¿Cómo convierto un documento JSON en filas y columnas con JSON_TABLE?",
-      "recorded_at": "2026-10-29T02:08:01Z",
-      "source": "retrieval-only",
-      "status": "retrieval_only",
+      "recorded_at": "2026-10-29T13:09:44Z",
+      "source": "eval-report:2026-10-29-generate.json",
+      "status": "answered",
       "sources": [
         {
           "n": 1,
@@ -153,15 +307,98 @@
           "title": "D.1. Supported Features"
         }
       ],
-      "answer": null
+      "answer": {
+        "abstain": false,
+        "reason": null,
+        "sentences": [
+          {
+            "text": "JSON_TABLE es una función SQL/JSON que consulta datos JSON y presenta los resultados como una vista relacional que puede accederse como una tabla SQL normal.",
+            "citations": [
+              {
+                "n": 1,
+                "quote": "JSON_TABLE is an SQL/JSON function which queries JSON data and presents the results as a relational view, which can be accessed as a regular SQL table."
+              }
+            ]
+          },
+          {
+            "text": "Se puede usar dentro de la cláusula FROM de un SELECT, UPDATE o DELETE y como fuente de datos en una sentencia MERGE.",
+            "citations": [
+              {
+                "n": 1,
+                "quote": "You can use JSON_TABLE inside the FROM clause of a SELECT , UPDATE , or DELETE and as data source in a MERGE statement."
+              }
+            ]
+          },
+          {
+            "text": "Toma datos JSON como entrada y emplea una expresión de path JSON para extraer una parte de esos datos y usarla como patrón de filas.",
+            "citations": [
+              {
+                "n": 1,
+                "quote": "uses a JSON path expression to extract a part of the provided data to use as a row pattern"
+              }
+            ]
+          },
+          {
+            "text": "Cada valor SQL/JSON producido por ese patrón de filas sirve como fuente para una fila separada de la vista construida.",
+            "citations": [
+              {
+                "n": 1,
+                "quote": "Each SQL/JSON value given by the row pattern serves as source for a separate row in the constructed view."
+              }
+            ]
+          },
+          {
+            "text": "Para dividir el patrón de filas en columnas, se usa la cláusula COLUMNS, que define el esquema de la vista creada; además, para cada columna se puede especificar una expresión de path JSON separada.",
+            "citations": [
+              {
+                "n": 1,
+                "quote": "To split the row pattern into columns, JSON_TABLE provides the COLUMNS clause that defines the schema of the created view."
+              },
+              {
+                "n": 1,
+                "quote": "For each column, a separate JSON path expression can be specified to be evaluated against the row pattern"
+              }
+            ]
+          },
+          {
+            "text": "Los datos JSON anidados se pueden extraer con la cláusula NESTED PATH, y las columnas de esos niveles anidados se especifican con una cláusula COLUMNS similar a la de nivel superior.",
+            "citations": [
+              {
+                "n": 1,
+                "quote": "JSON data stored at a nested level of the row pattern can be extracted using the NESTED PATH clause."
+              },
+              {
+                "n": 1,
+                "quote": "Those columns can be specified using a COLUMNS clause that looks similar to the top-level COLUMNS clause."
+              }
+            ]
+          },
+          {
+            "text": "Las filas producidas por JSON_TABLE se unen lateralmente a la fila que las generó, por lo que no es necesario unir explícitamente la vista construida con la tabla original que contiene los datos JSON.",
+            "citations": [
+              {
+                "n": 1,
+                "quote": "The rows produced by JSON_TABLE are laterally joined to the row that generated them, so you do not have to explicitly join the constructed view with the original table holding JSON data."
+              }
+            ]
+          }
+        ],
+        "sources": [
+          {
+            "n": 1,
+            "url": "https://www.postgresql.org/docs/17/functions-json.html#FUNCTIONS-SQLJSON-TABLE",
+            "title": "9.16. JSON Functions and Operators"
+          }
+        ]
+      }
     },
     {
       "id": "a06",
       "lang": "es",
       "question": "¿Qué diferencia hay entre VACUUM y VACUUM FULL?",
-      "recorded_at": "2026-10-29T02:08:01Z",
-      "source": "retrieval-only",
-      "status": "retrieval_only",
+      "recorded_at": "2026-10-29T13:09:45Z",
+      "source": "eval-report:2026-10-29-generate.json",
+      "status": "answered",
       "sources": [
         {
           "n": 1,
@@ -204,15 +441,81 @@
           "title": "27.4. Progress Reporting"
         }
       ],
-      "answer": null
+      "answer": {
+        "abstain": false,
+        "reason": null,
+        "sentences": [
+          {
+            "text": "La forma estándar de VACUUM elimina las versiones muertas de filas en tablas e índices y marca el espacio disponible para su reutilización futura.",
+            "citations": [
+              {
+                "n": 1,
+                "quote": "removes dead row versions in tables and indexes and marks the space available for future reuse"
+              }
+            ]
+          },
+          {
+            "text": "Sin embargo, no devuelve el espacio al sistema operativo, excepto en el caso especial en que una o más páginas al final de una tabla quedan completamente libres y se puede obtener fácilmente un bloqueo exclusivo de tabla.",
+            "citations": [
+              {
+                "n": 1,
+                "quote": "it will not return the space to the operating system, except in the special case where one or more pages at the end of a table become entirely free and an exclusive table lock can be easily obtained"
+              }
+            ]
+          },
+          {
+            "text": "En contraste, VACUUM FULL compacta activamente las tablas escribiendo una versión completamente nueva del archivo de tabla sin espacio muerto.",
+            "citations": [
+              {
+                "n": 1,
+                "quote": "VACUUM FULL actively compacts tables by writing a complete new version of the table file with no dead space"
+              }
+            ]
+          },
+          {
+            "text": "Esto minimiza el tamaño de la tabla, pero puede llevar mucho tiempo y requiere espacio de disco adicional para la nueva copia de la tabla hasta que finaliza la operación.",
+            "citations": [
+              {
+                "n": 1,
+                "quote": "This minimizes the size of the table, but can take a long time. It also requires extra disk space for the new copy of the table, until the operation completes."
+              }
+            ]
+          },
+          {
+            "text": "VACUUM FULL requiere un bloqueo ACCESS EXCLUSIVE sobre la tabla y, por tanto, no puede ejecutarse en paralelo con otro uso de la tabla.",
+            "citations": [
+              {
+                "n": 1,
+                "quote": "VACUUM FULL requires an ACCESS EXCLUSIVE lock on the table it is working on, and therefore cannot be done in parallel with other use of the table"
+              }
+            ]
+          },
+          {
+            "text": "La forma estándar de VACUUM puede ejecutarse en paralelo con operaciones de producción de la base de datos.",
+            "citations": [
+              {
+                "n": 1,
+                "quote": "the standard form of VACUUM can run in parallel with production database operations"
+              }
+            ]
+          }
+        ],
+        "sources": [
+          {
+            "n": 1,
+            "url": "https://www.postgresql.org/docs/17/routine-vacuuming.html#VACUUM-FOR-SPACE-RECOVERY",
+            "title": "24.1. Routine Vacuuming"
+          }
+        ]
+      }
     },
     {
       "id": "a33",
       "lang": "en",
       "question": "How do I rank full-text search results by relevance?",
-      "recorded_at": "2026-10-29T02:08:01Z",
-      "source": "retrieval-only",
-      "status": "retrieval_only",
+      "recorded_at": "2026-10-29T13:09:45Z",
+      "source": "eval-report:2026-10-29-generate.json",
+      "status": "answered",
       "sources": [
         {
           "n": 1,
@@ -255,15 +558,97 @@
           "title": "F.22. ltree — hierarchical tree-like data type"
         }
       ],
-      "answer": null
+      "answer": {
+        "abstain": false,
+        "reason": null,
+        "sentences": [
+          {
+            "text": "Ranking attempts to measure how relevant documents are to a particular query, so that when there are many matches the most relevant ones can be shown first.",
+            "citations": [
+              {
+                "n": 1,
+                "quote": "Ranking attempts to measure how relevant documents are to a particular query"
+              }
+            ]
+          },
+          {
+            "text": "The two ranking functions currently available are ts_rank, which ranks vectors based on the frequency of their matching lexemes, and ts_rank_cd, which computes the cover density ranking for the given document vector and query.",
+            "citations": [
+              {
+                "n": 1,
+                "quote": "The two ranking functions currently available are"
+              },
+              {
+                "n": 1,
+                "quote": "Ranks vectors based on the frequency of their matching lexemes"
+              },
+              {
+                "n": 1,
+                "quote": "computes the cover density ranking for the given document vector and query"
+              }
+            ]
+          },
+          {
+            "text": "For both functions, the optional weights argument offers the ability to weigh word instances more or less heavily depending on how they are labeled.",
+            "citations": [
+              {
+                "n": 1,
+                "quote": "the optional weights argument offers the ability to weigh word instances more or less heavily depending on how they are labeled"
+              }
+            ]
+          },
+          {
+            "text": "Both ranking functions take an integer normalization option that specifies whether and how a document's length should impact its rank.",
+            "citations": [
+              {
+                "n": 1,
+                "quote": "Both ranking functions take an integer normalization option that specifies whether and how a document's length should impact its rank."
+              }
+            ]
+          },
+          {
+            "text": "Normalization option 32 can be applied to scale all ranks into the range zero to one, but it will not affect the ordering of the search results.",
+            "citations": [
+              {
+                "n": 1,
+                "quote": "Normalization option 32 ( rank/(rank+1) ) can be applied to scale all ranks into the range zero to one"
+              },
+              {
+                "n": 1,
+                "quote": "it will not affect the ordering of the search results"
+              }
+            ]
+          },
+          {
+            "text": "You can select only the ten highest-ranked matches by ordering by rank descending and limiting the result, as shown in an example that selects only the ten highest-ranked matches.",
+            "citations": [
+              {
+                "n": 1,
+                "quote": "Here is an example that selects only the ten highest-ranked matches"
+              },
+              {
+                "n": 1,
+                "quote": "ORDER BY rank DESC"
+              }
+            ]
+          }
+        ],
+        "sources": [
+          {
+            "n": 1,
+            "url": "https://www.postgresql.org/docs/17/textsearch-controls.html#TEXTSEARCH-RANKING",
+            "title": "12.3. Controlling Text Search"
+          }
+        ]
+      }
     },
     {
       "id": "a42",
       "lang": "es",
       "question": "¿Qué diferencia hay entre timestamp y timestamptz?",
-      "recorded_at": "2026-10-29T02:08:01Z",
-      "source": "retrieval-only",
-      "status": "retrieval_only",
+      "recorded_at": "2026-10-29T13:09:45Z",
+      "source": "eval-report:2026-10-29-generate.json",
+      "status": "answered",
       "sources": [
         {
           "n": 1,
@@ -306,15 +691,72 @@
           "title": "9.28. System Administration Functions"
         }
       ],
-      "answer": null
+      "answer": {
+        "abstain": false,
+        "reason": null,
+        "sentences": [
+          {
+            "text": "El tipo timestamp sin zona horaria almacena tanto la fecha como la hora, pero sin zona horaria.",
+            "citations": [
+              {
+                "n": 6,
+                "quote": "both date and time (no time zone)"
+              }
+            ]
+          },
+          {
+            "text": "El tipo timestamp with time zone almacena tanto la fecha como la hora, con zona horaria.",
+            "citations": [
+              {
+                "n": 6,
+                "quote": "both date and time, with time zone"
+              }
+            ]
+          },
+          {
+            "text": "timestamptz es una abreviatura aceptada de timestamp with time zone.",
+            "citations": [
+              {
+                "n": 6,
+                "quote": "timestamptz is accepted as an abbreviation for timestamp with time zone"
+              }
+            ]
+          },
+          {
+            "text": "Esa abreviatura es una extensión de PostgreSQL.",
+            "citations": [
+              {
+                "n": 6,
+                "quote": "this is a PostgreSQL extension"
+              }
+            ]
+          },
+          {
+            "text": "Las conversiones entre timestamp without time zone y timestamp with time zone normalmente asumen que el valor sin zona horaria se toma o se da como hora local de la zona horaria.",
+            "citations": [
+              {
+                "n": 6,
+                "quote": "normally assume that the timestamp without time zone value should be taken or given as timezone local time"
+              }
+            ]
+          }
+        ],
+        "sources": [
+          {
+            "n": 6,
+            "url": "https://www.postgresql.org/docs/17/datatype-datetime.html#DATATYPE-DATETIME",
+            "title": "8.5. Date/Time Types"
+          }
+        ]
+      }
     },
     {
       "id": "u01",
       "lang": "en",
       "question": "How do I enable the query cache in PostgreSQL 17?",
-      "recorded_at": "2026-10-29T02:08:01Z",
-      "source": "retrieval-only",
-      "status": "retrieval_only",
+      "recorded_at": "2026-10-29T13:09:45Z",
+      "source": "eval-report:2026-10-29-generate.json",
+      "status": "abstained",
       "sources": [
         {
           "n": 1,
@@ -357,15 +799,20 @@
           "title": "E.3. Release 17.9"
         }
       ],
-      "answer": null
+      "answer": {
+        "abstain": true,
+        "reason": "model",
+        "sentences": [],
+        "sources": []
+      }
     },
     {
       "id": "u30",
       "lang": "es",
       "question": "¿Cuándo sale PostgreSQL 19 y qué funciones trae?",
-      "recorded_at": "2026-10-29T02:08:01Z",
-      "source": "retrieval-only",
-      "status": "retrieval_only",
+      "recorded_at": "2026-10-29T13:09:45Z",
+      "source": "eval-report:2026-10-29-generate.json",
+      "status": "abstained",
       "sources": [
         {
           "n": 1,
@@ -408,7 +855,12 @@
           "title": "19.14. Error Handling"
         }
       ],
-      "answer": null
+      "answer": {
+        "abstain": true,
+        "reason": "model",
+        "sentences": [],
+        "sources": []
+      }
     }
   ]
 }

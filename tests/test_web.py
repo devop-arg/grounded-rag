@@ -226,6 +226,8 @@ def test_recorded_json_is_valid_and_mock_free() -> None:
     document = json.loads((WEB_DIR / "recorded.json").read_text(encoding="utf-8"))
     entries = document["entries"]
     assert document["generated_at"].endswith("Z")
+    # The served document names the report, never a path of this machine.
+    assert document["report"] is None or "/" not in document["report"]
     assert [entry["id"] for entry in entries] == ["a01", "a15", "a16", "a06", "a33", "a42", "u01", "u30"]
     assert sum(1 for entry in entries if entry["lang"] == "en") == 4
     assert sum(1 for entry in entries if entry["lang"] == "es") == 4

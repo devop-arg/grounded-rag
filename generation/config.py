@@ -1,10 +1,12 @@
 """Configuration for the generation layer, read from the environment.
 
-Every setting is a ``GROUNDED_RAG_*`` variable.  Values are read from
-``~/.config/grounded-rag/env`` first (``CLAVE=valor`` lines, read with the
-standard library only) and then from the real environment, which wins.  An
-empty value means "not set", so a copy of ``.env.example`` with every value
-blank behaves exactly like no file at all.
+Every setting is a ``GROUNDED_RAG_*`` variable.  Values are read, in this
+order, from ``~/.config/grounded-rag/env``, then from ``.env.local`` at the
+root of this repository and finally from the real environment, which wins.
+Both files hold ``CLAVE=valor`` lines and are read with the standard library
+only; the repository root comes from this module's location, not from the
+current directory.  An empty value means "not set", so a copy of
+``.env.example`` with every value blank behaves exactly like no file at all.
 
 The endpoint, the model and the key are never hardcoded: they only come from
 ``GROUNDED_RAG_LLM_BASE_URL``, ``GROUNDED_RAG_LLM_MODEL`` and
@@ -12,7 +14,8 @@ The endpoint, the model and the key are never hardcoded: they only come from
 
 The API key and the IP salt are secrets: this module never logs them, its
 ``repr`` masks them and :meth:`Config.public` is the only shape meant for
-reports.  The key can also live outside the environment, in a JSON file whose
+reports (it also drops the endpoint, every path and the model's provider
+route).  The key can also live outside the environment, in a JSON file whose
 location and dotted path are settings (``GROUNDED_RAG_LLM_KEY_FILE`` plus
 ``GROUNDED_RAG_LLM_KEY_PATH``); that file is read at call time by
 :func:`resolve_llm_api_key`, never at import time and never into
@@ -29,6 +32,9 @@ from pathlib import Path
 from typing import Any, Mapping
 
 ENV_FILE = Path("~/.config/grounded-rag/env").expanduser()
+REPO_ROOT = Path(__file__).resolve().parent.parent
+#: Per-checkout overrides: git-ignored, same format as :data:`ENV_FILE`.
+LOCAL_ENV_FILE = REPO_ROOT / ".env.local"
 PREFIX = "GROUNDED_RAG_"
 MASK = "***"
 
@@ -39,7 +45,7 @@ DEFAULT_PRICE_OUTPUT_PER_M = 0.0
 DEFAULT_BUDGET_USD_PER_MONTH = 0.50
 DEFAULT_RATE_PER_IP = "10/hour"
 DEFAULT_PORT = 8790
-USAGE_DB = Path(__file__).resolve().parent.parent / "data" / "usage.sqlite"
+USAGE_DB = REPO_ROOT / "data" / "usage.sqlite"
 
 
 class ConfigError(ValueError):
@@ -244,7 +250,7 @@ class Config:
             raise LLMNotConfigured(
                 "the generation model is not configured: "
                 + "; ".join(problems)
-                + " (set it in the environment or in ~/.config/grounded-rag/env)"
+                + " (set it in the environment, in .env.local or in ~/.config/grounded-rag/env)"
             )
 
     def rate_limit(self) -> tuple[int, float]:
@@ -265,17 +271,20 @@ class Config:
         }
 
     def public(self) -> dict[str, Any]:
-        """Serializable settings without secrets (safe for reports and logs)."""
-        data: dict[str, Any] = {}
-        for field in fields(self):
-            value = getattr(self, field.name)
-            if field.name in SECRET_FIELDS:
-                data[field.name] = bool(value)
-            elif isinstance(value, Path):
-                data[field.name] = str(value)
-            else:
-                data[field.name] = value
-        return data
+        """The only settings shape meant for reports and logs.
+
+        No secret, no path and no host: just the model name (the part after the
+        last ``/``, so a provider route is not published), the two prices per
+        million tokens, the monthly budget and the ``generation`` switch.  The
+        endpoint, the key file, the key path and the usage database stay out.
+        """
+        return {
+            "llm_model": self.llm_model.rsplit("/", 1)[-1],
+            "llm_price_input_per_m": self.llm_price_input_per_m,
+            "llm_price_output_per_m": self.llm_price_output_per_m,
+            "budget_usd_per_month": self.budget_usd_per_month,
+            "generation": self.generation,
+        }
 
     def __repr__(self) -> str:
         parts = []
@@ -298,19 +307,47 @@ def _present(values: Mapping[str, str], name: str) -> str | None:
     return text or None
 
 
+class _Unset:
+    """Sentinel: the argument was omitted, so the module default path applies."""
+
+    def __repr__(self) -> str:  # pragma: no cover - debugging aid only
+        return "<unset>"
+
+
+_UNSET = _Unset()
+
+
 def load_config(
     environ: Mapping[str, str] | None = None,
-    env_file: Path | str | None = ENV_FILE,
+    env_file: Path | str | None | _Unset = _UNSET,
+    local_env_file: Path | str | None | _Unset = _UNSET,
 ) -> Config:
-    """Build :class:`Config` from the env file plus the real environment.
+    """Build :class:`Config` from the two env files plus the real environment.
 
-    The environment wins over the file; unknown ``GROUNDED_RAG_*`` variables are
-    ignored and an empty value falls back to the default, so a blank
-    ``.env.example`` copy changes nothing.  A malformed value raises
-    :class:`ConfigError`.
+    Precedence, highest first: the environment, ``.env.local`` at the root of
+    the repository (:data:`LOCAL_ENV_FILE`, git-ignored) and the user file
+    (:data:`ENV_FILE`, ``~/.config/grounded-rag/env``); the defaults of the
+    code come last.  A missing file is ignored, ``None`` disables its layer and
+    a blank value never shadows a lower layer, so a blank ``.env.example`` copy
+    changes nothing.  Unknown ``GROUNDED_RAG_*`` variables are ignored and a
+    malformed value raises :class:`ConfigError`.
+
+    ``env_file`` and ``local_env_file`` are injectable for the tests; omitting
+    them keeps the defaults above, and passing ``None`` skips that file.
     """
     environ = os.environ if environ is None else environ
-    values = read_env_file(env_file) if env_file is not None else {}
+    if isinstance(env_file, _Unset):
+        env_file = ENV_FILE
+    if isinstance(local_env_file, _Unset):
+        local_env_file = LOCAL_ENV_FILE
+
+    values: dict[str, str] = {}
+    for path in (env_file, local_env_file):
+        if path is None:
+            continue
+        for env_name, value in read_env_file(path).items():
+            if value.strip():
+                values[env_name] = value
     for env_name in ENV_FIELDS:
         if env_name in environ:
             values[env_name] = environ[env_name]

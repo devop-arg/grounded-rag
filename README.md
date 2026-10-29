@@ -87,6 +87,31 @@ unanswerable questions. `plain+downweight` is the best policy on the same set at
 0.90 / 0.7380. Grouping by page instead of by anchored URL left those numbers
 untouched and removed the duplicate pages from the result lists.
 
+Generation (`eval/reports/2026-10-29-generate.json`: the real model, one call per
+question, 50 answerable and 30 not, threshold 0.820859):
+
+| Metric | All (80) | EN (40) | ES (40) |
+| --- | --- | --- | --- |
+| Answerable questions answered | 44/50 (88%) | 24/25 (96%) | 20/25 (80%) |
+| Abstention precision | 0.8235 | 0.9333 | 0.7368 |
+| Abstention recall | 0.9333 | 0.9333 | 0.9333 |
+| Abstained for `model` / `threshold` | 23 / 11 | 12 / 3 | 11 / 8 |
+| Valid citations | 315/315 (100%) | 170/170 (100%) | 145/145 (100%) |
+| Sentences carrying a valid citation | 241/241 (100%) | 124/124 (100%) | 117/117 (100%) |
+| Retrieval latency, median / p95 | 111.0 / 196.8 ms | 116.5 / 197.6 ms | 99.7 / 174.4 ms |
+| LLM latency, median / p95 | 5803.7 / 15094.6 ms | 5794.2 / 13073.0 ms | 5901.4 / 15071.9 ms |
+| Mean tokens per question | 8084.7 | 8666.3 | 7503.1 |
+| Cost | $0.063846 | $0.034627 | $0.029218 |
+
+The 80 questions cost 570,424 input plus 76,353 output tokens at the configured
+$0.045 and $0.50 per million. Two of the labelled-unanswerable questions (`u02`,
+`u07`) were answered because they are in fact premise corrections: PostgreSQL 17
+has no `VIRTUAL` generated columns and no `CREATE MATERIALIZED TABLE`, and the
+answers say so while quoting the documentation for the supported construct. Of
+the six answerable questions that abstained, five are Spanish (`a02`, `a04`,
+`a10`, `a44`, `a46`) and one is English (`a43`), which is why the Spanish
+abstention precision is the weakest number in the table.
+
 The abstention threshold is calibrated on the same questions
 (`generation/threshold.json`: top-1 vector cosine 0.820859, 10/30 unanswerable
 abstained, 2/50 answerable lost), so both the threshold and the generation
@@ -120,16 +145,20 @@ no CORS.
   off, if the request fails or if the monthly budget is spent, the page switches
   to **recorded mode** and replays an answer recorded from `web/recorded.json`,
   behind a short banner. Regenerate that file with `python -m web.record` (no
-  model, no network).
+  model, no network): it replays `--from-report <real *-generate.json>` when one
+  exists, otherwise it records the retrieved sources only.
 
 Every response carries `Content-Security-Policy` (no inline script or style, no
 JS CDN), `X-Content-Type-Options: nosniff` and `Referrer-Policy: no-referrer`.
 
 ## Configuration
 
-Every setting is a `GROUNDED_RAG_*` variable, read from
-`~/.config/grounded-rag/env` (`CLAVE=valor`, optional, read with the standard
-library) and then from the real environment, which wins. An empty value means
+Every setting is a `GROUNDED_RAG_*` variable, read with the standard library
+only from `~/.config/grounded-rag/env` (`CLAVE=valor`, optional), then from
+`.env.local` at the root of the repository (same format, ignored by git: the
+per-checkout settings) and finally from the real environment, which wins.
+Precedence, highest first: the environment, `.env.local`, the user file and the
+defaults of the code. A missing file is simply skipped and an empty value means
 "not set", so the shipped `.env.example` (every value blank) changes nothing.
 Nothing is hardcoded: the endpoint, the model and the key exist only if the
 variables below are set. Secrets are never printed, logged, serialised into a
