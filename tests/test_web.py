@@ -332,3 +332,10 @@ def test_build_entry_keeps_a_real_answer_and_otherwise_stays_retrieval_only() ->
 
     rows["how do partial indexes work?"]["abstain"] = True
     assert build_entry(question, sources, rows, "eval-report:x.json")["status"] == "abstained"
+
+
+def test_the_web_uses_relative_urls_so_it_can_be_served_under_a_path_prefix() -> None:
+    page = (WEB_DIR / "index.html").read_text(encoding="utf-8")
+    script = (WEB_DIR / "app.js").read_text(encoding="utf-8")
+    assert not re.search(r'(?:href|src)="/[^/]', page)
+    assert not re.search(r"fetch\('/|'/api/|'/recorded\.json'", script)
