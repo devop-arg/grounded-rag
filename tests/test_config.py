@@ -31,14 +31,8 @@ FILE_SECRET = "sk-only-in-the-json-file-abcdef987654"
 BASE_URL = "https://llm.example/v1"
 MODEL = "deepseek-v4.1-flash"
 REPO_ROOT = Path(__file__).resolve().parent.parent
-#: Captured before the fixture below neutralises it for every test.
+#: Captured at import, before the autouse fixture in conftest.py neutralises it.
 DEFAULT_LOCAL_ENV_FILE = config_module.LOCAL_ENV_FILE
-
-
-@pytest.fixture(autouse=True)
-def _isolated_from_this_machine(monkeypatch: pytest.MonkeyPatch) -> None:
-    """Never open the real ``.env.local`` nor the user env file of this machine."""
-    monkeypatch.setattr(config_module, "LOCAL_ENV_FILE", None)
 
 
 def env_text(variables: dict[str, str]) -> str:
