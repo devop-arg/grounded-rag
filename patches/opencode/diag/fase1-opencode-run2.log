@@ -1,0 +1,1668 @@
+[0m
+> build · deepseek-v4.1-flash
+> build · deepseek-v4.1-flash
+> build · deepseek-v4.1-flash
+[0m→ [0mRead patches/opencode/01-fase1-ingesta-retrieval.md 
+> build · deepseek-v4.1-flash
+[0m→ [0mRead patches/opencode/02-continuacion-html-desde-sitio.md 
+> build · deepseek-v4.1-flash
+[0m$ [0mcd /home/capw/projects/grounded-rag && find . -path ./.venv -prune -o -path ./.git -prune -o -type f -print | sort && echo "--- data ---" && ls -la data 2>/dev/null && du -sh data/* 2>/dev/null
+./data/raw/postgresql-17.11.tar.bz2
+./.gitignore
+./ingest/download.py
+./ingest/__init__.py
+./ingest/__pycache__/download.cpython-312.pyc
+./ingest/__pycache__/__init__.cpython-312.pyc
+./LICENSE
+./patches/opencode/01-fase1-ingesta-retrieval.md
+./patches/opencode/02-continuacion-html-desde-sitio.md
+./patches/opencode/diag/fase1-opencode-run2.log
+./patches/opencode/diag/fase1-opencode-run.log
+./requirements.txt
+--- data ---
+total 16
+drwxrwxr-x  4 capw capw 4096 Oct 28 19:18 .
+drwxrwxr-x 10 capw capw 4096 Oct 28 19:18 ..
+drwxrwxr-x  2 capw capw 4096 Oct 28 19:18 html
+drwxrwxr-x  2 capw capw 4096 Oct 28 19:18 raw
+4.0K	data/html
+21M	data/raw
+> build · deepseek-v4.1-flash
+[0m→ [0mRead ingest/download.py [90m[limit=40][0m
+> build · deepseek-v4.1-flash
+[0m← [0mWrite ingest/download.py
+Wrote file successfully: ingest/download.py
+> build · deepseek-v4.1-flash
+[0m$ [0mcd /home/capw/projects/grounded-rag && .venv/bin/python - <<'EOF'
+from ingest import download as d
+print(d.normalize_link('dml-insert.html#DML-INSERT'))
+print(d.normalize_link('/docs/17/sql-createindex.html'))
+print(d.normalize_link('/about/'))
+print(d.normalize_link('https://example.com/x.html'))
+print(d.normalize_link('bookindex.html?x=1'))
+conn = d._open()
+conn, body = d._get_page(conn, 'index.html')
+print('bytes', len(body))
+import re
+links = {d.normalize_link(h) for h in d.HREF_RE.findall(body.decode())}
+links.discard(None)
+print('links', len(links), sorted(links)[:5])
+conn.close()
+EOF
+dml-insert.html
+sql-createindex.html
+None
+None
+bookindex.html
+bytes 25268
+links 105 ['acronyms.html', 'admin.html', 'appendix-obsolete.html', 'appendixes.html', 'archive-modules.html']
+> build · deepseek-v4.1-flash
+[0m$ [0mcd /home/capw/projects/grounded-rag && nohup .venv/bin/python -c "
+from pathlib import Path
+from ingest.download import fetch_docs_site
+print(fetch_docs_site(Path('data/html'), log=print))
+" > patches/opencode/diag/fase1-fetch.log 2>&1 &
+sleep 20 && tail -3 patches/opencode/diag/fase1-fetch.log && ls data/html | wc -l
+35
+> build · deepseek-v4.1-flash
+[0m$ [0mcd /home/capw/projects/grounded-rag && grep -oE '<div id="[^"]*"' data/html/dml-insert.html 2>/dev/null || curl -sS --max-time 20 https://www.postgresql.org/docs/17/dml-insert.html | grep -oE '<div id="[^"]*"'
+<div id="pgContentWrap"
+<div id="docContent"
+<div id="docComments"
+> build · deepseek-v4.1-flash
+[0m← [0mWrite ingest/parse.py
+Created file successfully: ingest/parse.py
+> build · deepseek-v4.1-flash
+[0m← [0mEdit ingest/parse.py
+Index: ingest/parse.py
+===================================================================
+--- ingest/parse.py
++++ ingest/parse.py
+@@ -179,11 +179,10 @@
+ 
+     def walk(node, depth: int) -> None:
+         for child in node.find_all("div", recursive=False):
+             if _is_section(child):
+-                depth += 1 if not depths.get(id(node)) else 0
+-                depths[id(child)] = depth
+-                walk(child, depth)
++                depths[id(child)] = depth + 1
++                walk(child, depth + 1)
+             else:
+                 walk(child, depth)
+ 
+     walk(root, 0)
+@@ -194,10 +193,10 @@
+     depths = _section_depths(root)
+     units: list[Unit] = []
+ 
+     def visit(node, path: list[str]) -> None:
+-        for child in node.find_all("div", recursive=False):
+-            if is_discarded(child):
++        for child in node.find_all(recursive=False):
++            if not getattr(child, "name", None) or is_discarded(child):
+                 continue
+             if _is_section(child):
+                 if depths.get(id(child), 1) <= UNIT_DEPTH:
+                     title = _section_title(child)
+
+> build · deepseek-v4.1-flash
+[0m← [0mWrite ingest/chunk.py
+Created file successfully: ingest/chunk.py
+> build · deepseek-v4.1-flash
+[0m← [0mWrite retrieval/__init__.py
+Created file successfully: retrieval/__init__.py
+> build · deepseek-v4.1-flash
+[0m← [0mWrite retrieval/store.py
+Created file successfully: retrieval/store.py
+> build · deepseek-v4.1-flash
+[0m← [0mWrite retrieval/fusion.py
+Created file successfully: retrieval/fusion.py
+> build · deepseek-v4.1-flash
+[0m← [0mWrite retrieval/embed.py
+Created file successfully: retrieval/embed.py
+> build · deepseek-v4.1-flash
+[0m← [0mWrite retrieval/search.py
+Created file successfully: retrieval/search.py
+> build · deepseek-v4.1-flash
+[0m← [0mWrite retrieval/__main__.py
+Created file successfully: retrieval/__main__.py
+> build · deepseek-v4.1-flash
+[0m← [0mWrite ingest/__main__.py
+Created file successfully: ingest/__main__.py
+> build · deepseek-v4.1-flash
+[0m← [0mEdit ingest/__main__.py
+Index: ingest/__main__.py
+===================================================================
+--- ingest/__main__.py
++++ ingest/__main__.py
+@@ -51,17 +51,19 @@
+     if limit is not None:
+         files = files[:limit]
+     chunks: list[dict] = []
+     used = discarded = 0
++    logged = 0
+     started = time.perf_counter()
+     for page_file in files:
+         page = parse_html(page_file.read_text("utf-8", "replace"), page_file.name)
+         if page is None:
+             discarded += 1
+             continue
+         used += 1
+         chunks.extend(page_chunks(page))
+-        if len(chunks) // PARSE_LOG_EVERY != (len(chunks) - 1) // PARSE_LOG_EVERY and chunks:
++        if len(chunks) // PARSE_LOG_EVERY > logged:
++            logged = len(chunks) // PARSE_LOG_EVERY
+             print(f"parse: {used} pages, {len(chunks)} chunks...", flush=True)
+     seconds = time.perf_counter() - started
+     print(
+         f"parse: {len(files)} pages read, {used} kept, {discarded} discarded "
+
+> build · deepseek-v4.1-flash
+[0m← [0mEdit ingest/__main__.py
+Index: ingest/__main__.py
+===================================================================
+--- ingest/__main__.py
++++ ingest/__main__.py
+@@ -127,20 +127,20 @@
+     write_chunks(chunks)
+ 
+     vectors = None
+     timings["embed"] = 0.0
++    available_at_embed = available_mb()
+     if args.skip_embed:
+         print("embed: skipped (--skip-embed)", flush=True)
+         for stale in (DATA_DIR / "vectors.npy", DATA_DIR / "vector_ids.json"):
+             if stale.exists():
+                 stale.unlink()
+                 print(f"embed: removed stale {stale.name}", flush=True)
+     else:
+-        free = available_mb()
+-        print(f"embed: {free} MB available", flush=True)
+-        if free < MIN_AVAILABLE_MB:
++        print(f"embed: {available_at_embed} MB available", flush=True)
++        if available_at_embed < MIN_AVAILABLE_MB:
+             print(
+-                f"ERROR: only {free} MB of RAM available (< {MIN_AVAILABLE_MB} MB) and there is no swap; "
++                f"ERROR: only {available_at_embed} MB of RAM available (< {MIN_AVAILABLE_MB} MB) and there is no swap; "
+                 "refusing to load the embedding model",
+                 flush=True,
+             )
+             return 2
+
+> build · deepseek-v4.1-flash
+[0m← [0mEdit ingest/__main__.py
+Index: ingest/__main__.py
+===================================================================
+--- ingest/__main__.py
++++ ingest/__main__.py
+@@ -182,9 +182,9 @@
+             "index.sqlite": file_size(INDEX_PATH),
+             "vectors.npy": file_size(VECTORS_PATH),
+             "vector_ids.json": file_size(VECTOR_IDS_PATH),
+         },
+-        "available_mb_at_embed": available_mb(),
++        "available_mb_at_embed": available_at_embed,
+         "embedding_model": None if args.skip_embed else "intfloat/multilingual-e5-small",
+     }
+ 
+     stats_path = DATA_DIR / "ingest_stats.json"
+
+> build · deepseek-v4.1-flash
+[0m$ [0mcd /home/capw/projects/grounded-rag && tail -2 patches/opencode/diag/fase1-fetch.log && ls data/html/*.html | wc -l
+357
+> build · deepseek-v4.1-flash
+[0m⚙ [0mexecute {"code":"const fs = await import('node:fs');\nlet p = '/home/capw/projects/grounded-rag/retrieval/store.py';\nlet s = fs.readFileSync(p, 'utf8');\ns = s.replace('import json\\nimport re\\nimport sqlite3', 'import json\\nimport re\\nimport sqlite3\\nfrom contextlib import closing');\ns = s.replace('''    @property\n    def size(self) -> int:\n        with sqlite3.connect(self.index_path) as conn:\n            (count,) = conn.execute(\"SELECT COUNT(*) FROM chunks\").fetchone()\n        return int(count)''', '''    @property\n    def size(self) -> int:\n        with closing(sqlite3.connect(self.index_path)) as conn:\n            (count,) = conn.execute(\"SELECT COUNT(*) FROM chunks\").fetchone()\n        return int(count)''');\ns = s.replace('''        with sqlite3.connect(self.index_path) as conn:\n            rows = conn.execute(\n                \"SELECT chunk_id, bm25(chunks_fts) FROM chunks_fts WHERE chunks_fts MATCH ?\"''', '''        with closing(sqlite3.connect(self.index_path)) as conn:\n            rows = conn.execute(\n                \"SELECT chunk_id, bm25(chunks_fts) FROM chunks_fts WHERE chunks_fts MATCH ?\"''');\ns = s.replace('''        with sqlite3.connect(self.index_path) as conn:\n            conn.row_factory = sqlite3.Row''', '''        with closing(sqlite3.connect(self.index_path)) as conn:\n            conn.row_factory = sqlite3.Row''');\nfs.writeFileSync(p, s);\nconsole.log(s.split('\\n').filter(l => l.includes('closing(')).join('\\n'));"} 
+> build · deepseek-v4.1-flash
+[0m← [0mEdit retrieval/store.py
+Index: retrieval/store.py
+===================================================================
+--- retrieval/store.py
++++ retrieval/store.py
+@@ -13,8 +13,9 @@
+ 
+ import json
+ import re
+ import sqlite3
++from contextlib import closing
+ from pathlib import Path
+ from typing import Iterable, Protocol, Sequence
+ 
+ import numpy as np
+
+> build · deepseek-v4.1-flash
+[0m← [0mEdit retrieval/store.py
+Index: retrieval/store.py
+===================================================================
+--- retrieval/store.py
++++ retrieval/store.py
+@@ -166,9 +166,9 @@
+         self._vector_ids = json.loads(self.vector_ids_path.read_text())
+ 
+     @property
+     def size(self) -> int:
+-        with sqlite3.connect(self.index_path) as conn:
++        with closing(sqlite3.connect(self.index_path)) as conn:
+             (count,) = conn.execute("SELECT COUNT(*) FROM chunks").fetchone()
+         return int(count)
+ 
+     # ------------------------------------------------------------------ query
+
+> build · deepseek-v4.1-flash
+[0m← [0mEdit retrieval/store.py
+Index: retrieval/store.py
+===================================================================
+--- retrieval/store.py
++++ retrieval/store.py
+@@ -175,9 +175,9 @@
+     def lexical(self, query: str, k: int) -> list[tuple[str, float]]:
+         match = fts_query(query)
+         if not match or k <= 0:
+             return []
+-        with sqlite3.connect(self.index_path) as conn:
++        with closing(sqlite3.connect(self.index_path)) as conn:
+             rows = conn.execute(
+                 "SELECT chunk_id, bm25(chunks_fts) FROM chunks_fts WHERE chunks_fts MATCH ?"
+                 " ORDER BY bm25(chunks_fts) LIMIT ?",
+                 (match, k),
+
+> build · deepseek-v4.1-flash
+[0m← [0mEdit retrieval/store.py
+Index: retrieval/store.py
+===================================================================
+--- retrieval/store.py
++++ retrieval/store.py
+@@ -204,9 +204,9 @@
+     def get(self, ids: list[str]) -> list[dict]:
+         if not ids:
+             return []
+         placeholders = ",".join("?" for _ in ids)
+-        with sqlite3.connect(self.index_path) as conn:
++        with closing(sqlite3.connect(self.index_path)) as conn:
+             conn.row_factory = sqlite3.Row
+             rows = conn.execute(
+                 f"SELECT chunk_id, page_file, page_title, section_path, anchor, url, text, n_words"
+                 f" FROM chunks WHERE chunk_id IN ({placeholders})",
+
+> build · deepseek-v4.1-flash
+Ahora `eval/`:
+[0m← [0mWrite eval/__init__.py
+Created file successfully: eval/__init__.py
+> build · deepseek-v4.1-flash
+[0m← [0mWrite eval/__main__.py
+Created file successfully: eval/__main__.py
+> build · deepseek-v4.1-flash
+[0m← [0mWrite tests/fixtures/sample.html
+Created file successfully: tests/fixtures/sample.html
+> build · deepseek-v4.1-flash
+[0m← [0mWrite tests/test_parse_chunk.py
+Created file successfully: tests/test_parse_chunk.py
+> build · deepseek-v4.1-flash
+[0m← [0mWrite tests/test_fusion.py
+Created file successfully: tests/test_fusion.py
+> build · deepseek-v4.1-flash
+[0m← [0mWrite tests/test_store_query.py
+Created file successfully: tests/test_store_query.py
+> build · deepseek-v4.1-flash
+[0m$ [0mcd /home/capw/projects/grounded-rag && ls data/html/*.html | wc -l && tail -2 patches/opencode/diag/fase1-fetch.log && .venv/bin/python -m pytest -q 2>&1 | tail -25
+523
+...................F...............                                      [100%]
+=================================== FAILURES ===================================
+__________________ test_oversized_single_block_is_kept_whole ___________________
+
+    def test_oversized_single_block_is_kept_whole() -> None:
+        unit = make_unit("CODE", paragraphs=1, words=20, code_words=700)
+        page = Page(page_file="code.html", page_title="Code", units=[unit])
+        chunks = page_chunks(page)
+    
+>       assert len(chunks) == 1
+E       AssertionError: assert 2 == 1
+E        +  where 2 = len([{'id': 'code.html#CODE#0', 'page_file': 'code.html', 'page_title': 'Code', 'section_path': ['Section CODE'], ...}, {'id': 'code.html#CODE#1', 'page_file': 'code.html', 'page_title': 'Code', 'section_path': ['Section CODE'], ...}])
+
+tests/test_parse_chunk.py:106: AssertionError
+=========================== short test summary info ============================
+FAILED tests/test_parse_chunk.py::test_oversized_single_block_is_kept_whole
+1 failed, 34 passed in 1.11s
+> build · deepseek-v4.1-flash
+[0m← [0mEdit tests/test_parse_chunk.py
+Index: tests/test_parse_chunk.py
+===================================================================
+--- tests/test_parse_chunk.py
++++ tests/test_parse_chunk.py
+@@ -98,15 +98,16 @@
+     assert sum(chunk["n_words"] for chunk in chunks) == 2000
+ 
+ 
+ def test_oversized_single_block_is_kept_whole() -> None:
+-    unit = make_unit("CODE", paragraphs=1, words=20, code_words=700)
++    unit = make_unit("CODE", paragraphs=0, words=0, code_words=700)
+     page = Page(page_file="code.html", page_title="Code", units=[unit])
+     chunks = page_chunks(page)
+ 
+     assert len(chunks) == 1
+-    assert chunks[0]["n_words"] == 720
++    assert chunks[0]["n_words"] == 701
+     assert chunks[0]["text"].startswith("SELECT c0")
++    assert len(chunks[0]["text"].split()) == 701
+ 
+ 
+ def test_consecutive_small_units_merge_and_keep_first_anchor() -> None:
+     units = [make_unit("A", paragraphs=5, words=40), make_unit("B", paragraphs=5, words=40)]
+
+> build · deepseek-v4.1-flash
+[0m$ [0mcd /home/capw/projects/grounded-rag && .venv/bin/python -m pytest -q 2>&1 | tail -5 && ls data/html/*.html | wc -l
+...................................                                      [100%]
+35 passed in 0.58s
+543
+> build · deepseek-v4.1-flash
+[0m$ [0mcd /home/capw/projects/grounded-rag && .venv/bin/python - <<'EOF'
+from pathlib import Path
+from ingest.parse import parse_html
+from ingest.chunk import page_chunks
+for name in ["dml-insert.html","sql-createindex.html"]:
+    p = Path("data/html")/name
+    if not p.exists(): print(name, "missing"); continue
+    pg = parse_html(p.read_text("utf-8","replace"), name)
+    print("="*70); print(name, "->", pg.page_title, "units", len(pg.units), "words", pg.n_words)
+    for u in pg.units[:4]:
+        print("  unit", u.anchor, u.path, u.n_words, "blocks", len(u.blocks))
+    ch = page_chunks(pg)
+    print("  chunks:", [(c["id"], c["n_words"]) for c in ch][:6])
+    print("  first chunk text:", ch[0]["text"][:300].replace("\n"," / "))
+EOF
+======================================================================
+dml-insert.html -> 6.1. Inserting Data units 1 words 464
+  unit DML-INSERT ['6.1. Inserting Data #'] 464 blocks 21
+  chunks: [('dml-insert.html#DML-INSERT#0', 464)]
+  first chunk text: When a table is created, it contains no data. The first thing to do before a database can be of much use is to insert data. Data is inserted one row at a time. You can also insert more than one row in a single command, but it is not possible to insert something that is not a complete row. Even if yo
+======================================================================
+sql-createindex.html -> CREATE INDEX units 8 words 3963
+  unit id-1.9.3.69.5 ['Description'] 389 blocks 8
+  unit id-1.9.3.69.6 ['Parameters'] 844 blocks 49
+  unit SQL-CREATEINDEX-STORAGE-PARAMETERS ['Parameters', 'Index Storage Parameters'] 672 blocks 27
+  unit SQL-CREATEINDEX-CONCURRENTLY ['Parameters', 'Building Indexes Concurrently'] 741 blocks 11
+  chunks: [('sql-createindex.html#id-1.9.3.69.5#0', 389), ('sql-createindex.html#id-1.9.3.69.6#0', 599), ('sql-createindex.html#id-1.9.3.69.6#1', 245), ('sql-createindex.html#SQL-CREATEINDEX-STORAGE-PARAMETERS#0', 600), ('sql-createindex.html#SQL-CREATEINDEX-STORAGE-PARAMETERS#1', 72), ('sql-createindex.html#SQL-CREATEINDEX-CONCURRENTLY#0', 586)]
+  first chunk text: Description /  / CREATE INDEX constructs an index on the specified column(s) of the specified relation, which can be a table or a materialized view. Indexes are primarily used to enhance database performance (though inappropriate use can result in slower performance). /  / The key field(s) for the index are
+> build · deepseek-v4.1-flash
+[0m$ [0mcd /home/capw/projects/grounded-rag && python3 - <<'EOF'
+import re
+h=open('data/html/sql-createindex.html',encoding='utf-8').read()
+i=h.find('id="id-1.9.3.69.5"')
+print(h[i-100:i+600].replace('\n',' '))
+print('---- heading sample ----')
+j=h.find('DML-INSERT') if False else 0
+EOF
+grep -oE '<h2[^>]*>.{0,120}' data/html/dml-insert.html | head -3
+WHERE <em class="replaceable"><code>predicate</code></em> ] </pre>   </div>   <div class="refsect1" id="id-1.9.3.69.5">     <h2>Description</h2>     <p><code class="command">CREATE INDEX</code> constructs an index on the specified column(s) of the specified relation, which can be a table or a materialized view. Indexes are primarily used to enhance database performance (though inappropriate use can result in slower performance).</p>     <p>The key field(s) for the index are specified as column names, or alternatively as expressions written in parentheses. Multiple fields can be specified if the index method supports multicolumn indexes.</p>     <p>An index field can be an expression computed
+---- heading sample ----
+<h2 class="title" style="clear: both">6.1.&nbsp;Inserting Data <a href="#DML-INSERT" class="id_link">#</a></h2>
+<h2>Submit correction</h2>
+> build · deepseek-v4.1-flash
+[0m← [0mEdit ingest/parse.py
+Index: ingest/parse.py
+===================================================================
+--- ingest/parse.py
++++ ingest/parse.py
+@@ -141,9 +141,9 @@
+             rows.append(" | ".join(cells))
+     return "\n".join(rows)
+ 
+ 
+-def _collect_blocks(node, blocks: list[Block], depth_of) -> None:
++def _collect_blocks(node, blocks: list[Block], depth_of, skip_own_heading: bool = False) -> None:
+     for child in node.find_all(recursive=False):
+         if not getattr(child, "name", None) or is_discarded(child):
+             continue
+         if _is_section(child):
+@@ -151,11 +151,16 @@
+                 continue  # it is its own unit
+             title = _section_title(child)
+             if title:
+                 blocks.append(Block("text", title))
+-            _collect_blocks(child, blocks, depth_of)
++            _collect_blocks(child, blocks, depth_of, skip_own_heading=True)
+             continue
+         name = child.name
++        if skip_own_heading and name in {"h1", "h2", "h3", "h4", "h5", "h6"}:
++            # The section heading is already part of section_path.
++            skip_own_heading = False
++            continue
++        skip_own_heading = False
+         if name == "pre":
+             text = normalize_code(child.get_text("\n"))
+             if text:
+                 blocks.append(Block("code", text))
+
+> build · deepseek-v4.1-flash
+[0m← [0mEdit ingest/parse.py
+Index: ingest/parse.py
+===================================================================
+--- ingest/parse.py
++++ ingest/parse.py
+@@ -205,9 +205,9 @@
+             if _is_section(child):
+                 if depths.get(id(child), 1) <= UNIT_DEPTH:
+                     title = _section_title(child)
+                     blocks: list[Block] = []
+-                    _collect_blocks(child, blocks, lambda el: depths.get(id(el), 99))
++                    _collect_blocks(child, blocks, lambda el: depths.get(id(el), 99), skip_own_heading=True)
+                     units.append(
+                         Unit(
+                             anchor=child.get("id") or "",
+                             title=title,
+
+> build · deepseek-v4.1-flash
+[0m← [0mEdit ingest/parse.py
+Index: ingest/parse.py
+===================================================================
+--- ingest/parse.py
++++ ingest/parse.py
+@@ -233,8 +233,11 @@
+ 
+ def parse_html(html: str, page_file: str) -> Page | None:
+     """Parse one documentation page. Returns ``None`` for TOC-only pages."""
+     soup = BeautifulSoup(html, "lxml")
++    # The docs site appends a "#" permalink inside every heading.
++    for link in soup.select("a.id_link"):
++        link.decompose()
+     root = doc_root(soup)
+     title = page_title_of(soup, page_file)
+     units = extract_units(root)
+ 
+
+> build · deepseek-v4.1-flash
+[0m$ [0mcd /home/capw/projects/grounded-rag && .venv/bin/python -m pytest -q 2>&1 | tail -3 && .venv/bin/python - <<'EOF'
+from pathlib import Path
+from ingest.parse import parse_html
+from ingest.chunk import page_chunks
+for name in ["dml-insert.html","sql-createindex.html","ddl.html"]:
+    p = Path("data/html")/name
+    if not p.exists(): print(name, "missing"); continue
+    pg = parse_html(p.read_text("utf-8","replace"), name)
+    if pg is None: print(name, "-> DISCARDED"); continue
+    print("="*60); print(name, "->", repr(pg.page_title), "units", len(pg.units), "words", pg.n_words)
+    for u in pg.units[:3]: print("   ", u.anchor, u.path, u.n_words)
+    ch = page_chunks(pg)
+    print("   chunks:", [(c["n_words"]) for c in ch])
+    print("   text0:", ch[0]["text"][:160].replace("\n"," / "))
+EOF
+...................................                                      [100%]
+35 passed in 0.71s
+============================================================
+dml-insert.html -> '6.1. Inserting Data' units 1 words 464
+    DML-INSERT ['6.1. Inserting Data'] 464
+   chunks: [464]
+   text0: When a table is created, it contains no data. The first thing to do before a database can be of much use is to insert data. Data is inserted one row at a time. 
+============================================================
+sql-createindex.html -> 'CREATE INDEX' units 7 words 3943
+    id-1.9.3.69.5 ['Description'] 388
+    id-1.9.3.69.6 ['Parameters'] 843
+    SQL-CREATEINDEX-STORAGE-PARAMETERS ['Parameters', 'Index Storage Parameters'] 662
+   chunks: [388, 598, 245, 596, 66, 583, 155, 584, 440, 288]
+   text0: CREATE INDEX constructs an index on the specified column(s) of the specified relation, which can be a table or a materialized view. Indexes are primarily used t
+============================================================
+ddl.html -> 'Chapter 5. Data Definition' units 1 words 95
+    DDL ['Chapter 5. Data Definition'] 95
+   chunks: [95]
+   text0: This chapter covers how one creates the database structures that will hold one's data. In a relational database, the raw data is stored in tables, so the majori
+> build · deepseek-v4.1-flash
+[0m$ [0mcd /home/capw/projects/grounded-rag && ls data/html/*.html | wc -l && tail -1 patches/opencode/diag/fase1-fetch.log && time .venv/bin/python -m ingest --skip-download --skip-embed --limit 20 2>&1 | tail -30
+619
+Traceback (most recent call last):
+  File "<frozen runpy>", line 198, in _run_module_as_main
+  File "<frozen runpy>", line 88, in _run_code
+  File "/home/capw/projects/grounded-rag/ingest/__main__.py", line 197, in <module>
+    sys.exit(main())
+             ^^^^^^
+  File "/home/capw/projects/grounded-rag/ingest/__main__.py", line 113, in main
+    version = json.loads((HTML_DIR / ".source.json").read_text()).get("version", "unknown")
+                         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/lib/python3.12/pathlib.py", line 1029, in read_text
+    with self.open(mode='r', encoding=encoding, errors=errors) as f:
+         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/lib/python3.12/pathlib.py", line 1015, in open
+    return io.open(self, mode, buffering, encoding, errors, newline)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+FileNotFoundError: [Errno 2] No such file or directory: '/home/capw/projects/grounded-rag/data/html/.source.json'
+
+real	0m0.329s
+user	0m0.252s
+sys	0m0.059s
+> build · deepseek-v4.1-flash
+[0m← [0mEdit ingest/__main__.py
+Index: ingest/__main__.py
+===================================================================
+--- ingest/__main__.py
++++ ingest/__main__.py
+@@ -109,12 +109,13 @@
+     total_started = time.perf_counter()
+ 
+     started = time.perf_counter()
+     if args.skip_download:
+-        version = json.loads((HTML_DIR / ".source.json").read_text()).get("version", "unknown")
++        marker = HTML_DIR / ".source.json"
++        version = json.loads(marker.read_text()).get("version", "unknown") if marker.exists() else "unknown"
+         docs_info = {
+             "version": version,
+-            "source": "data/html (cached)",
++            "source": "data/html (cached, --skip-download)",
+             "pages": len(list(HTML_DIR.glob("*.html"))),
+             "tarball": None,
+         }
+         print(f"docs: using cached HTML ({docs_info['pages']} pages, version {version})", flush=True)
+
+> build · deepseek-v4.1-flash
+[0m$ [0mcd /home/capw/projects/grounded-rag && time .venv/bin/python -m ingest --skip-download --skip-embed --limit 20 2>&1 | tail -35
+docs: using cached HTML (632 pages, version unknown)
+parse: 20 pages read, 20 kept, 0 discarded (<40 words), 73 chunks in 0.9s
+embed: skipped (--skip-embed)
+index: 73 chunks indexed in 0.0s
+{
+  "version": "unknown",
+  "docs_source": "data/html (cached, --skip-download)",
+  "tarball": null,
+  "pages": 632,
+  "pages_read": 20,
+  "pages_used": 20,
+  "pages_discarded": 0,
+  "chunks": 73,
+  "words": {
+    "min": 19,
+    "median": 323,
+    "max": 598,
+    "mean": 328.5
+  },
+  "seconds": {
+    "download": 0.0,
+    "parse_chunk": 0.91,
+    "embed": 0.0,
+    "index": 0.02
+  },
+  "seconds_total": 1.03,
+  "index_bytes": {
+    "chunks.jsonl": 176607,
+    "index.sqlite": 544768,
+    "vectors.npy": 0,
+    "vector_ids.json": 0
+  },
+  "available_mb_at_embed": 1022,
+  "embedding_model": null
+}
+
+real	0m1.427s
+user	0m1.687s
+sys	0m0.088s
+> build · deepseek-v4.1-flash
+[0m← [0mWrite README.md
+Created file successfully: README.md
+> build · deepseek-v4.1-flash
+[0m$ [0mcd /home/capw/projects/grounded-rag && wc -l README.md && ls data/html/*.html | wc -l && tail -2 patches/opencode/diag/fase1-fetch.log
+87 README.md
+674
+> build · deepseek-v4.1-flash
+[0m← [0mWrite README.md
+Wrote file successfully: README.md
+> build · deepseek-v4.1-flash
+[0m$ [0mcd /home/capw/projects/grounded-rag && wc -l README.md && ls data/html/*.html | wc -l && date
+72 README.md
+703
+Wed Oct 28 07:28:24 PM -03 2026
+> build · deepseek-v4.1-flash
+[0m$ [0mcd /home/capw/projects/grounded-rag && a=$(ls data/html/*.html | wc -l) && sleep 60 && b=$(ls data/html/*.html | wc -l) && echo "before $a after $b in 60s" && tail -2 patches/opencode/diag/fase1-fetch.log
+before 712 after 825 in 60s
+> build · deepseek-v4.1-flash
+[0m$ [0mcd /home/capw/projects/grounded-rag && sleep 100 && ls data/html/*.html | wc -l && tail -3 patches/opencode/diag/fase1-fetch.log
+1016
+> build · deepseek-v4.1-flash
+[0m$ [0mcd /home/capw/projects/grounded-rag && sleep 110 && ls data/html/*.html | wc -l && tail -3 patches/opencode/diag/fase1-fetch.log
+1143
+fetch: 404 /docs/17/dictionaries.html
+fetch: 1143 pages on disk (1143 downloaded, 0 cached, 1 failed) in 626.5s
+1143
+> build · deepseek-v4.1-flash
+[0m$ [0mcd /home/capw/projects/grounded-rag && time .venv/bin/python -m ingest --skip-download --skip-embed 2>&1 | tail -40
+docs: using cached HTML (1143 pages, version unknown)
+parse: 201 pages, 500 chunks...
+parse: 361 pages, 1005 chunks...
+parse: 570 pages, 1505 chunks...
+parse: 710 pages, 2001 chunks...
+parse: 927 pages, 2501 chunks...
+parse: 1143 pages read, 1098 kept, 45 discarded (<40 words), 2933 chunks in 35.4s
+embed: skipped (--skip-embed)
+index: 2933 chunks indexed in 0.7s
+{
+  "version": "unknown",
+  "docs_source": "data/html (cached, --skip-download)",
+  "tarball": null,
+  "pages": 1143,
+  "pages_read": 1143,
+  "pages_used": 1098,
+  "pages_discarded": 45,
+  "chunks": 2933,
+  "words": {
+    "min": 2,
+    "median": 362,
+    "max": 5701,
+    "mean": 363.2
+  },
+  "seconds": {
+    "download": 0.01,
+    "parse_chunk": 35.39,
+    "embed": 0.0,
+    "index": 0.72
+  },
+  "seconds_total": 36.5,
+  "index_bytes": {
+    "chunks.jsonl": 7884629,
+    "index.sqlite": 25550848,
+    "vectors.npy": 0,
+    "vector_ids.json": 0
+  },
+  "available_mb_at_embed": 987,
+  "embedding_model": null
+}
+
+real	0m36.926s
+user	0m35.675s
+sys	0m0.607s
+> build · deepseek-v4.1-flash
+[0m$ [0mcd /home/capw/projects/grounded-rag && .venv/bin/python - <<'EOF'
+import json, collections
+chunks=[json.loads(l) for l in open('data/chunks.jsonl')]
+big=[c for c in chunks if c["n_words"]>600]
+small=[c for c in chunks if c["n_words"]<100]
+print("total",len(chunks),"big",len(big),"small",len(small))
+for c in sorted(big,key=lambda c:-c["n_words"])[:8]:
+    print(c["n_words"], c["id"], "| text starts:", c["text"][:80].replace("\n"," "), "| code blocks:", c["text"].count("\n\n"))
+print("--- small ---")
+for c in sorted(small,key=lambda c:c["n_words"])[:8]:
+    print(c["n_words"], c["id"], "|", c["text"][:100].replace("\n"," "))
+EOF
+total 2933 big 48 small 378
+5701 sql-keywords-appendix.html#SQL-KEYWORDS-APPENDIX#1 | text starts: Key Word | PostgreSQL | SQL:2023 | SQL:2016 | SQL-92 A | non-reserved | non-rese | code blocks: 0
+3135 features-sql-standard.html#FEATURES-SQL-STANDARD#0 | text starts: Identifier | Core? | Description | Comment B012 | Embedded C B021 | Direct SQL B | code blocks: 0
+2350 functions-json.html#FUNCTIONS-JSON-PROCESSING#5 | text starts: Function Description Example(s) json_array_elements ( json ) → setof json jsonb_ | code blocks: 0
+2346 functions-info.html#FUNCTIONS-INFO-CATALOG#1 | text starts: Function Description format_type ( type oid , typemod integer ) → text Returns t | code blocks: 0
+2045 dynamic-trace.html#TRACE-POINTS#1 | text starts: Name | Parameters | Description transaction-start | (LocalTransactionId) | Probe | code blocks: 0
+1986 functions-string.html#FUNCTIONS-STRING#3 | text starts: Function/Operator Description Example(s) text ^@ text → boolean Returns true if  | code blocks: 0
+1896 unsupported-features-sql-standard.html#UNSUPPORTED-FEATURES-SQL-STANDARD#1 | text starts: Identifier | Core? | Description | Comment B011 | Embedded Ada B013 | Embedded C | code blocks: 0
+1554 functions-admin.html#FUNCTIONS-REPLICATION#1 | text starts: Function Description pg_create_physical_replication_slot ( slot_name name [ , im | code blocks: 0
+--- small ---
+2 tablefunc.html#TABLEFUNC-AUTHOR#0 | Joe Conway
+5 oid2name.html#id-1.11.8.4.3.10#0 | B. Palmer < bpalmer@crimelabs.net >
+5 pgvisibility.html#PGVISIBILITY-AUTHOR#0 | Robert Haas < rhaas@postgresql.org >
+5 pgwalinspect.html#PGWALINSPECT-AUTHOR#0 | Bharath Rupireddy < bharath.rupireddyforpostgres@gmail.com >
+5 sepgsql.html#SEPGSQL-AUTHOR#0 | KaiGai Kohei < kaigai@ak.jp.nec.com >
+6 sql-createpolicy.html#id-1.9.3.75.8#0 | CREATE POLICY is a PostgreSQL extension.
+7 monitoring-stats.html#MONITORING-PG-STAT-ACTIVITY-VIEW#5 | Table 27.10. Wait Events of Type Ipc
+7 pgstattuple.html#PGSTATTUPLE-AUTHORS#0 | Tatsuo Ishii, Satoshi Nagayasu and Abhijit Menon-Sen
+> build · deepseek-v4.1-flash
+[0m← [0mEdit ingest/parse.py
+Index: ingest/parse.py
+===================================================================
+--- ingest/parse.py
++++ ingest/parse.py
+@@ -131,18 +131,42 @@
+         parts.append(child.get_text(" ") if getattr(child, "name", None) else str(child))
+     return normalize_text(" ".join(parts))
+ 
+ 
+-def _table_text(table) -> str:
++def _table_rows(table) -> tuple[str, list[str]]:
++    """Return ``(header_row, body_rows)`` as ``cell | cell`` lines."""
++    header = ""
+     rows: list[str] = []
+     for row in table.find_all("tr"):
+         cells = [normalize_text(cell.get_text(" ")) for cell in row.find_all(["th", "td"], recursive=False)]
+         cells = [cell for cell in cells if cell]
+-        if cells:
+-            rows.append(" | ".join(cells))
+-    return "\n".join(rows)
++        if not cells:
++            continue
++        line = " | ".join(cells)
++        if not header and row.find("th") is not None and not rows:
++            header = line
++            continue
++        rows.append(line)
++    return header, rows
+ 
+ 
++def _table_text(table) -> list[str]:
++    """Table as ``cell | cell`` lines; huge tables are cut every 25 body rows.
++
++    The header row is repeated in every piece so each block stays readable and
++    no single block grows far past the chunk size target.
++    """
++    header, rows = _table_rows(table)
++    if len(rows) <= TABLE_ROWS:
++        body = ([header] if header else []) + rows
++        return ["\n".join(body)] if body else []
++    blocks = []
++    for start in range(0, len(rows), TABLE_ROWS):
++        piece = ([header] if header else []) + rows[start : start + TABLE_ROWS]
++        blocks.append("\n".join(piece))
++    return blocks
++
++
+ def _collect_blocks(node, blocks: list[Block], depth_of, skip_own_heading: bool = False) -> None:
+     for child in node.find_all(recursive=False):
+         if not getattr(child, "name", None) or is_discarded(child):
+             continue
+
+> build · deepseek-v4.1-flash
+[0m← [0mEdit ingest/parse.py
+Index: ingest/parse.py
+===================================================================
+--- ingest/parse.py
++++ ingest/parse.py
+@@ -188,10 +188,9 @@
+             text = normalize_code(child.get_text("\n"))
+             if text:
+                 blocks.append(Block("code", text))
+         elif name == "table":
+-            text = _table_text(child)
+-            if text:
++            for text in _table_text(child):
+                 blocks.append(Block("text", text))
+         elif name in TEXT_TAGS:
+             text = _inline_text(child)
+             if text:
+
+> build · deepseek-v4.1-flash
+[0m← [0mEdit ingest/parse.py
+Index: ingest/parse.py
+===================================================================
+--- ingest/parse.py
++++ ingest/parse.py
+@@ -23,8 +23,10 @@
+ TITLE_PREFIX_RE = re.compile(r"^PostgreSQL:\s*Documentation:\s*[\d.]+:\s*")
+ 
+ #: Sections at this nesting depth or shallower (h2/h3) become their own unit.
+ UNIT_DEPTH = 2
++#: Body rows per table block: keeps big tables below the chunk size target.
++TABLE_ROWS = 25
+ 
+ SKIP_CLASSES = {"navheader", "navfooter", "toc", "titlepage"}
+ SKIP_TAGS = {"script", "style", "nav", "header", "footer", "noscript"}
+ SKIP_IDS = {"docComments", "docContent-nav"}
+
+> build · deepseek-v4.1-flash
+[0m← [0mEdit ingest/chunk.py
+Index: ingest/chunk.py
+===================================================================
+--- ingest/chunk.py
++++ ingest/chunk.py
+@@ -45,9 +45,9 @@
+     for unit in units:
+         if current is None:
+             current = _new_group(unit)
+             continue
+-        if current["words"] < min_words and current["words"] + unit.n_words <= max_words:
++        if (current["words"] < min_words or unit.n_words < min_words) and current["words"] + unit.n_words <= max_words:
+             current["blocks"].extend(unit.blocks)
+             current["words"] += unit.n_words
+         else:
+             groups.append(current)
+
+> build · deepseek-v4.1-flash
+[0m$ [0mcd /home/capw/projects/grounded-rag && .venv/bin/python -m pytest -q 2>&1 | tail -12 && .venv/bin/python -m ingest --skip-download --skip-embed 2>&1 | grep -E "^(parse|index|embed)" 
+...................................                                      [100%]
+35 passed in 0.90s
+parse: 215 pages, 507 chunks...
+parse: 369 pages, 1001 chunks...
+parse: 588 pages, 1501 chunks...
+parse: 746 pages, 2000 chunks...
+parse: 967 pages, 2503 chunks...
+parse: 1143 pages read, 1098 kept, 45 discarded (<40 words), 2816 chunks in 36.4s
+embed: skipped (--skip-embed)
+index: 2816 chunks indexed in 0.8s
+> build · deepseek-v4.1-flash
+[0m$ [0mcd /home/capw/projects/grounded-rag && .venv/bin/python - <<'EOF'
+import json
+chunks=[json.loads(l) for l in open('data/chunks.jsonl')]
+ws=sorted(c["n_words"] for c in chunks)
+print("n",len(chunks),"min",ws[0],"p50",ws[len(ws)//2],"max",ws[-1])
+print(">600:",sum(1 for w in ws if w>600), "<100:",sum(1 for w in ws if w<100), "<50:",sum(1 for w in ws if w<50))
+for c in sorted(chunks,key=lambda c:-c["n_words"])[:5]: print("BIG",c["n_words"],c["id"])
+for c in sorted(chunks,key=lambda c:c["n_words"])[:5]: print("TINY",c["n_words"],c["id"],c["text"][:60].replace("\n"," "))
+EOF
+n 2816 min 2 p50 418 max 2350
+>600: 36 <100: 303 <50: 92
+BIG 2350 functions-json.html#FUNCTIONS-JSON-PROCESSING#5
+BIG 1554 functions-admin.html#FUNCTIONS-REPLICATION#1
+BIG 1404 functions-info.html#FUNCTIONS-INFO-CATALOG#1
+BIG 1375 functions-textsearch.html#FUNCTIONS-TEXTSEARCH#1
+BIG 1244 dynamic-trace.html#TRACE-POINTS#2
+TINY 2 tablefunc.html#TABLEFUNC-AUTHOR#0 Joe Conway
+TINY 5 pgwalinspect.html#PGWALINSPECT-AUTHOR#0 Bharath Rupireddy < bharath.rupireddyforpostgres@gmail.com >
+TINY 7 pgstattuple.html#PGSTATTUPLE-AUTHORS#0 Tatsuo Ishii, Satoshi Nagayasu and Abhijit Menon-Sen
+TINY 10 pgbench.html#PGBENCH-INIT-OPTIONS#1 Create all tables as unlogged tables, rather than permanent 
+TINY 10 sql-createstatistics.html#id-1.9.3.83.9#0 There is no CREATE STATISTICS command in the SQL standard.
+> build · deepseek-v4.1-flash
+[0m$ [0mcd /home/capw/projects/grounded-rag && .venv/bin/python - <<'EOF'
+import json
+chunks={c["id"]:c for c in (json.loads(l) for l in open('data/chunks.jsonl'))}
+c=chunks["functions-json.html#FUNCTIONS-JSON-PROCESSING#5"]
+t=c["text"]
+print("words",c["n_words"],"lines",t.count("\n")+1)
+print(t[:600])
+print("......")
+print(t[-300:])
+EOF
+words 2350 lines 26
+Function Description Example(s)
+json_array_elements ( json ) → setof json jsonb_array_elements ( jsonb ) → setof jsonb Expands the top-level JSON array into a set of JSON values. select * from json_array_elements('[1,true, [2,false]]') → value ----------- 1 true [2,false]
+json_array_elements_text ( json ) → setof text jsonb_array_elements_text ( jsonb ) → setof text Expands the top-level JSON array into a set of text values. select * from json_array_elements_text('["foo", "bar"]') → value ----------- foo bar
+json_array_length ( json ) → integer jsonb_array_length ( jsonb ) → integer Returns th
+......
+pe of the top-level JSON value as a text string. Possible types are object , array , string , number , boolean , and null . (The null result should not be confused with an SQL NULL; see the examples.) json_typeof('-123.4') → number json_typeof('null'::json) → null json_typeof(NULL::json) IS NULL → t
+> build · deepseek-v4.1-flash
+[0m← [0mEdit ingest/parse.py
+Index: ingest/parse.py
+===================================================================
+--- ingest/parse.py
++++ ingest/parse.py
+@@ -150,22 +150,27 @@
+         rows.append(line)
+     return header, rows
+ 
+ 
+-def _table_text(table) -> list[str]:
+-    """Table as ``cell | cell`` lines; huge tables are cut every 25 body rows.
++def _table_text(table, max_words: int = TABLE_WORDS) -> list[str]:
++    """Table as ``cell | cell`` lines, grouped in blocks of about ``max_words``.
+ 
+-    The header row is repeated in every piece so each block stays readable and
+-    no single block grows far past the chunk size target.
++    The header row is repeated in every block so each piece stays readable, and
++    no block grows far past the chunk size target.
+     """
+     header, rows = _table_rows(table)
+-    if len(rows) <= TABLE_ROWS:
+-        body = ([header] if header else []) + rows
+-        return ["\n".join(body)] if body else []
+-    blocks = []
+-    for start in range(0, len(rows), TABLE_ROWS):
+-        piece = ([header] if header else []) + rows[start : start + TABLE_ROWS]
+-        blocks.append("\n".join(piece))
++    blocks: list[str] = []
++    current: list[str] = []
++    current_words = 0
++    for line in rows:
++        words = len(line.split())
++        if current and current_words + words > max_words:
++            blocks.append("\n".join(([header] if header else []) + current))
++            current, current_words = [], 0
++        current.append(line)
++        current_words += words
++    if current:
++        blocks.append("\n".join(([header] if header else []) + current))
+     return blocks
+ 
+ 
+ def _collect_blocks(node, blocks: list[Block], depth_of, skip_own_heading: bool = False) -> None:
+
+> build · deepseek-v4.1-flash
+[0m$ [0mcd /home/capw/projects/grounded-rag && python3 - <<'EOF'
+import re
+p='ingest/parse.py'
+s=open(p).read()
+s=s.replace('#: Body rows per table block: keeps big tables below the chunk size target.\nTABLE_ROWS = 25', '#: Word budget per table block: keeps big tables below the chunk size target.\nTABLE_WORDS = 300')
+open(p,'w').write(s)
+EOF
+grep -n "TABLE_" ingest/parse.py | head
+28:TABLE_WORDS = 300
+154:def _table_text(table, max_words: int = TABLE_WORDS) -> list[str]:
+> build · deepseek-v4.1-flash
+[0m$ [0mcd /home/capw/projects/grounded-rag && .venv/bin/python -m pytest -q 2>&1 | tail -3 && .venv/bin/python -m ingest --skip-download --skip-embed 2>&1 | grep -E "^(parse|index)" && .venv/bin/python - <<'EOF'
+import json
+chunks=[json.loads(l) for l in open('data/chunks.jsonl')]
+ws=sorted(c["n_words"] for c in chunks)
+print("n",len(chunks),"min",ws[0],"p50",ws[len(ws)//2],"max",ws[-1])
+print(">600:",sum(1 for w in ws if w>600), "<100:",sum(1 for w in ws if w<100), "300-600:",sum(1 for w in ws if 300<=w<=600))
+for c in sorted(chunks,key=lambda c:-c["n_words"])[:5]: print("BIG",c["n_words"],c["id"])
+EOF
+...................................                                      [100%]
+35 passed in 0.86s
+parse: 215 pages, 506 chunks...
+parse: 365 pages, 1000 chunks...
+parse: 581 pages, 1500 chunks...
+parse: 738 pages, 2000 chunks...
+parse: 958 pages, 2500 chunks...
+parse: 1143 pages read, 1098 kept, 45 discarded (<40 words), 2835 chunks in 36.1s
+index: 2835 chunks indexed in 0.7s
+n 2835 min 2 p50 415 max 883
+>600: 3 <100: 281 300-600: 1800
+BIG 883 libpq-example.html#LIBPQ-EXAMPLE#2
+BIG 731 lo-examplesect.html#LO-EXAMPLESECT#1
+BIG 632 auth-pg-hba-conf.html#AUTH-PG-HBA-CONF#6
+BIG 600 app-postgres.html#id-1.9.5.16.6.3#0
+BIG 600 app-psql.html#APP-PSQL-META-COMMANDS#3
+> build · deepseek-v4.1-flash
+[0m$ [0mcd /home/capw/projects/grounded-rag && grep -c "Submit correction\|Previous\|Next\|Policies\|About PostgreSQL" data/chunks.jsonl; grep -c "<" data/chunks.jsonl; free -m | head -2
+78
+290
+               total        used        free      shared  buff/cache   available
+Mem:            5924        4857         318         255        1303        1066
+> build · deepseek-v4.1-flash
+[0m$ [0mcd /home/capw/projects/grounded-rag && .venv/bin/python - <<'EOF'
+import json, re
+pat = re.compile(r"Submit correction|Previous|Next:|Policies|About PostgreSQL")
+hits=[c for c in (json.loads(l) for l in open('data/chunks.jsonl')) if pat.search(c["text"])]
+print("suspicious chunks:", len(hits))
+for c in hits[:3]:
+    m = pat.search(c["text"])
+    print(c["id"], "|", c["text"][max(0,m.start()-120):m.end()+120].replace("\n"," "))
+lt=[c for c in (json.loads(l) for l in open('data/chunks.jsonl')) if "<" in c["text"]]
+print("chunks with '<':", len(lt))
+print(lt[0]["text"][:200].replace("\n"," ") if lt else "")
+EOF
+suspicious chunks: 44
+auth-password.html#AUTH-PASSWORD#0 | password authentication method specifications (again, with the password transmitted in plain text in the latter case). (Previous PostgreSQL releases supported storing the password on the server in plain text. This is no longer possible.) To check t
+bookindex.html##1 | _lower, Array Functions and Operators  array_ndims, Array Functions and Operators  array_nulls configuration parameter, Previous PostgreSQL Versions  array_position, Array Functions and Operators  array_positions, Array Functions and Operators  arr
+bookindex.html##6 |  Operators  escape string syntax, String Constants with C-Style Escapes  escape_string_warning configuration parameter, Previous PostgreSQL Versions  escaping strings, Escaping Strings for Inclusion in SQL Commands  in libpq, Escaping Strings for I
+chunks with '<': 290
+To start a single-user mode server, use a command like  postgres --single -D /usr/local/pgsql/data other-options  my_database  Provide the correct path to the database directory with -D , or make sure
+> build · deepseek-v4.1-flash
+[0m$ [0mcd /home/capw/projects/grounded-rag && time .venv/bin/python -m ingest --skip-download --limit 20 2>&1 | tail -25
+docs: using cached HTML (1143 pages, version unknown)
+parse: 20 pages read, 20 kept, 0 discarded (<40 words), 63 chunks in 1.0s
+embed: 940 MB available
+Traceback (most recent call last):
+  File "<frozen runpy>", line 198, in _run_module_as_main
+  File "<frozen runpy>", line 88, in _run_code
+  File "/home/capw/projects/grounded-rag/ingest/__main__.py", line 198, in <module>
+    sys.exit(main())
+             ^^^^^^
+  File "/home/capw/projects/grounded-rag/ingest/__main__.py", line 148, in main
+    vectors, timings["embed"] = embed_chunks(chunks)
+                                ^^^^^^^^^^^^^^^^^^^^
+  File "/home/capw/projects/grounded-rag/ingest/__main__.py", line 80, in embed_chunks
+    embedder = Embedder()
+               ^^^^^^^^^^
+  File "/home/capw/projects/grounded-rag/retrieval/embed.py", line 46, in __init__
+    self.model = TextEmbedding(
+                 ^^^^^^^^^^^^^^
+  File "/home/capw/projects/grounded-rag/.venv/lib/python3.12/site-packages/fastembed/text/text_embedding.py", line 147, in __init__
+    raise ValueError(
+ValueError: Model intfloat/multilingual-e5-small is not supported in TextEmbedding. Please check the supported models using `TextEmbedding.list_supported_models()`
+
+real	0m2.572s
+user	0m2.299s
+sys	0m0.281s
+> build · deepseek-v4.1-flash
+[0m$ [0mcd /home/capw/projects/grounded-rag && .venv/bin/python -c "
+from fastembed import TextEmbedding
+ms=[m['model'] for m in TextEmbedding.list_supported_models()]
+print([m for m in ms if 'e5' in m.lower() or 'multilingual' in m.lower()][:20])
+print('total', len(ms))
+"
+['sentence-transformers/paraphrase-multilingual-MiniLM-L12-v2', 'sentence-transformers/paraphrase-multilingual-mpnet-base-v2', 'intfloat/multilingual-e5-large', 'minishlab/potion-multilingual-128M']
+total 41
+> build · deepseek-v4.1-flash
+[0m$ [0mcd /home/capw/projects/grounded-rag && sed -n '90,220p' .venv/lib/python3.12/site-packages/fastembed/text/text_embedding.py
+self,
+        model_name: str = "BAAI/bge-small-en-v1.5",
+        cache_dir: str | None = None,
+        threads: int | None = None,
+        providers: Sequence[OnnxProvider] | None = None,
+        cuda: bool | Device = Device.AUTO,
+        device_ids: list[int] | None = None,
+        lazy_load: bool = False,
+        **kwargs: Any,
+    ):
+        """
+        Args:
+            model_name (str): The name of the model to use.
+            cache_dir (str, optional): The path to the cache directory.
+                Can be set using the `FASTEMBED_CACHE_PATH` env variable.
+                Defaults to `fastembed_cache` in the system's temp directory.
+            threads (int, optional): The number of threads single onnxruntime session can use.
+            providers (Sequence[OnnxProvider], optional): The list of onnxruntime providers to use.
+                Mutually exclusive with the `cuda` and `device_ids` arguments.
+            cuda (Union[bool, Device], optional): Whether to use cuda for inference.
+                Mutually exclusive with `providers`. Defaults to Device.AUTO.
+            device_ids (list[int], optional): The list of device ids to use for data parallel
+                processing in workers.
+            lazy_load (bool, optional): Whether to load the model during class initialization or
+                on demand. Defaults to False.
+            **kwargs: Options passed on to the model class:
+                local_files_only (bool): Only use the files in the cache, never download them.
+                    Defaults to False.
+                specific_model_path (str): A local directory with the model files to load
+                    instead of downloading the model.
+                enable_cpu_mem_arena (bool): For onnx models, whether onnxruntime uses its CPU
+                    memory arena. Defaults to onnxruntime's own default.
+                mmap (bool): For static models (minishlab potion), whether to memory-map the
+                    embedding matrix instead of reading it into memory. Defaults to False.
+        """
+        super().__init__(model_name, cache_dir, threads, **kwargs)
+        if model_name.lower() == "jinaai/jina-embeddings-v2-base-de":
+            warnings.warn(
+                "The model 'jinaai/jina-embeddings-v2-base-de' used to run with fp16 model, but due to onnxruntime updates, now it runs with the original fp32 model.",
+                UserWarning,
+                stacklevel=2,
+            )
+        for EMBEDDING_MODEL_TYPE in self.EMBEDDINGS_REGISTRY:
+            supported_models = EMBEDDING_MODEL_TYPE._list_supported_models()
+            if any(model_name.lower() == model.model.lower() for model in supported_models):
+                self.model = EMBEDDING_MODEL_TYPE(
+                    model_name=model_name,
+                    cache_dir=cache_dir,
+                    threads=threads,
+                    providers=providers,
+                    cuda=cuda,
+                    device_ids=device_ids,
+                    lazy_load=lazy_load,
+                    **kwargs,
+                )
+                return
+
+        raise ValueError(
+            f"Model {model_name} is not supported in TextEmbedding. "
+            "Please check the supported models using `TextEmbedding.list_supported_models()`"
+        )
+
+    @property
+    def embedding_size(self) -> int:
+        """Get the embedding size of the current model"""
+        if self._embedding_size is None:
+            self._embedding_size = self.get_embedding_size(self.model_name)
+        return self._embedding_size
+
+    @classmethod
+    def get_embedding_size(cls, model_name: str) -> int:
+        """Get the embedding size of the passed model
+
+        Args:
+            model_name (str): The name of the model to get embedding size for.
+
+        Returns:
+            int: The size of the embedding.
+
+        Raises:
+            ValueError: If the model name is not found in the supported models.
+        """
+        descriptions = cls._list_supported_models()
+        embedding_size: int | None = None
+        for description in descriptions:
+            if description.model.lower() == model_name.lower():
+                embedding_size = description.dim
+                break
+        if embedding_size is None:
+            model_names = [description.model for description in descriptions]
+            raise ValueError(
+                f"Embedding size for model {model_name} was None. "
+                f"Available model names: {model_names}"
+            )
+        return embedding_size
+
+    def embed(
+        self,
+        documents: str | Iterable[str],
+        batch_size: int = 256,
+        parallel: int | None = None,
+        **kwargs: Any,
+    ) -> Iterable[NumpyArray]:
+        """
+        Encode a list of documents into list of embeddings.
+        We use mean pooling with attention so that the model can handle variable-length inputs.
+
+        Args:
+            documents: Iterator of documents or single document to embed
+            batch_size: Batch size for encoding -- higher values will use more memory, but be faster
+            parallel:
+                If > 1, data-parallel encoding will be used, recommended for offline encoding of large datasets.
+                If 0, use all available cores.
+                If None, don't use data-parallel processing, use default onnxruntime threading instead.
+
+        Returns:
+            List of embeddings, one per document
+        """
+        yield from self.model.embed(documents, batch_size, parallel, **kwargs)
+
+    def query_embed(self, query: str | Iterable[str], **kwargs: Any) -> Iterable[NumpyArray]:
+        """
+        Embeds queries
+
+        Args:
+            query (Union[str, Iterable[str]]): The query to embed, or an iterable e.g. list of queries.
+
+        Returns:
+            Iterable[NumpyArray]: The embeddings.
+        """
+        # This is model-specific, so that different models can have specialized implementations
+> build · deepseek-v4.1-flash
+[0m$ [0mcd /home/capw/projects/grounded-rag && sed -n '1,130p' .venv/lib/python3.12/site-packages/fastembed/text/onnx_embedding.py
+from typing import Any, Iterable, Sequence, Type
+
+from fastembed.common.model_description import DenseModelDescription, ModelSource
+from fastembed.common.onnx_model import OnnxOutputContext
+from fastembed.common.types import Device, NumpyArray, OnnxProvider
+from fastembed.common.utils import define_cache_dir, normalize
+from fastembed.text.onnx_text_model import OnnxTextModel, TextEmbeddingWorker
+from fastembed.text.text_embedding_base import TextEmbeddingBase
+
+supported_onnx_models: list[DenseModelDescription] = [
+    DenseModelDescription(
+        model="BAAI/bge-base-en",
+        dim=768,
+        description=(
+            "Text embeddings, Unimodal (text), English, 512 input tokens truncation, "
+            "Prefixes for queries/documents: necessary, 2023 year."
+        ),
+        license="mit",
+        size_in_GB=0.42,
+        sources=ModelSource(
+            hf="Qdrant/fast-bge-base-en",
+            _deprecated_tar_struct=True,
+        ),
+        model_file="model_optimized.onnx",
+    ),
+    DenseModelDescription(
+        model="BAAI/bge-base-en-v1.5",
+        dim=768,
+        description=(
+            "Text embeddings, Unimodal (text), English, 512 input tokens truncation, "
+            "Prefixes for queries/documents: not so necessary, 2023 year."
+        ),
+        license="mit",
+        size_in_GB=0.21,
+        sources=ModelSource(
+            hf="Qdrant/bge-base-en-v1.5-onnx-Q",
+            _deprecated_tar_struct=True,
+        ),
+        model_file="model_optimized.onnx",
+    ),
+    DenseModelDescription(
+        model="BAAI/bge-large-en-v1.5",
+        dim=1024,
+        description=(
+            "Text embeddings, Unimodal (text), English, 512 input tokens truncation, "
+            "Prefixes for queries/documents: not so necessary, 2023 year."
+        ),
+        license="mit",
+        size_in_GB=1.20,
+        sources=ModelSource(hf="Qdrant/bge-large-en-v1.5-onnx"),
+        model_file="model.onnx",
+    ),
+    DenseModelDescription(
+        model="BAAI/bge-small-en",
+        dim=384,
+        description=(
+            "Text embeddings, Unimodal (text), English, 512 input tokens truncation, "
+            "Prefixes for queries/documents: necessary, 2023 year."
+        ),
+        license="mit",
+        size_in_GB=0.13,
+        sources=ModelSource(
+            hf="Qdrant/bge-small-en",
+            _deprecated_tar_struct=True,
+        ),
+        model_file="model_optimized.onnx",
+    ),
+    DenseModelDescription(
+        model="BAAI/bge-small-en-v1.5",
+        dim=384,
+        description=(
+            "Text embeddings, Unimodal (text), English, 512 input tokens truncation, "
+            "Prefixes for queries/documents: not so necessary, 2023 year."
+        ),
+        license="mit",
+        size_in_GB=0.067,
+        sources=ModelSource(hf="Qdrant/bge-small-en-v1.5-onnx-Q"),
+        model_file="model_optimized.onnx",
+    ),
+    DenseModelDescription(
+        model="BAAI/bge-small-zh-v1.5",
+        dim=512,
+        description=(
+            "Text embeddings, Unimodal (text), Chinese, 512 input tokens truncation, "
+            "Prefixes for queries/documents: not so necessary, 2023 year."
+        ),
+        license="mit",
+        size_in_GB=0.09,
+        sources=ModelSource(
+            hf="Qdrant/bge-small-zh-v1.5",
+            _deprecated_tar_struct=True,
+        ),
+        model_file="model_optimized.onnx",
+    ),
+    DenseModelDescription(
+        model="mixedbread-ai/mxbai-embed-large-v1",
+        dim=1024,
+        description=(
+            "Text embeddings, Unimodal (text), English, 512 input tokens truncation, "
+            "Prefixes for queries/documents: necessary, 2024 year."
+        ),
+        license="apache-2.0",
+        size_in_GB=0.64,
+        sources=ModelSource(hf="mixedbread-ai/mxbai-embed-large-v1"),
+        model_file="onnx/model.onnx",
+    ),
+    DenseModelDescription(
+        model="snowflake/snowflake-arctic-embed-xs",
+        dim=384,
+        description=(
+            "Text embeddings, Unimodal (text), English, 512 input tokens truncation, "
+            "Prefixes for queries/documents: necessary, 2024 year."
+        ),
+        license="apache-2.0",
+        size_in_GB=0.09,
+        sources=ModelSource(hf="Snowflake/snowflake-arctic-embed-xs"),
+        model_file="onnx/model.onnx",
+    ),
+    DenseModelDescription(
+        model="snowflake/snowflake-arctic-embed-s",
+        dim=384,
+        description=(
+            "Text embeddings, Unimodal (text), English, 512 input tokens truncation, "
+            "Prefixes for queries/documents: necessary, 2024 year."
+        ),
+        license="apache-2.0",
+        size_in_GB=0.13,
+        sources=ModelSource(hf="Snowflake/snowflake-arctic-embed-s"),
+        model_file="onnx/model.onnx",
+    ),
+> build · deepseek-v4.1-flash
+[0m$ [0mcd /home/capw/projects/grounded-rag && grep -n "add_custom_model" -A 60 .venv/lib/python3.12/site-packages/fastembed/text/text_embedding.py | head -80
+51:    def add_custom_model(
+52-        cls,
+53-        model: str,
+54-        pooling: PoolingType,
+55-        normalization: bool,
+56-        sources: ModelSource,
+57-        dim: int,
+58-        model_file: str = "onnx/model.onnx",
+59-        description: str = "",
+60-        license: str = "",
+61-        size_in_gb: float = 0.0,
+62-        additional_files: list[str] | None = None,
+63-        output_name: str | None = None,
+64-    ) -> None:
+65-        registered_models = cls._list_supported_models()
+66-        for registered_model in registered_models:
+67-            if model.lower() == registered_model.model.lower():
+68-                raise ValueError(
+69-                    f"Model {model} is already registered in TextEmbedding, if you still want to add this model, "
+70-                    f"please use another model name"
+71-                )
+72-
+73-        CustomTextEmbedding.add_model(
+74-            DenseModelDescription(
+75-                model=model,
+76-                sources=sources,
+77-                dim=dim,
+78-                model_file=model_file,
+79-                description=description,
+80-                license=license,
+81-                size_in_GB=size_in_gb,
+82-                additional_files=additional_files or [],
+83-            ),
+84-            pooling=pooling,
+85-            normalization=normalization,
+86-            output_name=output_name,
+87-        )
+88-
+89-    def __init__(
+90-        self,
+91-        model_name: str = "BAAI/bge-small-en-v1.5",
+92-        cache_dir: str | None = None,
+93-        threads: int | None = None,
+94-        providers: Sequence[OnnxProvider] | None = None,
+95-        cuda: bool | Device = Device.AUTO,
+96-        device_ids: list[int] | None = None,
+97-        lazy_load: bool = False,
+98-        **kwargs: Any,
+99-    ):
+100-        """
+101-        Args:
+102-            model_name (str): The name of the model to use.
+103-            cache_dir (str, optional): The path to the cache directory.
+104-                Can be set using the `FASTEMBED_CACHE_PATH` env variable.
+105-                Defaults to `fastembed_cache` in the system's temp directory.
+106-            threads (int, optional): The number of threads single onnxruntime session can use.
+107-            providers (Sequence[OnnxProvider], optional): The list of onnxruntime providers to use.
+108-                Mutually exclusive with the `cuda` and `device_ids` arguments.
+109-            cuda (Union[bool, Device], optional): Whether to use cuda for inference.
+110-                Mutually exclusive with `providers`. Defaults to Device.AUTO.
+111-            device_ids (list[int], optional): The list of device ids to use for data parallel
+> build · deepseek-v4.1-flash
+[0m$ [0mcurl -sS --max-time 30 "https://huggingface.co/api/models/intfloat/multilingual-e5-small" | python3 -c "
+import json,sys
+d=json.load(sys.stdin)
+print([f['rfilename'] for f in d.get('siblings',[])])
+"
+['.eval_results/ArguAna.yaml', '.eval_results/BrightAopsRetrieval.yaml', '.eval_results/BrightBiologyLongRetrieval.yaml', '.eval_results/BrightBiologyRetrieval.yaml', '.eval_results/BrightEarthScienceLongRetrieval.yaml', '.eval_results/BrightEarthScienceRetrieval.yaml', '.eval_results/BrightEconomicsLongRetrieval.yaml', '.eval_results/BrightEconomicsRetrieval.yaml', '.eval_results/BrightLeetcodeRetrieval.yaml', '.eval_results/BrightPonyLongRetrieval.yaml', '.eval_results/BrightPonyRetrieval.yaml', '.eval_results/BrightPsychologyLongRetrieval.yaml', '.eval_results/BrightPsychologyRetrieval.yaml', '.eval_results/BrightRoboticsLongRetrieval.yaml', '.eval_results/BrightRoboticsRetrieval.yaml', '.eval_results/BrightStackoverflowLongRetrieval.yaml', '.eval_results/BrightStackoverflowRetrieval.yaml', '.eval_results/BrightSustainableLivingLongRetrieval.yaml', '.eval_results/BrightSustainableLivingRetrieval.yaml', '.eval_results/BrightTheoremQAQuestionsRetrieval.yaml', '.eval_results/BrightTheoremQATheoremsRetrieval.yaml', '.gitattributes', '1_Pooling/config.json', 'README.md', 'config.json', 'model.safetensors', 'modules.json', 'onnx/config.json', 'onnx/model.onnx', 'onnx/model_O4.onnx', 'onnx/model_qint8_avx512_vnni.onnx', 'onnx/sentencepiece.bpe.model', 'onnx/special_tokens_map.json', 'onnx/tokenizer.json', 'onnx/tokenizer_config.json', 'openvino/openvino_model.bin', 'openvino/openvino_model.xml', 'pytorch_model.bin', 'sentence_bert_config.json', 'sentencepiece.bpe.model', 'special_tokens_map.json', 'tokenizer.json', 'tokenizer_config.json']
+> build · deepseek-v4.1-flash
+[0m$ [0mgrep -o 'avx512_vnni\|avx2\|avx512f' /proc/cpuinfo | sort -u; echo "---"; curl -sS --max-time 30 -I "https://huggingface.co/intfloat/multilingual-e5-small/resolve/main/onnx/model.onnx" | grep -i "content-length\|HTTP/"; curl -sS --max-time 30 -I "https://huggingface.co/intfloat/multilingual-e5-small/resolve/main/onnx/model_qint8_avx512_vnni.onnx" | grep -i "content-length\|HTTP/"
+---
+HTTP/2 302 
+content-length: 1010
+HTTP/2 302 
+content-length: 1096
+> build · deepseek-v4.1-flash
+[0m$ [0mgrep -m1 "model name" /proc/cpuinfo; grep -m1 flags /proc/cpuinfo | tr ' ' '\n' | grep -E "^(avx|avx2|avx512f|avx512_vnni|sse4_2)$" | sort -u; echo "--- sizes ---"; curl -sSL --max-time 30 -o /dev/null -w "fp32 %{size_download}\n" -r 0-0 "https://huggingface.co/intfloat/multilingual-e5-small/resolve/main/onnx/model.onnx"; curl -sSI -L --max-time 30 "https://huggingface.co/intfloat/multilingual-e5-small/resolve/main/onnx/model.onnx" | grep -i "^content-length"; curl -sSI -L --max-time 30 "https://huggingface.co/intfloat/multilingual-e5-small/resolve/main/onnx/model_qint8_avx512_vnni.onnx" | grep -i "^content-length"
+model name	: Intel(R) Xeon(R) CPU E5-2697 v2 @ 2.70GHz
+avx
+sse4_2
+--- sizes ---
+fp32 1
+content-length: 1008
+content-length: 470268510
+content-length: 1092
+content-length: 118346824
+> build · deepseek-v4.1-flash
+[0m$ [0mfor f in model.onnx model_O4.onnx model_qint8_avx512_vnni.onnx; do printf "%s " "$f"; curl -sSI -L --max-time 30 "https://huggingface.co/intfloat/multilingual-e5-small/resolve/main/onnx/$f" | grep -i "^content-length" | tail -1; done
+model.onnx content-length: 470268510
+model_O4.onnx content-length: 235052531
+model_qint8_avx512_vnni.onnx content-length: 118346824
+> build · deepseek-v4.1-flash
+[0m$ [0mcd /home/capw/projects/grounded-rag && .venv/bin/python -c "
+from fastembed.common.types import PoolingType, ModelSource
+print(PoolingType.MEAN)
+" 2>&1 | tail -2; grep -rn "class PoolingType\|class ModelSource" .venv/lib/python3.12/site-packages/fastembed/common/*.py | head
+File "<string>", line 2, in <module>
+ImportError: cannot import name 'PoolingType' from 'fastembed.common.types' (/home/capw/projects/grounded-rag/.venv/lib/python3.12/site-packages/fastembed/common/types.py)
+.venv/lib/python3.12/site-packages/fastembed/common/model_description.py:7:class ModelSource:
+.venv/lib/python3.12/site-packages/fastembed/common/model_description.py:49:class PoolingType(str, Enum):
+> build · deepseek-v4.1-flash
+[0m← [0mEdit retrieval/embed.py
+Index: retrieval/embed.py
+===================================================================
+--- retrieval/embed.py
++++ retrieval/embed.py
+@@ -38,17 +38,34 @@
+         batch_size: int = BATCH_SIZE,
+         show_download_progress: bool = False,
+     ) -> None:
+         from fastembed import TextEmbedding
++        from fastembed.common.model_description import ModelSource, PoolingType
+ 
++        # fastembed's registry ships multilingual-e5 only in "large"; the small
++        # checkpoint is registered here from its official ONNX export.
++        registered = {model.model.lower() for model in TextEmbedding._list_supported_models()}
++        if model_name.lower() not in registered:
++            TextEmbedding.add_custom_model(
++                model=model_name,
++                pooling=PoolingType.MEAN,
++                normalization=True,
++                sources=ModelSource(hf=model_name),
++                dim=EMBEDDING_DIM,
++                model_file="onnx/model.onnx",
++                description="Multilingual E5 small, 384 dims, 512 token input",
++                license="mit",
++            )
++
+         self.model_name = model_name
+         self.batch_size = batch_size
+         Path(cache_dir).mkdir(parents=True, exist_ok=True)
+         self.model = TextEmbedding(
+             model_name=model_name,
+             cache_dir=str(cache_dir),
+             threads=threads,
+             show_download_progress=show_download_progress,
++            enable_cpu_mem_arena=False,
+         )
+ 
+     def _encode(self, texts: Iterable[str]) -> np.ndarray:
+         vectors = [np.asarray(vector, dtype=np.float32) for vector in self.model.embed(list(texts), batch_size=self.batch_size)]
+
+> build · deepseek-v4.1-flash
+[0m← [0mEdit retrieval/embed.py
+Index: retrieval/embed.py
+===================================================================
+--- retrieval/embed.py
++++ retrieval/embed.py
+@@ -14,8 +14,9 @@
+ DATA_DIR = Path(__file__).resolve().parent.parent / "data"
+ MODELS_DIR = DATA_DIR / "models"
+ 
+ MODEL_NAME = "intfloat/multilingual-e5-small"
++EMBEDDING_DIM = 384
+ PASSAGE_PREFIX = "passage: "
+ QUERY_PREFIX = "query: "
+ BATCH_SIZE = 32
+ THREADS = 2
+
+> build · deepseek-v4.1-flash
+[0m$ [0mcd /home/capw/projects/grounded-rag && free -m | head -2 && time .venv/bin/python -m ingest --skip-download --limit 20 2>&1 | tail -25
+total        used        free      shared  buff/cache   available
+Mem:            5924        5020         159         255        1299         904
+docs: using cached HTML (1143 pages, version unknown)
+parse: 20 pages read, 20 kept, 0 discarded (<40 words), 63 chunks in 1.0s
+embed: 881 MB available
+ERROR: only 881 MB of RAM available (< 900 MB) and there is no swap; refusing to load the embedding model
+
+real	0m1.498s
+user	0m1.308s
+sys	0m0.089s
+> build · deepseek-v4.1-flash
+[0m$ [0mfor i in 1 2 3 4 5 6; do free -m | awk '/Mem:/ {print strftime("%H:%M:%S"), "available_mb="$7}'; sleep 10; done
+19:38:33 available_mb=902
+19:38:43 available_mb=1025
+19:38:53 available_mb=1067
+19:39:03 available_mb=1070
+19:39:13 available_mb=1088
+19:39:23 available_mb=971
+> build · deepseek-v4.1-flash
+[0m$ [0mcd /home/capw/projects/grounded-rag && free -m | awk '/Mem:/ {print "available="$7}' && nohup .venv/bin/python -m ingest > patches/opencode/diag/fase1-ingest.log 2>&1 &
+sleep 5; echo "started pid $(pgrep -f 'python -m ingest' | head -1)"; tail -2 patches/opencode/diag/fase1-ingest.log
+available=1061
+started pid 347211
+version: latest 17.x release is 17.11
+download: postgresql-17.11.tar.bz2 already present, sha256 verified (dd27f2b3c59e73ed14aa3324901242bf69a032a6347805f274e6260322d42979)
+> build · deepseek-v4.1-flash
+[0m$ [0mcd /home/capw/projects/grounded-rag && for i in $(seq 1 12); do free -m | awk '/Mem:/ {printf "%s avail=%sMB ", strftime("%H:%M:%S"), $7}'; ps -o rss= -p $(pgrep -f 'python -m ingest' | head -1) 2>/dev/null | awk '{printf "ingest_rss=%dMB\n", $1/1024}'; tail -1 patches/opencode/diag/fase1-ingest.log | cut -c1-100; sleep 10; done
+19:39:59 avail=1002MB ingest_rss=2MB
+fetch: 1143 pages on disk (0 downloaded, 1143 cached, 1 failed) in 1.3s
+19:40:09 avail=860MB ingest_rss=2MB
+parse: 215 pages, 506 chunks...
+19:40:19 avail=835MB ingest_rss=2MB
+parse: 581 pages, 1500 chunks...
+19:40:29 avail=863MB ingest_rss=2MB
+parse: 738 pages, 2000 chunks...
+19:40:39 avail=896MB ingest_rss=3MB
+ERROR: only 869 MB of RAM available (< 900 MB) and there is no swap; refusing to load the embedding 
+19:40:50 avail=900MB ingest_rss=3MB
+ERROR: only 869 MB of RAM available (< 900 MB) and there is no swap; refusing to load the embedding 
+19:41:00 avail=877MB ingest_rss=3MB
+ERROR: only 869 MB of RAM available (< 900 MB) and there is no swap; refusing to load the embedding 
+19:41:10 avail=903MB ingest_rss=3MB
+ERROR: only 869 MB of RAM available (< 900 MB) and there is no swap; refusing to load the embedding 
+19:41:20 avail=920MB ingest_rss=3MB
+ERROR: only 869 MB of RAM available (< 900 MB) and there is no swap; refusing to load the embedding 
+19:41:30 avail=928MB ingest_rss=3MB
+ERROR: only 869 MB of RAM available (< 900 MB) and there is no swap; refusing to load the embedding 
+19:41:40 avail=906MB ingest_rss=3MB
+ERROR: only 869 MB of RAM available (< 900 MB) and there is no swap; refusing to load the embedding 
+19:41:50 avail=1078MB ingest_rss=3MB
+ERROR: only 869 MB of RAM available (< 900 MB) and there is no swap; refusing to load the embedding
+> build · deepseek-v4.1-flash
+[0m← [0mEdit ingest/__main__.py
+Index: ingest/__main__.py
+===================================================================
+--- ingest/__main__.py
++++ ingest/__main__.py
+@@ -36,8 +36,19 @@
+                 return int(line.split()[1]) // 1024
+     return 0
+ 
+ 
++def wait_for_memory(min_mb: int = MIN_AVAILABLE_MB, timeout_s: int = 180, poll_s: int = 5) -> int:
++    """Wait (briefly) for enough free RAM; other tenants make MemAvailable noisy."""
++    started = time.perf_counter()
++    free = available_mb()
++    while free < min_mb and time.perf_counter() - started < timeout_s:
++        print(f"embed: {free} MB available, waiting for {min_mb} MB...", flush=True)
++        time.sleep(poll_s)
++        free = available_mb()
++    return free
++
++
+ def write_chunks(chunks: list[dict], path: Path = CHUNKS_PATH) -> None:
+     path.parent.mkdir(parents=True, exist_ok=True)
+     tmp = path.with_suffix(".jsonl.tmp")
+     with tmp.open("w", encoding="utf-8") as fh:
+
+> build · deepseek-v4.1-flash
+[0m← [0mEdit ingest/__main__.py
+Index: ingest/__main__.py
+===================================================================
+--- ingest/__main__.py
++++ ingest/__main__.py
+@@ -141,9 +141,8 @@
+     vectors = None
+     timings["embed"] = 0.0
+     available_at_embed = available_mb()
+     if args.skip_embed:
+-        print("embed: skipped (--skip-embed)", flush=True)
+         for stale in (DATA_DIR / "vectors.npy", DATA_DIR / "vector_ids.json"):
+             if stale.exists():
+                 stale.unlink()
+                 print(f"embed: removed stale {stale.name}", flush=True)
+
+> build · deepseek-v4.1-flash
+[0m→ [0mRead ingest/__main__.py [90m[limit=30, offset=134][0m
+> build · deepseek-v4.1-flash
+[0m← [0mEdit ingest/__main__.py
+Index: ingest/__main__.py
+===================================================================
+--- ingest/__main__.py
++++ ingest/__main__.py
+@@ -141,13 +141,15 @@
+     vectors = None
+     timings["embed"] = 0.0
+     available_at_embed = available_mb()
+     if args.skip_embed:
++        print("embed: skipped (--skip-embed)", flush=True)
+         for stale in (DATA_DIR / "vectors.npy", DATA_DIR / "vector_ids.json"):
+             if stale.exists():
+                 stale.unlink()
+                 print(f"embed: removed stale {stale.name}", flush=True)
+     else:
++        available_at_embed = wait_for_memory()
+         print(f"embed: {available_at_embed} MB available", flush=True)
+         if available_at_embed < MIN_AVAILABLE_MB:
+             print(
+                 f"ERROR: only {available_at_embed} MB of RAM available (< {MIN_AVAILABLE_MB} MB) and there is no swap; "
+
+> build · deepseek-v4.1-flash
+[0m$ [0mcd /home/capw/projects/grounded-rag && nohup .venv/bin/python -c "
+from retrieval.embed import Embedder
+import numpy as np
+e = Embedder(show_download_progress=True)
+v = e.encode_passages(['passage: hello world', 'passage: hola mundo'])
+print('shape', v.shape, 'norms', np.linalg.norm(v, axis=1))
+q = e.encode_query('partial index')
+print('query shape', q.shape, 'norm', float(np.linalg.norm(q)))
+print('sim', float(v[0] @ q))
+" > patches/opencode/diag/fase1-model.log 2>&1 &
+sleep 30; tail -3 patches/opencode/diag/fase1-model.log; free -m | awk '/Mem:/ {print "avail="$7}'
+shape (2, 384) norms [1. 1.]
+query shape (384,) norm 1.0
+sim 0.7442632913589478
+avail=974
+> build · deepseek-v4.1-flash
+[0m$ [0mcd /home/capw/projects/grounded-rag && cat patches/opencode/diag/fase1-model.log | tail -5 && du -sh data/models && ls -la data/models/*/* | head -10
+Fetching 5 files:   0%|          | 0/5 [00:00<?, ?it/s]Warning: You are sending unauthenticated requests to the HF Hub. Please set a HF_TOKEN to enable higher rate limits and faster downloads.
+Fetching 5 files:  20%|██        | 1/5 [00:00<00:00,  5.35it/s]Fetching 5 files:  80%|████████  | 4/5 [00:01<00:00,  2.13it/s]Fetching 5 files: 100%|██████████| 5/5 [00:05<00:00,  1.48s/it]Fetching 5 files: 100%|██████████| 5/5 [00:05<00:00,  1.18s/it]
+shape (2, 384) norms [1. 1.]
+query shape (384,) norm 1.0
+sim 0.7442632913589478
+465M	data/models
+-rw-rw-r-- 1 capw capw  720 Oct 28 19:42 data/models/models--intfloat--multilingual-e5-small/files_metadata.json
+
+data/models/blobs/1c:
+total 16696
+drwxrwxr-x 2 capw capw     4096 Oct 28 19:42 .
+drwxrwxr-x 4 capw capw     4096 Oct 28 19:42 ..
+-r--r--r-- 1 capw capw 17082730 Oct 28 19:42 1c8f7c8fd9b7c56a43be9844713bdd468b7a17ed5170311ce768adfc6e2d41ea
+-rw-rw-rw- 1 capw capw        0 Oct 28 19:42 1c8f7c8fd9b7c56a43be9844713bdd468b7a17ed5170311ce768adfc6e2d41ea.lock
+-rw-rw-rw- 1 capw capw      111 Oct 28 19:42 1c8f7c8fd9b7c56a43be9844713bdd468b7a17ed5170311ce768adfc6e2d41ea.refs
+> build · deepseek-v4.1-flash
+[0m$ [0mcd /home/capw/projects/grounded-rag && .venv/bin/python - <<'EOF'
+import os, resource, subprocess
+from retrieval.embed import Embedder
+e = Embedder()
+v = e.encode_query("test query")
+rss = resource.getrusage(resource.RUSAGE_SELF).ru_maxrss / 1024
+print(f"peak RSS: {rss:.0f} MB")
+print(subprocess.run(["free","-m"],capture_output=True,text=True).stdout.splitlines()[1])
+EOF
+peak RSS: 870 MB
+Mem:            5924        5723         122         255         626         201
+> build · deepseek-v4.1-flash
+[0m$ [0mcurl -sS --max-time 30 "https://huggingface.co/api/models/Xenova/multilingual-e5-small" | python3 -c "
+import json,sys
+d=json.load(sys.stdin)
+print([f['rfilename'] for f in d.get('siblings',[])])
+"; echo "--- sizes ---"; for f in onnx/model_quantized.onnx onnx/model.onnx; do printf "%s " "$f"; curl -sSI -L --max-time 30 "https://huggingface.co/Xenova/multilingual-e5-small/resolve/main/$f" | grep -i "^content-length" | tail -1; done
+['.gitattributes', 'README.md', 'config.json', 'onnx/model.onnx', 'onnx/model_bnb4.onnx', 'onnx/model_fp16.onnx', 'onnx/model_int8.onnx', 'onnx/model_q4.onnx', 'onnx/model_q4f16.onnx', 'onnx/model_quantized.onnx', 'onnx/model_uint8.onnx', 'quant_config.json', 'sentencepiece.bpe.model', 'special_tokens_map.json', 'tokenizer.json', 'tokenizer_config.json']
+--- sizes ---
+onnx/model_quantized.onnx content-length: 118308185
+onnx/model.onnx content-length: 470268533
+> build · deepseek-v4.1-flash
+[0m← [0mEdit retrieval/embed.py
+Index: retrieval/embed.py
+===================================================================
+--- retrieval/embed.py
++++ retrieval/embed.py
+@@ -15,8 +15,13 @@
+ MODELS_DIR = DATA_DIR / "models"
+ 
+ MODEL_NAME = "intfloat/multilingual-e5-small"
+ EMBEDDING_DIM = 384
++#: fastembed's registry only ships e5 *large*. The small checkpoint is registered
++#: from its ONNX export on the Hub; the int8 file is used because the box has
++#: ~1 GB of free RAM, no swap, and the fp32 file peaks at ~870 MB of RSS.
++MODEL_SOURCE = "Xenova/multilingual-e5-small"
++MODEL_FILE = "onnx/model_quantized.onnx"
+ PASSAGE_PREFIX = "passage: "
+ QUERY_PREFIX = "query: "
+ BATCH_SIZE = 32
+ THREADS = 2
+
+> build · deepseek-v4.1-flash
+[0m← [0mEdit retrieval/embed.py
+Index: retrieval/embed.py
+===================================================================
+--- retrieval/embed.py
++++ retrieval/embed.py
+@@ -54,12 +54,12 @@
+             TextEmbedding.add_custom_model(
+                 model=model_name,
+                 pooling=PoolingType.MEAN,
+                 normalization=True,
+-                sources=ModelSource(hf=model_name),
++                sources=ModelSource(hf=MODEL_SOURCE),
+                 dim=EMBEDDING_DIM,
+-                model_file="onnx/model.onnx",
+-                description="Multilingual E5 small, 384 dims, 512 token input",
++                model_file=MODEL_FILE,
++                description="Multilingual E5 small, 384 dims, 512 token input (int8 ONNX)",
+                 license="mit",
+             )
+ 
+         self.model_name = model_name
+
+> build · deepseek-v4.1-flash
+[0m$ [0mcd /home/capw/projects/grounded-rag && rm -rf data/models && .venv/bin/python - <<'EOF'
+import resource, subprocess, time
+t=time.time()
+from retrieval.embed import Embedder
+e = Embedder(show_download_progress=True)
+v = e.encode_passages(["passage: create a partial index on a table"])
+print("shape", v.shape, "norm", float((v[0]**2).sum()**0.5))
+print(f"elapsed {time.time()-t:.1f}s peak RSS {resource.getrusage(resource.RUSAGE_SELF).ru_maxrss/1024:.0f} MB")
+print(subprocess.run(["free","-m"],capture_output=True,text=True).stdout.splitlines()[1])
+EOF
+du -sh data/models
+Fetching 5 files:   0%|          | 0/5 [00:00<?, ?it/s]Warning: You are sending unauthenticated requests to the HF Hub. Please set a HF_TOKEN to enable higher rate limits and faster downloads.
+Fetching 5 files:  20%|██        | 1/5 [00:00<00:00,  8.93it/s]Fetching 5 files:  80%|████████  | 4/5 [00:01<00:00,  2.11it/s]Fetching 5 files: 100%|██████████| 5/5 [00:03<00:00,  1.18it/s]Fetching 5 files: 100%|██████████| 5/5 [00:03<00:00,  1.39it/s]
+shape (1, 384) norm 1.0
+elapsed 7.7s peak RSS 505 MB
+Mem:            5924        5442         135         255         901         482
+130M	data/models
+> build · deepseek-v4.1-flash

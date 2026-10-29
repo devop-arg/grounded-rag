@@ -1,0 +1,44 @@
+[q01] (en) HIT rank=1 :: how do I create a partial index
+    expected: https://www.postgresql.org/docs/17/indexes-partial.html#INDEXES-PARTIAL  (in top-5)
+    1. https://www.postgresql.org/docs/17/indexes-partial.html#INDEXES-PARTIAL
+    2. https://www.postgresql.org/docs/17/indexes-partial.html#INDEXES-PARTIAL
+    3. https://www.postgresql.org/docs/17/indexes-partial.html#INDEXES-PARTIAL
+    4. https://www.postgresql.org/docs/17/sql-createindex.html#id-1.9.3.69.5
+    5. https://www.postgresql.org/docs/17/sql-createindex.html#SQL-CREATEINDEX-CONCURRENTLY
+
+[q02] (en) HIT rank=1 :: what isolation levels does PostgreSQL support
+    expected: https://www.postgresql.org/docs/17/transaction-iso.html  (in top-5)
+    1. https://www.postgresql.org/docs/17/transaction-iso.html#TRANSACTION-ISO
+    2. https://www.postgresql.org/docs/17/transaction-iso.html#XACT-REPEATABLE-READ
+    3. https://www.postgresql.org/docs/17/transaction-iso.html#XACT-SERIALIZABLE
+    4. https://www.postgresql.org/docs/17/transaction-iso.html#XACT-SERIALIZABLE
+    5. https://www.postgresql.org/docs/17/postgres-fdw.html#POSTGRES-FDW-TRANSACTION-MANAGEMENT
+
+[q03] (en) n/a rank=- :: how do I change the InnoDB buffer pool size in MySQL
+    1. https://www.postgresql.org/docs/17/runtime-config-resource.html#RUNTIME-CONFIG-RESOURCE-MEMORY
+    2. https://www.postgresql.org/docs/17/dynamic-trace.html#TRACE-POINTS
+    3. https://www.postgresql.org/docs/17/runtime-config-wal.html#RUNTIME-CONFIG-WAL-RECOVERY
+    4. https://www.postgresql.org/docs/17/install-make.html#CONFIGURE-OPTIONS
+    5. https://www.postgresql.org/docs/17/runtime-config-resource.html#RUNTIME-CONFIG-RESOURCE-MEMORY
+
+[q04] (es) HIT rank=5 :: ¿cómo configuro la replicación lógica?
+    expected: https://www.postgresql.org/docs/17/logical-replication.html#LOGICAL-REPLICATION  (in top-5)
+    1. https://www.postgresql.org/docs/17/ddl-inherit.html#DDL-INHERIT
+    2. https://www.postgresql.org/docs/17/logical-replication-config.html#LOGICAL-REPLICATION-CONFIG
+    3. https://www.postgresql.org/docs/17/logical-replication-subscription.html#LOGICAL-REPLICATION-SUBSCRIPTION-EXAMPLES
+    4. https://www.postgresql.org/docs/17/unaccent.html#UNACCENT
+    5. https://www.postgresql.org/docs/17/logical-replication.html#LOGICAL-REPLICATION
+
+[q05] (es) HIT rank=1 :: ¿cómo hago una copia de seguridad de una base de datos con pg_dump?
+    expected: https://www.postgresql.org/docs/17/backup-dump.html  (in top-5)
+    1. https://www.postgresql.org/docs/17/backup-dump.html#BACKUP-DUMP
+    2. https://www.postgresql.org/docs/17/populate.html#POPULATE-PG-DUMP
+    3. https://www.postgresql.org/docs/17/app-pgdump.html#PG-DUMP-NOTES
+    4. https://www.postgresql.org/docs/17/app-pgdump.html#PG-DUMP-EXAMPLES
+    5. https://www.postgresql.org/docs/17/backup-dump.html#BACKUP-DUMP-ALL
+
+summary
+  questions: 5 (4 answerable, 1 not)
+  recall@5: 1.0
+  mrr@8: 0.8
+  time: 0.32s (63.2 ms/question)

@@ -1,0 +1,14 @@
+# expected_urls de eval/questions.jsonl vs data/chunks.jsonl
+
+q01  OK      exact url          chunks=3   https://www.postgresql.org/docs/17/indexes-partial.html#INDEXES-PARTIAL
+q02  OK      page (any anchor)  chunks=1   https://www.postgresql.org/docs/17/transaction-iso.html
+q04  OK      exact url          chunks=1   https://www.postgresql.org/docs/17/logical-replication.html#LOGICAL-REPLICATION
+q05  OK      page (any anchor)  chunks=1   https://www.postgresql.org/docs/17/backup-dump.html
+
+all expected_urls present: True
+
+# grep -c de respaldo (URL exacta y archivo de página)
+https://www.postgresql.org/docs/17/backup-dump.html  page=3
+https://www.postgresql.org/docs/17/indexes-partial.html#INDEXES-PARTIAL  exact=3
+https://www.postgresql.org/docs/17/logical-replication.html#LOGICAL-REPLICATION  exact=1
+https://www.postgresql.org/docs/17/transaction-iso.html  page=9
