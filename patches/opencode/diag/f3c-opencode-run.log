@@ -1,0 +1,1523 @@
+[0m
+> build · deepseek-v4.1-flash
+[0m$ [0mcd /home/capw/projects/grounded-rag && git status --short && echo '--- web ---' && ls -la web/ && echo '--- app ---' && ls -la app/ && echo '--- reports ---' && ls -la eval/reports/
+M app/main.py
+ M eval/generate.py
+?? app/metrics.py
+?? eval/reports/
+?? patches/opencode/08-fase3-interfaz.md
+?? patches/opencode/diag/f3-eval-retrieval.log
+?? patches/opencode/diag/f3-opencode-run.log
+?? patches/opencode/diag/f3b-opencode-run.log
+?? patches/opencode/diag/f3c-opencode-run.log
+?? web/
+--- web ---
+total 92
+drwxrwxr-x  3 capw capw  4096 Oct 28 22:41 .
+drwxrwxr-x 14 capw capw  4096 Oct 28 22:37 ..
+-rw-rw-r--  1 capw capw  9640 Oct 28 22:39 app.css
+-rw-rw-r--  1 capw capw 30939 Oct 28 22:41 app.js
+-rw-rw-r--  1 capw capw  4844 Oct 28 22:39 index.html
+-rw-rw-r--  1 capw capw    80 Oct 28 22:38 __init__.py
+drwxrwxr-x  2 capw capw  4096 Oct 28 22:38 __pycache__
+-rw-rw-r--  1 capw capw 14166 Oct 28 22:38 recorded.json
+-rw-rw-r--  1 capw capw  6474 Oct 28 22:37 record.py
+--- app ---
+total 44
+drwxrwxr-x  3 capw capw 4096 Oct 28 22:36 .
+drwxrwxr-x 14 capw capw 4096 Oct 28 22:37 ..
+-rw-rw-r--  1 capw capw   72 Oct 28 22:19 __init__.py
+-rw-rw-r--  1 capw capw 2930 Oct 28 22:30 limits.py
+-rw-rw-r--  1 capw capw 1307 Oct 28 22:20 __main__.py
+-rw-rw-r--  1 capw capw 7152 Oct 28 22:37 main.py
+-rw-rw-r--  1 capw capw 5590 Oct 28 22:36 metrics.py
+drwxrwxr-x  2 capw capw 4096 Oct 28 22:30 __pycache__
+-rw-rw-r--  1 capw capw 1777 Oct 28 22:19 usage.py
+--- reports ---
+total 136
+drwxrwxr-x 2 capw capw  4096 Oct 28 22:37 .
+drwxrwxr-x 4 capw capw  4096 Oct 28 22:24 ..
+-rw-rw-r-- 1 capw capw 59337 Oct 28 22:24 2026-10-29-generate-mock.json
+-rw-rw-r-- 1 capw capw 65746 Oct 28 22:37 retrieval.json
+> build · deepseek-v4.1-flash
+[0m→ [0mRead app/main.py [90m[offset=55, limit=60][0m
+[0m$ [0mcd /home/capw/projects/grounded-rag && node --check web/app.js && echo "app.js OK" ; .venv/bin/python -c "
+import ast,sys
+for p in ('app/main.py','app/metrics.py','web/record.py','eval/generate.py'):
+    ast.parse(open(p).read()); print(p,'OK')
+"
+app.js OK
+app/main.py OK
+app/metrics.py OK
+web/record.py OK
+eval/generate.py OK
+> build · deepseek-v4.1-flash
+[0m← [0mEdit app/main.py
+Index: app/main.py
+===================================================================
+--- app/main.py
++++ app/main.py
+@@ -87,10 +87,11 @@
+     app = FastAPI(title="grounded-rag", version="0.3.0", lifespan=lifespan)
+ 
+     @app.middleware("http")
+     async def security_headers(request: Request, call_next):
+-        # ``web/`` also holds the recorder module: it is never served.
+-        if request.url.path.endswith(".py"):
++        # ``web/`` also holds the recorder module and its bytecode: neither is served.
++        path = request.url.path
++        if path.endswith((".py", ".pyc")) or "__pycache__" in path:
+             return Response(status_code=404)
+         response = await call_next(request)
+         response.headers["Content-Security-Policy"] = CONTENT_SECURITY_POLICY
+         response.headers["X-Content-Type-Options"] = "nosniff"
+
+> build · deepseek-v4.1-flash
+[0m← [0mEdit web/app.css
+Index: web/app.css
+===================================================================
+--- web/app.css
++++ web/app.css
+@@ -68,8 +68,9 @@
+ /* result */
+ .result{margin-top:16px}
+ .card{background:var(--panel);border:1px solid var(--line);border-radius:4px;padding:16px;min-width:0}
+ .result.abstain .card{border:2px solid var(--amber)}
++.result.error .card{border:2px solid var(--amber)}
+ .card-head{display:flex;flex-wrap:wrap;align-items:center;gap:8px 12px;justify-content:space-between}
+ .card h2{font-size:17px}
+ .badge{display:inline-block;font-family:var(--mono);font-size:10px;text-transform:uppercase;letter-spacing:.1em;padding:3px 7px;border-radius:2px;border:1px solid var(--amber);background:var(--amber-soft);color:var(--amber)}
+ .abstain-text{margin-top:12px;font-size:16px}
+
+> build · deepseek-v4.1-flash
+[0m← [0mWrite tests/test_web.py
+Created file successfully: tests/test_web.py
+> build · deepseek-v4.1-flash
+[0m$ [0mcd /home/capw/projects/grounded-rag && .venv/bin/python -m pytest tests/test_web.py -q 2>&1 | tail -40
+................                                                         [100%]
+=============================== warnings summary ===============================
+tests/test_web.py::test_root_serves_the_page_with_the_security_headers
+  /home/capw/projects/grounded-rag/.venv/lib/python3.12/site-packages/fastapi/testclient.py:1: StarletteDeprecationWarning: Using `httpx` with `starlette.testclient` is deprecated; install `httpx2` instead.
+    from starlette.testclient import TestClient as TestClient  # noqa
+
+-- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html
+16 passed, 1 warning in 1.14s
+> build · deepseek-v4.1-flash
+[0m$ [0mcd /home/capw/projects/grounded-rag && .venv/bin/python -m pytest -q 2>&1 | tee patches/opencode/diag/f3-pytest.log | tail -12
+........................................................................ [ 31%]
+........................................................................ [ 62%]
+........................................................................ [ 94%]
+.............                                                            [100%]
+=============================== warnings summary ===============================
+tests/test_app.py::test_health
+  /home/capw/projects/grounded-rag/.venv/lib/python3.12/site-packages/fastapi/testclient.py:1: StarletteDeprecationWarning: Using `httpx` with `starlette.testclient` is deprecated; install `httpx2` instead.
+    from starlette.testclient import TestClient as TestClient  # noqa
+
+-- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html
+229 passed, 1 warning in 2.83s
+> build · deepseek-v4.1-flash
+[0m← [0mEdit web/app.js
+Index: web/app.js
+===================================================================
+--- web/app.js
++++ web/app.js
+@@ -495,12 +495,12 @@
+     var resultNode = result();
+     if (!resultNode) return;
+     clear(resultNode);
+     resultNode.hidden = false;
+-    resultNode.className = 'result';
++    resultNode.className = 'result abstain';
+     var card = el('div', { class: 'card' }, cardHead(t('answer.heading'), t('recorded.badge')));
+     card.appendChild(el('p', { class: 'abstain-text' }, t('recorded.retrievalOnly')));
+-    var list = sourcesBlock(t('answer.sources'), entry.sources);
++    var list = sourcesBlock(t('answer.closest'), entry.sources);
+     if (list) card.appendChild(list);
+     else card.appendChild(el('p', { class: 'muted mono' }, t('answer.noSources')));
+     resultNode.appendChild(card);
+   }
+
+> build · deepseek-v4.1-flash
+[0m$ [0mcd /home/capw/projects/grounded-rag && .venv/bin/python - <<'EOF' 2>&1 | tee patches/opencode/diag/f3-contrast.log
+"""WCAG 2.1 contrast ratios for the pairs actually used in web/app.css."""
+from itertools import count
+
+def rgb(hexcode):
+    h = hexcode.lstrip('#')
+    return tuple(int(h[i:i+2], 16) for i in (0, 2, 4))
+
+def blend(fg_rgba, hexbg):
+    r, g, b, a = fg_rgba
+    br, bg_, bb = rgb(hexbg)
+    return tuple(round(c * a + back * (1 - a)) for c, back in ((r, br), (g, bg_), (b, bb)))
+
+def luminance(color):
+    def channel(value):
+        c = value / 255
+        return c / 12.92 if c <= 0.03928 else ((c + 0.055) / 1.055) ** 2.4
+    r, g, b = (channel(v) for v in color)
+    return 0.2126 * r + 0.7152 * g + 0.0722 * b
+
+def ratio(a, b):
+    la, lb = luminance(a), luminance(b)
+    high, low = max(la, lb), min(la, lb)
+    return (high + 0.05) / (low + 0.05)
+
+THEMES = {
+    'dark': {
+        'bg': '#0A1219', 'panel': '#0F1A23', 'panel-2': '#13212C', 'line': '#1F3240',
+        'fg': '#DCE7EE', 'muted': '#8DA1B0', 'signal': '#4FD1C5', 'amber': '#F2B04A',
+    },
+    'light': {
+        'bg': '#EEF2F4', 'panel': '#FFFFFF', 'panel-2': '#F5F8F9', 'line': '#D3DDE3',
+        'fg': '#0E1B24', 'muted': '#526471', 'signal': '#0B8378', 'amber': '#A3620B',
+    },
+}
+SOFT = {
+    'dark': {'signal-soft': (79, 209, 197, 0.12), 'amber-soft': (242, 176, 74, 0.13)},
+    'light': {'signal-soft': (11, 131, 120, 0.10), 'amber-soft': (163, 98, 11, 0.10)},
+}
+
+failures = 0
+for name, tokens in THEMES.items():
+    soft = SOFT[name]
+    cite_bg = blend(soft['signal-soft'], tokens['panel'])
+    badge_bg = blend(soft['amber-soft'], tokens['panel'])
+    pairs = [
+        ('body text', tokens['fg'], rgb(tokens['bg'])),
+        ('card text', tokens['fg'], rgb(tokens['panel'])),
+        ('card-2 text', tokens['fg'], rgb(tokens['panel-2'])),
+        ('muted on page', tokens['muted'], rgb(tokens['bg'])),
+        ('muted on card', tokens['muted'], rgb(tokens['panel'])),
+        ('muted on card-2', tokens['muted'], rgb(tokens['panel-2'])),
+        ('signal link on card', tokens['signal'], rgb(tokens['panel'])),
+        ('signal link on page', tokens['signal'], rgb(tokens['bg'])),
+        ('cite text on signal-soft', tokens['signal'], cite_bg),
+        ('button label (bg on signal)', tokens['bg'], rgb(tokens['signal'])),
+        ('amber badge on amber-soft', tokens['amber'], badge_bg),
+        ('amber border/text on card', tokens['amber'], rgb(tokens['panel'])),
+        ('popover quote', tokens['fg'], rgb(tokens['panel-2'])),
+        ('popover link', tokens['signal'], rgb(tokens['panel-2'])),
+    ]
+    print(f'theme: {name}')
+    print(f'  {"pair":<32} {"fg":<9} {"bg":<12} {"ratio":>6}  AA-4.5  AA-3.0')
+    print('  ' + '-' * 78)
+    for label, fg, bg_ in pairs:
+        value = ratio(rgb(fg) if isinstance(fg, str) else fg, rgb(bg_) if isinstance(bg_, str) else bg_)
+        ok_normal = value >= 4.5
+        ok_large = value >= 3.0
+        if not ok_normal:
+            failures += 1
+        print(f'  {label:<32} {fg if isinstance(fg, str) else "blend":<9} '
+              f'{bg_ if isinstance(bg_, str) else "blend":<12} {value:>6.2f}  '
+              f'{"PASS" if ok_normal else "FAIL":<7} {"PASS" if ok_large else "FAIL"}')
+    print()
+
+print(f'summary: {failures} pair(s) below AA 4.5 for normal text')
+EOF
+theme: dark
+  pair                             fg        bg            ratio  AA-4.5  AA-3.0
+  ------------------------------------------------------------------------------
+  body text                        #DCE7EE   blend         15.01  PASS    PASS
+  card text                        #DCE7EE   blend         14.01  PASS    PASS
+  card-2 text                      #DCE7EE   blend         13.04  PASS    PASS
+  muted on page                    #8DA1B0   blend          7.06  PASS    PASS
+  muted on card                    #8DA1B0   blend          6.59  PASS    PASS
+  muted on card-2                  #8DA1B0   blend          6.13  PASS    PASS
+  signal link on card              #4FD1C5   blend          9.44  PASS    PASS
+  signal link on page              #4FD1C5   blend         10.11  PASS    PASS
+  cite text on signal-soft         #4FD1C5   blend          7.44  PASS    PASS
+  button label (bg on signal)      #0A1219   blend         10.11  PASS    PASS
+  amber badge on amber-soft        #F2B04A   blend          7.23  PASS    PASS
+  amber border/text on card        #F2B04A   blend          9.30  PASS    PASS
+  popover quote                    #DCE7EE   blend         13.04  PASS    PASS
+  popover link                     #4FD1C5   blend          8.79  PASS    PASS
+
+theme: light
+  pair                             fg        bg            ratio  AA-4.5  AA-3.0
+  ------------------------------------------------------------------------------
+  body text                        #0E1B24   blend         15.52  PASS    PASS
+  card text                        #0E1B24   blend         17.49  PASS    PASS
+  card-2 text                      #0E1B24   blend         16.39  PASS    PASS
+  muted on page                    #526471   blend          5.45  PASS    PASS
+  muted on card                    #526471   blend          6.14  PASS    PASS
+  muted on card-2                  #526471   blend          5.75  PASS    PASS
+  signal link on card              #0B8378   blend          4.63  PASS    PASS
+  signal link on page              #0B8378   blend          4.11  FAIL    PASS
+  cite text on signal-soft         #0B8378   blend          4.08  FAIL    PASS
+  button label (bg on signal)      #EEF2F4   blend          4.11  FAIL    PASS
+  amber badge on amber-soft        #A3620B   blend          4.27  FAIL    PASS
+  amber border/text on card        #A3620B   blend          4.87  PASS    PASS
+  popover quote                    #0E1B24   blend         16.39  PASS    PASS
+  popover link                     #0B8378   blend          4.34  FAIL    PASS
+
+summary: 5 pair(s) below AA 4.5 for normal text
+> build · deepseek-v4.1-flash
+[0m$ [0mcd /home/capw/projects/grounded-rag && .venv/bin/python - <<'EOF'
+import colorsys
+
+def rgb(h):
+    h=h.lstrip('#'); return tuple(int(h[i:i+2],16) for i in (0,2,4))
+def hexs(c): return '#%02X%02X%02X' % tuple(round(v) for v in c)
+def blend(fg_rgba, hexbg):
+    r,g,b,a=fg_rgba; br,bg_,bb=rgb(hexbg)
+    return tuple(round(c*a+back*(1-a)) for c,back in ((r,br),(g,bg_),(b,bb)))
+def lum(color):
+    def ch(v):
+        c=v/255; return c/12.92 if c<=0.03928 else ((c+0.055)/1.055)**2.4
+    r,g,b=(ch(v) for v in color); return 0.2126*r+0.7152*g+0.0722*b
+def ratio(a,b):
+    la,lb=lum(a),lum(b); hi,lo=max(la,lb),min(la,lb); return (hi+0.05)/(lo+0.05)
+
+BG='#EEF2F4'; PANEL='#FFFFFF'; PANEL2='#F5F8F9'
+def darker(start, targets, floor=4.55):
+    r,g,b=[v/255 for v in rgb(start)]
+    h,l,s=colorsys.rgb_to_hls(r,g,b)
+    step=1.0
+    while step>0:
+        cand=colorsys.hls_to_rgb(h, l*step, s)
+        c=tuple(round(v*255) for v in cand)
+        if all(ratio(c, t) >= floor for t in targets):
+            return hexs(c), step
+        step-=0.005
+    return None, None
+
+signal_soft=(11,131,120,0.10)
+amber_soft=(163,98,11,0.10)
+sig_targets=[rgb(BG), rgb(PANEL2), rgb(PANEL2)]
+sig, step = darker('#0B8378', [rgb(BG), rgb(PANEL2), blend(signal_soft, PANEL)], floor=4.6)
+amb, step2 = darker('#A3620B', [blend(amber_soft, PANEL), rgb(PANEL), rgb(PANEL2)], floor=4.6)
+print('signal light ->', sig, 'scale', round(step,3))
+print('amber  light ->', amb, 'scale', round(step2,3))
+for label, c, bg in [('signal/bg',sig,BG),('signal/panel2',sig,PANEL2),('signal/panel',sig,PANEL),
+                     ('cite on signal-soft',sig,hexs(blend(signal_soft,PANEL))),
+                     ('button label',BG,sig),
+                     ('amber on amber-soft',amb,hexs(blend(amber_soft,PANEL))),
+                     ('amber/panel',amb,PANEL),('amber/panel2',amb,PANEL2)]:
+    print(f'{label:<24} {c} on {bg if isinstance(bg,str) else hexs(bg)}  {ratio(rgb(c),rgb(bg) if isinstance(bg,str) else bg):.2f}')
+EOF
+signal light -> #0A796F scale 0.925
+amber  light -> #9B5D0A scale 0.95
+signal/bg                #0A796F on #EEF2F4  4.69
+signal/panel2            #0A796F on #F5F8F9  4.95
+signal/panel             #0A796F on #FFFFFF  5.28
+cite on signal-soft      #0A796F on #E7F3F2  4.65
+button label             #EEF2F4 on #0A796F  4.69
+amber on amber-soft      #9B5D0A on #F6EFE7  4.65
+amber/panel              #9B5D0A on #FFFFFF  5.30
+amber/panel2             #9B5D0A on #F5F8F9  4.96
+> build · deepseek-v4.1-flash
+[0m$ [0mcd /home/capw/projects/grounded-rag && python3 - <<'EOF'
+import pathlib
+p = pathlib.Path('web/app.css')
+text = p.read_text()
+old_media = "@media (prefers-color-scheme:light){:root:not([data-theme=\"dark\"]){--bg:#EEF2F4;--panel:#FFFFFF;--panel-2:#F5F8F9;--line:#D3DDE3;--fg:#0E1B24;--muted:#526471;--signal:#0B8378;--signal-soft:rgba(11,131,120,.10);--amber:#A3620B;--amber-soft:rgba(163,98,11,.10);--shadow:0 14px 30px rgba(14,27,36,.14);color-scheme:light}}"
+new_media = "@media (prefers-color-scheme:light){:root:not([data-theme=\"dark\"]){--bg:#EEF2F4;--panel:#FFFFFF;--panel-2:#F5F8F9;--line:#D3DDE3;--fg:#0E1B24;--muted:#526471;--signal:#0A796F;--signal-soft:rgba(10,121,111,.10);--amber:#9B5D0A;--amber-soft:rgba(155,93,10,.10);--shadow:0 14px 30px rgba(14,27,36,.14);color-scheme:light}}"
+assert old_media in text
+text = text.replace(old_media, new_media)
+old_root = ':root[data-theme="light"]{--bg:#EEF2F4;--panel:#FFFFFF;--panel-2:#F5F8F9;--line:#D3DDE3;--fg:#0E1B24;--muted:#526471;--signal:#0B8378;--signal-soft:rgba(11,131,120,.10);--amber:#A3620B;--amber-soft:rgba(163,98,11,.10);--shadow:0 14px 30px rgba(14,27,36,.14);color-scheme:light}'
+new_root = ':root[data-theme="light"]{--bg:#EEF2F4;--panel:#FFFFFF;--panel-2:#F5F8F9;--line:#D3DDE3;--fg:#0E1B24;--muted:#526471;--signal:#0A796F;--signal-soft:rgba(10,121,111,.10);--amber:#9B5D0A;--amber-soft:rgba(155,93,10,.10);--shadow:0 14px 30px rgba(14,27,36,.14);color-scheme:light}'
+assert old_root in text
+text = text.replace(old_root, new_root)
+p.write_text(text)
+print('css updated')
+EOF
+css updated
+> build · deepseek-v4.1-flash
+[0m$ [0mcd /home/capw/projects/grounded-rag && .venv/bin/python - <<'EOF' 2>&1 | tee patches/opencode/diag/f3-contrast.log
+"""WCAG 2.1 contrast ratios for the pairs actually used in web/app.css."""
+def rgb(hexcode):
+    h = hexcode.lstrip('#')
+    return tuple(int(h[i:i+2], 16) for i in (0, 2, 4))
+
+def blend(fg_rgba, hexbg):
+    r, g, b, a = fg_rgba
+    br, bg_, bb = rgb(hexbg)
+    return tuple(round(c * a + back * (1 - a)) for c, back in ((r, br), (g, bg_), (b, bb)))
+
+def luminance(color):
+    def channel(value):
+        c = value / 255
+        return c / 12.92 if c <= 0.03928 else ((c + 0.055) / 1.055) ** 2.4
+    r, g, b = (channel(v) for v in color)
+    return 0.2126 * r + 0.7152 * g + 0.0722 * b
+
+def ratio(a, b):
+    la, lb = luminance(a), luminance(b)
+    high, low = max(la, lb), min(la, lb)
+    return (high + 0.05) / (low + 0.05)
+
+THEMES = {
+    'dark': {
+        'bg': '#0A1219', 'panel': '#0F1A23', 'panel-2': '#13212C', 'line': '#1F3240',
+        'fg': '#DCE7EE', 'muted': '#8DA1B0', 'signal': '#4FD1C5', 'amber': '#F2B04A',
+    },
+    'light': {
+        'bg': '#EEF2F4', 'panel': '#FFFFFF', 'panel-2': '#F5F8F9', 'line': '#D3DDE3',
+        'fg': '#0E1B24', 'muted': '#526471', 'signal': '#0A796F', 'amber': '#9B5D0A',
+    },
+}
+SOFT = {
+    'dark': {'signal-soft': (79, 209, 197, 0.12), 'amber-soft': (242, 176, 74, 0.13)},
+    'light': {'signal-soft': (10, 121, 111, 0.10), 'amber-soft': (155, 93, 10, 0.10)},
+}
+
+failures = 0
+for name, tokens in THEMES.items():
+    soft = SOFT[name]
+    cite_bg = blend(soft['signal-soft'], tokens['panel'])
+    badge_bg = blend(soft['amber-soft'], tokens['panel'])
+    pairs = [
+        ('body text on page', tokens['fg'], tokens['bg']),
+        ('card text on panel', tokens['fg'], tokens['panel']),
+        ('text on panel-2', tokens['fg'], tokens['panel-2']),
+        ('muted on page', tokens['muted'], tokens['bg']),
+        ('muted on card', tokens['muted'], tokens['panel']),
+        ('muted on card-2', tokens['muted'], tokens['panel-2']),
+        ('signal link on card', tokens['signal'], tokens['panel']),
+        ('signal link on page', tokens['signal'], tokens['bg']),
+        ('cite text on signal-soft', tokens['signal'], cite_bg),
+        ('button label (page on signal)', tokens['bg'], tokens['signal']),
+        ('amber badge on amber-soft', tokens['amber'], badge_bg),
+        ('amber text on card', tokens['amber'], tokens['panel']),
+        ('popover quote on panel-2', tokens['fg'], tokens['panel-2']),
+        ('popover link on panel-2', tokens['signal'], tokens['panel-2']),
+    ]
+    print(f'theme: {name}')
+    print(f'  {"pair":<34} {"fg":<9} {"bg":<9} {"ratio":>6}  AA-4.5  AA-3.0')
+    print('  ' + '-' * 76)
+    for label, fg, bg_ in pairs:
+        fg_rgb = rgb(fg) if isinstance(fg, str) else fg
+        bg_rgb = rgb(bg_) if isinstance(bg_, str) else bg_
+        value = ratio(fg_rgb, bg_rgb)
+        ok_normal = value >= 4.5
+        ok_large = value >= 3.0
+        if not ok_normal:
+            failures += 1
+        print(f'  {label:<34} {fg if isinstance(fg, str) else "blend":<9} '
+              f'{bg_ if isinstance(bg_, str) else "blend":<9} {value:>6.2f}  '
+              f'{"PASS" if ok_normal else "FAIL":<7} {"PASS" if ok_large else "FAIL"}')
+    print()
+
+print(f'summary: {failures} pair(s) below AA 4.5 for normal text')
+EOF
+theme: dark
+  pair                               fg        bg         ratio  AA-4.5  AA-3.0
+  ----------------------------------------------------------------------------
+  body text on page                  #DCE7EE   #0A1219    15.01  PASS    PASS
+  card text on panel                 #DCE7EE   #0F1A23    14.01  PASS    PASS
+  text on panel-2                    #DCE7EE   #13212C    13.04  PASS    PASS
+  muted on page                      #8DA1B0   #0A1219     7.06  PASS    PASS
+  muted on card                      #8DA1B0   #0F1A23     6.59  PASS    PASS
+  muted on card-2                    #8DA1B0   #13212C     6.13  PASS    PASS
+  signal link on card                #4FD1C5   #0F1A23     9.44  PASS    PASS
+  signal link on page                #4FD1C5   #0A1219    10.11  PASS    PASS
+  cite text on signal-soft           #4FD1C5   blend       7.44  PASS    PASS
+  button label (page on signal)      #0A1219   #4FD1C5    10.11  PASS    PASS
+  amber badge on amber-soft          #F2B04A   blend       7.23  PASS    PASS
+  amber text on card                 #F2B04A   #0F1A23     9.30  PASS    PASS
+  popover quote on panel-2           #DCE7EE   #13212C    13.04  PASS    PASS
+  popover link on panel-2            #4FD1C5   #13212C     8.79  PASS    PASS
+
+theme: light
+  pair                               fg        bg         ratio  AA-4.5  AA-3.0
+  ----------------------------------------------------------------------------
+  body text on page                  #0E1B24   #EEF2F4    15.52  PASS    PASS
+  card text on panel                 #0E1B24   #FFFFFF    17.49  PASS    PASS
+  text on panel-2                    #0E1B24   #F5F8F9    16.39  PASS    PASS
+  muted on page                      #526471   #EEF2F4     5.45  PASS    PASS
+  muted on card                      #526471   #FFFFFF     6.14  PASS    PASS
+  muted on card-2                    #526471   #F5F8F9     5.75  PASS    PASS
+  signal link on card                #0A796F   #FFFFFF     5.28  PASS    PASS
+  signal link on page                #0A796F   #EEF2F4     4.69  PASS    PASS
+  cite text on signal-soft           #0A796F   blend       4.61  PASS    PASS
+  button label (page on signal)      #EEF2F4   #0A796F     4.69  PASS    PASS
+  amber badge on amber-soft          #9B5D0A   blend       4.63  PASS    PASS
+  amber text on card                 #9B5D0A   #FFFFFF     5.30  PASS    PASS
+  popover quote on panel-2           #0E1B24   #F5F8F9    16.39  PASS    PASS
+  popover link on panel-2            #0A796F   #F5F8F9     4.95  PASS    PASS
+
+summary: 0 pair(s) below AA 4.5 for normal text
+> build · deepseek-v4.1-flash
+[0m$ [0mcd /home/capw/projects/grounded-rag && free -m | sed -n 1,2p && mkdir -p /tmp/opencode && nohup env GROUNDED_RAG_GENERATION=off GROUNDED_RAG_IP_SALT=f3 .venv/bin/python -m app --port 8792 > patches/opencode/diag/f3-app.log 2>&1 & echo $! > /tmp/opencode/f3-app.pid; sleep 8; cat /tmp/opencode/f3-app.pid; curl -s -i http://127.0.0.1:8792/api/health | head -12
+total        used        free      shared  buff/cache   available
+Mem:            5924        3567         518         255        2397        2356
+990031
+HTTP/1.1 200 OK
+date: Thu, 29 Oct 2026 01:47:16 GMT
+server: uvicorn
+content-length: 57
+content-type: application/json
+content-security-policy: default-src 'self'; style-src 'self' https://fonts.googleapis.com; font-src https://fonts.gstatic.com; img-src 'self' data:; connect-src 'self'; frame-ancestors 'none'; base-uri 'none'
+x-content-type-options: nosniff
+referrer-policy: no-referrer
+
+{"status":"ok","generation":false,"llm_configured":false}
+> build · deepseek-v4.1-flash
+[0m$ [0mcd /home/capw/projects/grounded-rag && .venv/bin/python - <<'EOF'
+import json
+rows=[json.loads(l) for l in open('data/chunks.jsonl')]
+url='https://www.postgresql.org/docs/17/sql-createindex.html'
+hits=[r for r in rows if r['url'].startswith(url)]
+print(len(hits))
+for r in hits[:5]:
+    print('---', r['chunk_id'], '|', r['page_title'], '|', r['url'])
+    print(' '.join(r['text'].split())[:600])
+EOF
+10
+Traceback (most recent call last):
+  File "<stdin>", line 7, in <module>
+KeyError: 'chunk_id'
+> build · deepseek-v4.1-flash
+[0m$ [0mcd /home/capw/projects/grounded-rag && .venv/bin/python - <<'EOF'
+import json
+rows=[json.loads(l) for l in open('data/chunks.jsonl')]
+print(list(rows[0].keys()))
+hits=[r for r in rows if r['url'].startswith('https://www.postgresql.org/docs/17/sql-createindex.html')]
+for r in hits[:3]:
+    print('---', r.get('id'), '|', r['page_title'], '|', r['url'])
+    print(' '.join(r['text'].split())[:700])
+EOF
+['id', 'page_file', 'page_title', 'section_path', 'anchor', 'url', 'text', 'n_words']
+--- sql-createindex.html#id-1.9.3.69.5#0 | CREATE INDEX | https://www.postgresql.org/docs/17/sql-createindex.html#id-1.9.3.69.5
+CREATE INDEX constructs an index on the specified column(s) of the specified relation, which can be a table or a materialized view. Indexes are primarily used to enhance database performance (though inappropriate use can result in slower performance). The key field(s) for the index are specified as column names, or alternatively as expressions written in parentheses. Multiple fields can be specified if the index method supports multicolumn indexes. An index field can be an expression computed from the values of one or more columns of the table row. This feature can be used to obtain fast access to data based on some transformation of the basic data. For example, an index computed on upper(co
+--- sql-createindex.html#id-1.9.3.69.6#0 | CREATE INDEX | https://www.postgresql.org/docs/17/sql-createindex.html#id-1.9.3.69.6
+UNIQUE Causes the system to check for duplicate values in the table when the index is created (if data already exist) and each time data is added. Attempts to insert or update data which would result in duplicate entries will generate an error. Additional restrictions apply when unique indexes are applied to partitioned tables; see CREATE TABLE . CONCURRENTLY When this option is used, PostgreSQL will build the index without taking any locks that prevent concurrent inserts, updates, or deletes on the table; whereas a standard index build locks out writes (but not reads) on the table until it's done. There are several caveats to be aware of when using this option — see Building Indexes Concurr
+--- sql-createindex.html#id-1.9.3.69.6#1 | CREATE INDEX | https://www.postgresql.org/docs/17/sql-createindex.html#id-1.9.3.69.6
+An expression based on one or more columns of the table. The expression usually must be written with surrounding parentheses, as shown in the syntax. However, the parentheses can be omitted if the expression has the form of a function call. collation The name of the collation to use for the index. By default, the index uses the collation declared for the column to be indexed or the result collation of the expression to be indexed. Indexes with non-default collations can be useful for queries that involve expressions using non-default collations. opclass The name of an operator class. See below for details. opclass_parameter The name of an operator class parameter. See below for details. ASC
+> build · deepseek-v4.1-flash
+[0m← [0mWrite /tmp/opencode/f3-shots.js
+Created file successfully: /tmp/opencode/f3-shots.js
+> build · deepseek-v4.1-flash
+[0m$ [0mcd /tmp/opencode && node f3-shots.js 2>&1 | tail -60
+== desktop 1366x900, dark, ?lang=en, English example
+page state: {"lang":"en","theme":null,"background":"rgb(10, 18, 25)","foreground":"rgb(220, 231, 238)","banner":"Recorded mode: the live model is not available. Answers come from the recorded set.","themeLabel":"Theme: dark","subtitle":"Answers from the PostgreSQL 17 docs, with verifiable citations"}
+result: {"badge":"Recorded answer (no live model)","resultClass":"result abstain","heading":"Answer","sources":8,"bodyText":"Answer RECORDED ANSWER (NO LIVE MODEL) Live generation is unavailable: these are the sources that would be retrieved Closest match 1 CREATE INDEX https://www.postgresql.org/docs/17/sql-createindex.html#SQL-CREATEINDEX-CO"}
+screenshot: f3-desktop.png ({"w":1366,"h":900})
+console errors: 0
+failed requests (fonts included): 0
+
+== mobile 360x780, light, ?lang=es, Spanish example, full page
+page state: {"lang":"es","theme":null,"background":"rgb(238, 242, 244)","banner":"Modo grabado: el modelo en vivo no está disponible. Las respuestas salen del conjunto grabado.","themeLabel":"Tema: claro","subtitle":"Respuestas desde la documentación de PostgreSQL 17, con citas verificables"}
+widths at 360: {"innerWidth":360,"documentScrollWidth":360,"bodyScrollWidth":360,"documentClientWidth":360,"gutter":"16px"}
+horizontal scroll: no
+screenshot: f3-mobile.png (full page {"width":360,"height":2702})
+console errors: 0
+failed requests (fonts included): 0
+
+== desktop 1366x900, dark: recorded unanswerable question (u01)
+result: {"resultClass":"result abstain","border":"rgb(242, 176, 74) 2px","badge":"Recorded answer (no live model)","text":"Answer RECORDED ANSWER (NO LIVE MODEL) Live generation is unavailable: these are the sources that would be retrieved Closest match 1 19.17. Developer Options https://www.postgresql.org/docs/17/runtime-config-developer.html#RUNTIME-CONFIG-DEVELOPER 2 27.2. The ","sources":8}
+screenshot: f3-abstain.png (1366x900)
+console errors: 0
+
+== citations: staged /api/ask (no real generation report on this box)
+citation buttons rendered: 3
+click [1]: {"open":true,"expanded":"true","visible":true,"text":"When this option is used, PostgreSQL will build the index without taking any locks that prevent concurrent inserts, upda","linkrel":"noopener","linktarget":"_blank"}
+screenshot: f3-citation.png (staged answer, popover open)
+Escape: {"open":0,"focusIsCite":true,"expanded":"false"}
+keyboard focus on [4] shows the popover: true
+FAILED: page.hover: Timeout 30000ms exceeded.
+Call log:
+[2m  - waiting for locator('#result .cites .cite-wrap:nth-child(3) .cite')[22m
+
+    at /tmp/opencode/f3-shots.js:216:23
+> build · deepseek-v4.1-flash
+[0m← [0mEdit /tmp/opencode/f3-shots.js
+Index: /tmp/opencode/f3-shots.js
+===================================================================
+--- /tmp/opencode/f3-shots.js
++++ /tmp/opencode/f3-shots.js
+@@ -212,12 +212,13 @@
+     return { visible: getComputedStyle(popover).display !== 'none' };
+   });
+   log('keyboard focus on [4] shows the popover: ' + focusState.visible);
+ 
+-  await citation.page.hover('#result .cites .cite-wrap:nth-child(3) .cite');
++  const wrapHandles = await citation.page.$$('#result .cite-wrap');
++  await wrapHandles[2].hover();
+   const hoverState = await citation.page.evaluate(() => {
+-    const wrap = document.querySelectorAll('.cite-wrap')[2];
+-    return { visible: getComputedStyle(wrap.querySelector('.popover')).display !== 'none' };
++    const wraps = document.querySelectorAll('.cite-wrap');
++    return { visible: getComputedStyle(wraps[2].querySelector('.popover')).display !== 'none' };
+   });
+   log('hover on the third citation shows the popover: ' + hoverState.visible);
+ 
+   // popover geometry at 360 px
+
+> build · deepseek-v4.1-flash
+[0m$ [0mcd /tmp/opencode && node f3-shots.js 2>&1 | tail -40
+== desktop 1366x900, dark, ?lang=en, English example
+page state: {"lang":"en","theme":null,"background":"rgb(10, 18, 25)","foreground":"rgb(220, 231, 238)","banner":"Recorded mode: the live model is not available. Answers come from the recorded set.","themeLabel":"Theme: dark","subtitle":"Answers from the PostgreSQL 17 docs, with verifiable citations"}
+result: {"badge":"Recorded answer (no live model)","resultClass":"result abstain","heading":"Answer","sources":8,"bodyText":"Answer RECORDED ANSWER (NO LIVE MODEL) Live generation is unavailable: these are the sources that would be retrieved Closest match 1 CREATE INDEX https://www.postgresql.org/docs/17/sql-createindex.html#SQL-CREATEINDEX-CO"}
+screenshot: f3-desktop.png ({"w":1366,"h":900})
+console errors: 0
+failed requests (fonts included): 0
+
+== mobile 360x780, light, ?lang=es, Spanish example, full page
+page state: {"lang":"es","theme":null,"background":"rgb(238, 242, 244)","banner":"Modo grabado: el modelo en vivo no está disponible. Las respuestas salen del conjunto grabado.","themeLabel":"Tema: claro","subtitle":"Respuestas desde la documentación de PostgreSQL 17, con citas verificables"}
+widths at 360: {"innerWidth":360,"documentScrollWidth":360,"bodyScrollWidth":360,"documentClientWidth":360,"gutter":"16px"}
+horizontal scroll: no
+screenshot: f3-mobile.png (full page {"width":360,"height":2702})
+console errors: 0
+failed requests (fonts included): 0
+
+== desktop 1366x900, dark: recorded unanswerable question (u01)
+result: {"resultClass":"result abstain","border":"rgb(242, 176, 74) 2px","badge":"Recorded answer (no live model)","text":"Answer RECORDED ANSWER (NO LIVE MODEL) Live generation is unavailable: these are the sources that would be retrieved Closest match 1 19.17. Developer Options https://www.postgresql.org/docs/17/runtime-config-developer.html#RUNTIME-CONFIG-DEVELOPER 2 27.2. The ","sources":8}
+screenshot: f3-abstain.png (1366x900)
+console errors: 0
+
+== citations: staged /api/ask (no real generation report on this box)
+citation buttons rendered: 3
+click [1]: {"open":true,"expanded":"true","visible":true,"text":"When this option is used, PostgreSQL will build the index without taking any locks that prevent concurrent inserts, upda","linkrel":"noopener","linktarget":"_blank"}
+screenshot: f3-citation.png (staged answer, popover open)
+Escape: {"open":0,"focusIsCite":true,"expanded":"false"}
+keyboard focus on [4] shows the popover: true
+hover on the third citation shows the popover: true
+popover at 360 px: {"left":31,"right":329,"width":298,"innerWidth":360,"documentScrollWidth":987,"insideViewport":true}
+console errors: 0
+
+== summary
+console errors across all pages: 0
+horizontal scroll at 360 px: no
+
+log written to /home/capw/projects/grounded-rag/patches/opencode/diag/f3-browser.log
+> build · deepseek-v4.1-flash
+[0m$ [0mcd /tmp/opencode && cat > probe.js <<'EOF'
+const { chromium } = require('/home/capw/tmp/playwright-check/node_modules/playwright');
+const QUOTE = 'When this option is used, PostgreSQL will build the index without taking any locks that prevent concurrent inserts, updates, or deletes on the table';
+const staged = {abstain:false, sentences:[
+  {text:'CREATE INDEX CONCURRENTLY builds the index without blocking writes on the table.', citations:[{n:1,quote:QUOTE}]},
+  {text:'BRIN is a small index that suits very large, naturally ordered tables.', citations:[{n:4,quote:QUOTE},{n:1,quote:QUOTE}]}],
+  sources:[{n:1,url:'https://www.postgresql.org/docs/17/sql-createindex.html#SQL-CREATEINDEX-CONCURRENTLY',title:'CREATE INDEX'},
+           {n:4,url:'https://www.postgresql.org/docs/17/brin.html#BRIN-INTRO',title:'11.4. BRIN Indexes'}]};
+(async () => {
+  const browser = await chromium.launch();
+  const ctx = await browser.newContext({viewport:{width:1366,height:900}, colorScheme:'dark'});
+  await ctx.route('**/api/ask', r => r.fulfill({status:200, contentType:'application/json', body: JSON.stringify(staged)}));
+  const page = await ctx.newPage();
+  await page.setViewportSize({width:360,height:780});
+  await page.goto('http://127.0.0.1:8792/?lang=en', {waitUntil:'networkidle'});
+  await page.fill('#question','How do I build an index without blocking writes on the table?');
+  await page.press('#question','Enter');
+  await page.waitForSelector('#result .card');
+  await page.waitForTimeout(500);
+  const before = await page.evaluate(() => document.documentElement.scrollWidth);
+  const wide = await page.evaluate(() => Array.from(document.querySelectorAll('*')).filter(n => n.getBoundingClientRect().right > window.innerWidth + 1).map(n => ({tag:n.tagName, cls:n.className, right:Math.round(n.getBoundingClientRect().right), w:Math.round(n.getBoundingClientRect().width)})).slice(0,12));
+  console.log('scrollWidth before popover:', before, 'innerWidth', await page.evaluate(()=>window.innerWidth));
+  console.log(JSON.stringify(wide, null, 1));
+  const cites = await page.$$('#result .cite');
+  await cites[cites.length-1].click();
+  await page.waitForTimeout(200);
+  const after = await page.evaluate(() => document.documentElement.scrollWidth);
+  const wide2 = await page.evaluate(() => Array.from(document.querySelectorAll('*')).filter(n => n.getBoundingClientRect().right > window.innerWidth + 1).map(n => ({tag:n.tagName, cls:n.className, right:Math.round(n.getBoundingClientRect().right), w:Math.round(n.getBoundingClientRect().width)})).slice(0,12));
+  console.log('scrollWidth after popover:', after);
+  console.log(JSON.stringify(wide2, null, 1));
+  await browser.close();
+})();
+EOF
+node probe.js 2>&1 | tail -40
+scrollWidth before popover: 360 innerWidth 360
+[]
+scrollWidth after popover: 987
+[]
+> build · deepseek-v4.1-flash
+[0m← [0mEdit web/app.css
+Index: web/app.css
+===================================================================
+--- web/app.css
++++ web/app.css
+@@ -84,9 +84,9 @@
+ .cites{margin-left:2px;white-space:nowrap}
+ .cite{font-family:var(--mono);font-size:11px;line-height:1.4;background:var(--signal-soft);color:var(--signal);border:1px solid var(--line);border-radius:2px;padding:1px 5px;margin-left:3px;cursor:pointer}
+ .cite:hover{border-color:var(--signal)}
+ .cite[aria-expanded="true"]{background:var(--signal);color:var(--bg)}
+-.popover{display:none;position:absolute;left:0;top:calc(100% + 2px);z-index:30;width:min(420px,100%);background:var(--panel-2);border:1px solid var(--line);border-left:2px solid var(--signal);border-radius:3px;padding:12px 14px;box-shadow:var(--shadow)}
++.popover{display:none;position:absolute;left:0;top:calc(100% + 2px);z-index:30;width:min(420px,100%);white-space:normal;background:var(--panel-2);border:1px solid var(--line);border-left:2px solid var(--signal);border-radius:3px;padding:12px 14px;box-shadow:var(--shadow)}
+ .cite-wrap:hover .popover,.cite-wrap:focus-within .popover,.cite-wrap.is-open .popover{display:block}
+ .quote{display:block;font-size:14px;font-style:italic;overflow-wrap:anywhere}
+ .pop-title{display:block;margin-top:8px;font-family:var(--mono);font-size:10.5px;color:var(--muted);overflow-wrap:anywhere}
+ .pop-link{display:block;margin-top:4px;font-family:var(--mono);font-size:10.5px;color:var(--signal);text-decoration:none;overflow-wrap:anywhere}
+
+> build · deepseek-v4.1-flash
+[0m$ [0mcd /tmp/opencode && node probe.js 2>&1 | tail -8
+scrollWidth before popover: 360 innerWidth 360
+[]
+scrollWidth after popover: 360
+[]
+> build · deepseek-v4.1-flash
+[0m$ [0mcd /tmp/opencode && node f3-shots.js 2>&1 | tail -22 && ls -la /home/capw/projects/grounded-rag/patches/opencode/diag/f3-*.png
+failed requests (fonts included): 0
+
+== desktop 1366x900, dark: recorded unanswerable question (u01)
+result: {"resultClass":"result abstain","border":"rgb(242, 176, 74) 2px","badge":"Recorded answer (no live model)","text":"Answer RECORDED ANSWER (NO LIVE MODEL) Live generation is unavailable: these are the sources that would be retrieved Closest match 1 19.17. Developer Options https://www.postgresql.org/docs/17/runtime-config-developer.html#RUNTIME-CONFIG-DEVELOPER 2 27.2. The ","sources":8}
+screenshot: f3-abstain.png (1366x900)
+console errors: 0
+
+== citations: staged /api/ask (no real generation report on this box)
+citation buttons rendered: 3
+click [1]: {"open":true,"expanded":"true","visible":true,"text":"When this option is used, PostgreSQL will build the index without taking any locks that prevent concurrent inserts, upda","linkrel":"noopener","linktarget":"_blank"}
+screenshot: f3-citation.png (staged answer, popover open)
+Escape: {"open":0,"focusIsCite":true,"expanded":"false"}
+keyboard focus on [4] shows the popover: true
+hover on the third citation shows the popover: true
+popover at 360 px: {"left":31,"right":329,"width":298,"innerWidth":360,"documentScrollWidth":360,"insideViewport":true}
+console errors: 0
+
+== summary
+console errors across all pages: 0
+horizontal scroll at 360 px: no
+
+log written to /home/capw/projects/grounded-rag/patches/opencode/diag/f3-browser.log
+-rw-rw-r-- 1 capw capw  83551 Oct 28 22:49 /home/capw/projects/grounded-rag/patches/opencode/diag/f3-abstain.png
+-rw-rw-r-- 1 capw capw  91222 Oct 28 22:49 /home/capw/projects/grounded-rag/patches/opencode/diag/f3-citation.png
+-rw-rw-r-- 1 capw capw  82575 Oct 28 22:49 /home/capw/projects/grounded-rag/patches/opencode/diag/f3-desktop.png
+-rw-rw-r-- 1 capw capw 177170 Oct 28 22:49 /home/capw/projects/grounded-rag/patches/opencode/diag/f3-mobile.png
+> build · deepseek-v4.1-flash
+[0m→ [0mRead patches/opencode/diag/f3-desktop.png 
+> build · deepseek-v4.1-flash
+[0m→ [0mRead patches/opencode/diag/f3-mobile.png 
+> build · deepseek-v4.1-flash
+[0m← [0mEdit web/app.js
+Index: web/app.js
+===================================================================
+--- web/app.js
++++ web/app.js
+@@ -558,17 +558,20 @@
+     else if (last.kind === 'error') renderError(last.message);
+   }
+ 
+   // --------------------------------------------------------------- metrics
+-  function metricRow(term, value) {
+-    return el('div', null, el('dt', null, term), el('dd', null, value));
++  function metricRow(list, term, value) {
++    list.appendChild(el('dt', null, term));
++    list.appendChild(el('dd', null, value));
+   }
+ 
+-  function metricBlock(title, rows, note, pending) {
++  function metricBlock(title, rows, notes, pending) {
+     var dl = el('dl');
+-    rows.forEach(function (row) { dl.appendChild(metricRow(row[0], row[1])); });
++    rows.forEach(function (row) { metricRow(dl, row[0], row[1]); });
+     var block = el('div', { class: 'metric' + (pending ? ' pending' : '') }, el('h3', null, title), dl);
+-    if (note) block.appendChild(el('p', { class: 'note' }, note));
++    (notes || []).forEach(function (note) {
++      if (note) block.appendChild(el('p', { class: 'note' }, note));
++    });
+     return block;
+   }
+ 
+   function langLabel(lang) {
+
+> build · deepseek-v4.1-flash
+[0m← [0mEdit web/app.js
+Index: web/app.js
+===================================================================
+--- web/app.js
++++ web/app.js
+@@ -595,17 +595,18 @@
+       var retrieval = data.retrieval;
+       var rows = [
+         [t('metrics.recall'), number(retrieval['recall@5'])],
+         [t('metrics.mrr'), number(retrieval['mrr@8'])],
+-        [t('metrics.questions'), number(retrieval.questions) + ' · ' + number(retrieval.answerable) + ' ' + t('metrics.answerable')]
++        [t('metrics.questions'), number(retrieval.questions)],
++        [t('metrics.answerable'), number(retrieval.answerable)]
+       ];
+       var byLang = retrieval.by_lang || {};
+       Object.keys(byLang).sort().forEach(function (lang) {
+         var block = byLang[lang] || {};
+         rows.push([langLabel(lang) + ' · ' + t('metrics.recall'), number(block['recall@5'])]);
+         rows.push([langLabel(lang) + ' · ' + t('metrics.mrr'), number(block['mrr@8'])]);
+       });
+-      body.appendChild(metricBlock(t('metrics.retrieval'), rows, null, false));
++      body.appendChild(metricBlock(t('metrics.retrieval'), rows, [], false));
+     }
+ 
+     if (data && data.threshold) {
+       var threshold = data.threshold;
+@@ -614,9 +615,9 @@
+         [t('metrics.value'), number(threshold.value)],
+         [t('metrics.lost'), number(threshold.answerable_lost) + '/' + number(threshold.answerable_total)],
+         [t('metrics.abstained'), number(threshold.unanswerable_abstained) + '/' + number(threshold.unanswerable_total)]
+       ];
+-      body.appendChild(metricBlock(t('metrics.threshold'), thresholdRows, threshold.note ? t('metrics.bias') : null, false));
++      body.appendChild(metricBlock(t('metrics.threshold'), thresholdRows, [threshold.note ? t('metrics.bias') : null], false));
+     }
+ 
+     if (data && data.generation) {
+       var generation = data.generation;
+@@ -627,13 +628,11 @@
+           [t('metrics.abstRecall'), number(generation.abstention && generation.abstention.recall)],
+           [t('metrics.citations'), number(generation.citations && generation.citations.valid) + '/' + number(generation.citations && generation.citations.total)],
+           [t('metrics.retrievalMs'), number(generation.retrieval_ms && generation.retrieval_ms.median) + ' / ' + number(generation.retrieval_ms && generation.retrieval_ms.p95) + ' ms']
+         ];
+-        body.appendChild(metricBlock(t('metrics.generation'), generationRows, generation.report || null, false));
++        body.appendChild(metricBlock(t('metrics.generation'), generationRows, [generation.report], false));
+       } else {
+-        body.appendChild(metricBlock(t('metrics.generation'), [], t('metrics.pendingNote'), true));
+-        var pending = body.lastChild.querySelector('h3');
+-        if (pending) pending.appendChild(el('span', { class: 'note' }, ' — ' + t('metrics.pending')));
++        body.appendChild(metricBlock(t('metrics.generation'), [], [t('metrics.pending'), t('metrics.pendingNote')], true));
+       }
+     }
+   }
+ 
+
+> build · deepseek-v4.1-flash
+[0m← [0mEdit web/app.css
+Index: web/app.css
+===================================================================
+--- web/app.css
++++ web/app.css
+@@ -108,11 +108,12 @@
+ .metrics-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:12px;margin-top:14px;min-width:0}
+ .metric{min-width:0;padding:12px 14px;border:1px solid var(--line);border-radius:3px;background:var(--panel-2)}
+ .metric.pending{border-left:2px solid var(--amber)}
+ .metric h3{font-family:var(--mono);font-size:10.5px;font-weight:500;letter-spacing:.12em;text-transform:uppercase;color:var(--muted)}
+-.metric dl{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:4px 10px;margin:10px 0 0;font-size:13px}
++.metric dl{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,max-content);gap:4px 10px;margin:10px 0 0;font-size:13px}
++.metric dl:empty{display:none}
+ .metric dt{color:var(--muted);min-width:0;overflow-wrap:anywhere}
+-.metric dd{margin:0;font-family:var(--mono);font-size:12px;text-align:right}
++.metric dd{margin:0;font-family:var(--mono);font-size:12px;text-align:right;overflow-wrap:anywhere}
+ .metric .note{margin-top:10px;font-size:11.5px;color:var(--muted);overflow-wrap:anywhere}
+ .metric .sub{margin-top:10px;padding-top:8px;border-top:1px solid var(--line)}
+ 
+ .foot{border-top:1px solid var(--line);padding-block:14px 28px;margin-top:8px;color:var(--muted);font-size:11px}
+
+> build · deepseek-v4.1-flash
+[0m$ [0mcd /tmp/opencode && cat > metrics-shot.js <<'EOF'
+const { chromium } = require('/home/capw/tmp/playwright-check/node_modules/playwright');
+(async () => {
+  const browser = await chromium.launch();
+  for (const [name, opts] of [['metrics-desktop', {viewport:{width:1366,height:1400}, colorScheme:'dark'}], ['metrics-mobile', {viewport:{width:360,height:1200}, colorScheme:'light', isMobile:true}]]) {
+    const ctx = await browser.newContext(opts);
+    const page = await ctx.newPage();
+    await page.goto('http://127.0.0.1:8792/?lang=' + (name.includes('mobile') ? 'es' : 'en'), {waitUntil:'networkidle'});
+    await page.waitForTimeout(600);
+    const el = await page.$('#metrics');
+    await el.screenshot({path: '/tmp/opencode/' + name + '.png'});
+    const width = await page.evaluate(() => ({inner: window.innerWidth, scroll: document.documentElement.scrollWidth}));
+    console.log(name, JSON.stringify(width));
+    await ctx.close();
+  }
+  await browser.close();
+})();
+EOF
+node metrics-shot.js
+metrics-desktop {"inner":1366,"scroll":1366}
+metrics-mobile {"inner":360,"scroll":360}
+> build · deepseek-v4.1-flash
+[0m→ [0mRead /tmp/opencode/metrics-mobile.png 
+> build · deepseek-v4.1-flash
+[0m→ [0mRead /tmp/opencode/metrics-desktop.png 
+> build · deepseek-v4.1-flash
+[0m$ [0mcd /home/capw/projects/grounded-rag && curl -s http://127.0.0.1:8792/api/metrics | .venv/bin/python -m json.tool && .venv/bin/python - <<'EOF'
+import json
+rows=json.load(open('eval/reports/retrieval.json'))['rows']
+for lang in ('en','es'):
+    sel=[r for r in rows if r['lang']==lang and r['answerable'] and not r['excluded']]
+    hits=sum(1 for r in sel if r['hit_rank'] is not None and r['hit_rank']<=5)
+    rr=sum(1.0/r['hit_rank'] for r in sel if r['hit_rank'] is not None)
+    print(lang, 'n=',len(sel), 'recall@5=',round(hits/len(sel),4), 'mrr@8=',round(rr/len(sel),4))
+EOF
+{
+    "retrieval": {
+        "report": "retrieval.json",
+        "policy": "downweight",
+        "questions": 80,
+        "answerable": 50,
+        "unanswerable": 30,
+        "recall@5": 0.88,
+        "mrr@8": 0.7336,
+        "by_lang": {
+            "en": {
+                "questions": 25,
+                "recall@5": 0.92,
+                "mrr@8": 0.8048
+            },
+            "es": {
+                "questions": 25,
+                "recall@5": 0.84,
+                "mrr@8": 0.6624
+            }
+        }
+    },
+    "threshold": {
+        "signal": "vector_cosine",
+        "value": 0.820859,
+        "answerable_lost": 2,
+        "answerable_total": 50,
+        "unanswerable_abstained": 10,
+        "unanswerable_total": 30,
+        "calibrated_at": "2026-10-29T01:19:35Z",
+        "note": "calibrated on the same 80-question eval set used for reporting: optimistically biased"
+    },
+    "generation": {
+        "status": "pending",
+        "reason": "no_real_report",
+        "report": null,
+        "simulated_reports": 1
+    }
+}
+en n= 25 recall@5= 0.92 mrr@8= 0.8048
+es n= 25 recall@5= 0.84 mrr@8= 0.6624
+> build · deepseek-v4.1-flash
+[0m$ [0mcd /tmp/opencode && python3 - <<'PY'
+import pathlib, re
+p = pathlib.Path('f3-shots.js')
+s = p.read_text()
+
+staged_block = """  const staged = {
+    abstain: false,
+    sentences: [
+      {
+        text: 'CREATE INDEX CONCURRENTLY builds the index without blocking writes on the table.',
+        citations: [{ n: 1, quote: QUOTE_CONCURRENT }]
+      },
+      {
+        text: 'BRIN is a small index that suits very large, naturally ordered tables.',
+        citations: [
+          { n: 4, quote: QUOTE_BRIN },
+          { n: 1, quote: QUOTE_CONCURRENT }
+        ]
+      }
+    ],
+    sources: [
+      { n: 1, url: 'https://www.postgresql.org/docs/17/sql-createindex.html#SQL-CREATEINDEX-CONCURRENTLY', title: 'CREATE INDEX' },
+      { n: 4, url: 'https://www.postgresql.org/docs/17/brin.html#BRIN-INTRO', title: '11.4. BRIN Indexes' }
+    ]
+  };
+"""
+assert staged_block in s
+s = s.replace(staged_block, "")
+
+anchor = """  const browser = await chromium.launch();
+  const report = {};
+"""
+assert anchor in s
+s = s.replace(anchor, anchor + "\n" + staged_block.replace('\n  ', '\n  ').replace('  const staged', '  const staged', 1) + "\n")
+
+shift_block = """  log('page state: ' + describe(desktopState));
+"""
+new_shift = """  log('page state: ' + describe(desktopState));
+  await desktop.page.fill('#question', 'first line');
+  await desktop.page.press('#question', 'Shift+Enter');
+  await desktop.page.type('#question', 'second line');
+  const enterState = await desktop.page.evaluate(() => ({
+    value: document.getElementById('question').value,
+    counter: document.getElementById('counter').textContent,
+    ariaBusy: document.getElementById('result').getAttribute('aria-busy'),
+    resultHidden: document.getElementById('result').hidden
+  }));
+  log('Shift+Enter keeps a newline and does not submit: ' + describe(enterState));
+  await desktop.page.fill('#question', '');
+"""
+assert shift_block in s
+s = s.replace(shift_block, new_shift, 1)
+
+loading_section = """
+  // ---------------------------------------------------------------- loading
+  section('loading state (staged slow /api/ask)');
+  const loading = await openPage(browser, { viewport: { width: 1366, height: 900 }, colorScheme: 'dark' });
+  await loading.context.route('**/api/ask', async (route) => {
+    await new Promise((resolve) => setTimeout(resolve, 1500));
+    await route.fulfill({ status: 200, contentType: 'application/json', body: JSON.stringify(staged) });
+  });
+  await loading.page.goto(BASE + '/?lang=en', { waitUntil: 'networkidle' });
+  await loading.page.fill('#question', 'How do I build an index without blocking writes on the table?');
+  await loading.page.press('#question', 'Enter');
+  await loading.page.waitForSelector('#result .status');
+  const loadingState = await loading.page.evaluate(() => ({
+    ariaBusy: document.getElementById('result').getAttribute('aria-busy'),
+    status: document.querySelector('#result .status') ? document.querySelector('#result .status').innerText : null,
+    buttonDisabled: document.getElementById('ask-button').disabled
+  }));
+  log('while the request is in flight: ' + describe(loadingState));
+  await settle(loading.page);
+  const afterLoad = await loading.page.evaluate(() => ({
+    ariaBusy: document.getElementById('result').getAttribute('aria-busy'),
+    sentences: document.querySelectorAll('#result .sentence').length,
+    citations: document.querySelectorAll('#result .cite').length
+  }));
+  log('after the answer arrives: ' + describe(afterLoad));
+  report.loading = { consoleErrors: loading.consoleErrors };
+  log('console errors: ' + loading.consoleErrors.length + (loading.consoleErrors.length ? ' -> ' + JSON.stringify(loading.consoleErrors) : ''));
+
+  // ------------------------------------------- citations (staged response)
+"""
+marker = """
+  // ------------------------------------------- citations (staged response)
+"""
+assert marker in s
+s = s.replace(marker, loading_section, 1)
+
+# add loading console errors to the total
+s = s.replace("""    .concat(desktop.consoleErrors, mobile.consoleErrors, abstain.consoleErrors, citation.consoleErrors);""",
+              """    .concat(desktop.consoleErrors, mobile.consoleErrors, abstain.consoleErrors, loading.consoleErrors, citation.consoleErrors);""")
+p.write_text(s)
+print("patched")
+PY
+node --check f3-shots.js && echo OK
+patched
+OK
+> build · deepseek-v4.1-flash
+[0m$ [0mcd /tmp/opencode && node f3-shots.js 2>&1 | tail -34
+== desktop 1366x900, dark, ?lang=en, English example
+page state: {"lang":"en","theme":null,"background":"rgb(10, 18, 25)","foreground":"rgb(220, 231, 238)","banner":"Recorded mode: the live model is not available. Answers come from the recorded set.","themeLabel":"Theme: dark","subtitle":"Answers from the PostgreSQL 17 docs, with verifiable citations"}
+Shift+Enter keeps a newline and does not submit: {"value":"first line\nsecond line","counter":"22/500","ariaBusy":"false","resultHidden":true}
+result: {"badge":"Recorded answer (no live model)","resultClass":"result abstain","heading":"Answer","sources":8,"bodyText":"Answer RECORDED ANSWER (NO LIVE MODEL) Live generation is unavailable: these are the sources that would be retrieved Closest match 1 CREATE INDEX https://www.postgresql.org/docs/17/sql-createindex.html#SQL-CREATEINDEX-CO"}
+screenshot: f3-desktop.png ({"w":1366,"h":900})
+console errors: 0
+failed requests (fonts included): 0
+
+== mobile 360x780, light, ?lang=es, Spanish example, full page
+page state: {"lang":"es","theme":null,"background":"rgb(238, 242, 244)","banner":"Modo grabado: el modelo en vivo no está disponible. Las respuestas salen del conjunto grabado.","themeLabel":"Tema: claro","subtitle":"Respuestas desde la documentación de PostgreSQL 17, con citas verificables"}
+FAILED: page.waitForSelector: Timeout 30000ms exceeded.
+Call log:
+[2m  - waiting for locator('#result .sources') to be visible[22m
+
+    at /tmp/opencode/f3-shots.js:137:21
+> build · deepseek-v4.1-flash
+[0m$ [0mcd /home/capw/projects/grounded-rag && grep -c "429\|too many" patches/opencode/diag/f3-app.log || true; tail -5 patches/opencode/diag/f3-app.log; curl -s -o /dev/null -w '%{http_code}\n' -X POST http://127.0.0.1:8792/api/ask -H 'Content-Type: application/json' -d '{"question":"How do I build an index without blocking writes on the table?"}'
+1
+INFO:     127.0.0.1:50352 - "GET /app.js?v=1 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:50352 - "GET /api/health HTTP/1.1" 200 OK
+INFO:     127.0.0.1:50340 - "GET /recorded.json HTTP/1.1" 200 OK
+INFO:     127.0.0.1:50364 - "GET /api/metrics HTTP/1.1" 200 OK
+INFO:     127.0.0.1:50340 - "POST /api/ask HTTP/1.1" 429 Too Many Requests
+429
+> build · deepseek-v4.1-flash
+[0m$ [0mcd /home/capw/projects/grounded-rag && kill $(cat /tmp/opencode/f3-app.pid) 2>/dev/null; sleep 3; (ss -ltnp 2>/dev/null | grep 8792 || echo 'port 8792 free'); free -m | sed -n 2p
+LISTEN 0      2048       127.0.0.1:8792       0.0.0.0:*    users:(("python",pid=990036,fd=9))      
+Mem:            5924        4004         345         255        2129        1920
+> build · deepseek-v4.1-flash
+[0m$ [0mcd /home/capw/projects/grounded-rag && cat /tmp/opencode/f3-app.pid; ps -o pid,ppid,cmd -p 990031,990036 2>/dev/null; kill 990036 2>/dev/null; sleep 4; (ss -ltnp 2>/dev/null | grep 8792 || echo 'port 8792 free')
+990031
+    PID    PPID CMD
+ 990036       1 .venv/bin/python -m app --port 8792
+port 8792 free
+> build · deepseek-v4.1-flash
+[0m$ [0mcd /home/capw/projects/grounded-rag && rm -f patches/opencode/diag/f3-app.log && nohup env GROUNDED_RAG_GENERATION=off GROUNDED_RAG_IP_SALT=f3 .venv/bin/python -m app --port 8792 > patches/opencode/diag/f3-app.log 2>&1 & echo $! > /tmp/opencode/f3-app.pid; sleep 9; head -3 patches/opencode/diag/f3-app.log; curl -s http://127.0.0.1:8792/api/health; echo; cd /tmp/opencode && node f3-shots.js 2>&1 | tail -30
+serving on http://127.0.0.1:8792 (generation off)
+INFO:     Started server process [1006693]
+INFO:     Waiting for application startup.
+{"status":"ok","generation":false,"llm_configured":false}
+horizontal scroll: no
+screenshot: f3-mobile.png (full page {"width":360,"height":2706})
+console errors: 0
+failed requests (fonts included): 0
+
+== desktop 1366x900, dark: recorded unanswerable question (u01)
+result: {"resultClass":"result abstain","border":"rgb(242, 176, 74) 2px","badge":"Recorded answer (no live model)","text":"Answer RECORDED ANSWER (NO LIVE MODEL) Live generation is unavailable: these are the sources that would be retrieved Closest match 1 19.17. Developer Options https://www.postgresql.org/docs/17/runtime-config-developer.html#RUNTIME-CONFIG-DEVELOPER 2 27.2. The ","sources":8}
+screenshot: f3-abstain.png (1366x900)
+console errors: 0
+
+== loading state (staged slow /api/ask)
+while the request is in flight: {"ariaBusy":"true","status":"Searching the documentation","buttonDisabled":true}
+after the answer arrives: {"ariaBusy":"false","sentences":2,"citations":3}
+console errors: 0
+
+== citations: staged /api/ask (no real generation report on this box)
+citation buttons rendered: 3
+click [1]: {"open":true,"expanded":"true","visible":true,"text":"When this option is used, PostgreSQL will build the index without taking any locks that prevent concurrent inserts, upda","linkrel":"noopener","linktarget":"_blank"}
+screenshot: f3-citation.png (staged answer, popover open)
+Escape: {"open":0,"focusIsCite":true,"expanded":"false"}
+keyboard focus on [4] shows the popover: true
+hover on the third citation shows the popover: true
+popover at 360 px: {"left":31,"right":329,"width":298,"innerWidth":360,"documentScrollWidth":360,"insideViewport":true}
+console errors: 0
+
+== summary
+console errors across all pages: 0
+horizontal scroll at 360 px: no
+
+log written to /home/capw/projects/grounded-rag/patches/opencode/diag/f3-browser.log
+> build · deepseek-v4.1-flash
+[0m→ [0mRead patches/opencode/diag/f3-mobile.png 
+> build · deepseek-v4.1-flash
+[0m→ [0mRead patches/opencode/diag/f3-abstain.png 
+> build · deepseek-v4.1-flash
+[0m→ [0mRead patches/opencode/diag/f3-citation.png 
+> build · deepseek-v4.1-flash
+[0m$ [0mcd /home/capw/projects/grounded-rag && .venv/bin/python -m eval --strict --json 2>/dev/null | sed -n '/^{/,$p' > /tmp/opencode/retrieval-check.json && diff -q /tmp/opencode/retrieval-check.json eval/reports/retrieval.json && echo "sed recipe reproduces the file byte for byte"
+Files /tmp/opencode/retrieval-check.json and eval/reports/retrieval.json differ
+> build · deepseek-v4.1-flash
+[0m$ [0mcd /home/capw/projects/grounded-rag && diff <(head -30 /tmp/opencode/retrieval-check.json) <(head -30 eval/reports/retrieval.json) | head -20; echo '---'; diff /tmp/opencode/retrieval-check.json eval/reports/retrieval.json | head -20
+10,11c10,11
+<     "seconds": 9.02,
+<     "mean_ms_per_question": 112.8
+---
+>     "seconds": 8.39,
+>     "mean_ms_per_question": 104.9
+---
+10,11c10,11
+<     "seconds": 9.02,
+<     "mean_ms_per_question": 112.8
+---
+>     "seconds": 8.39,
+>     "mean_ms_per_question": 104.9
+> build · deepseek-v4.1-flash
+[0m← [0mEdit README.md
+Index: README.md
+===================================================================
+--- README.md
++++ README.md
+@@ -10,9 +10,10 @@
+ | --- | --- |
+ | `ingest/` | fetch the PG 17 docs, parse HTML into sections, chunk, embed, index |
+ | `retrieval/` | SQLite FTS5 + numpy vector store, RRF fusion, `hybrid_search` |
+ | `generation/` | config, prompt, OpenAI-compatible client, citation validation, threshold |
+-| `app/` | FastAPI: `POST /api/ask`, `GET /api/health` (loopback only) |
++| `app/` | FastAPI: `POST /api/ask`, `GET /api/health`, `GET /api/metrics`, static `web/` |
++| `web/` | the UI (HTML/CSS/vanilla JS), `recorded.json` and its recorder `web/record.py` |
+ | `eval/` | recall@5 / MRR, plus `--generate` answer/citation/abstention metrics |
+ | `tests/` | unit tests (no network, no model) |
+ | `data/` | generated: raw tarball, HTML pages, `chunks.jsonl`, index, stats, `usage.sqlite` |
+ 
+
+> build · deepseek-v4.1-flash
+[0m← [0mEdit README.md
+Index: README.md
+===================================================================
+--- README.md
++++ README.md
+@@ -209,9 +209,57 @@
+   the address nor the digest is stored or logged. `data/usage.sqlite` keeps one
+   row per UTC day with a token count and nothing else. The embedding model is
+   loaded once at startup.
+ * `GET /api/health` → `{status, generation, llm_configured}`.
++* `GET /api/metrics` → `{retrieval, threshold, generation}` for the "How it is
++  evaluated" panel (see below).
+ 
++## Web interface
++
++`python -m app` also serves the UI: `web/` is mounted at `/` with
++`StaticFiles(html=True)` **after** the `/api/*` routes, so the API always wins.
++It still listens on `127.0.0.1` only (default port `8790`): open
++<http://127.0.0.1:8790/>.
++
++* Question form (Enter sends, Shift+Enter adds a line, `n/500` counter), four
++  real example questions, EN/ES and light/dark selectors (`localStorage`, and
++  `?lang=es` works too), link to the repository.
++* Each sentence lists its citations as `[n]`; hover, keyboard focus or a tap
++  opens the verbatim quote, the source title and the link to the section on
++  postgresql.org (new tab, `rel="noopener"`). The "Sources" panel lists `n`,
++  title and URL.
++* Abstention has its own amber state and still lists what retrieval found.
++* `GET /api/metrics` reads `eval/reports/retrieval.json` (recall@5 and MRR@8,
++  overall and per question language), the calibrated threshold
++  (`generation/threshold.json`, with its bias note) and the last **real**
++  generation report. A `-generate-mock.json` report is counted, never
++  summarised: until a real run exists the generation block says "pending:
++  evaluated only with the simulated model" and shows no numbers.
++* Every response (API and static) carries `Content-Security-Policy` (no inline
++  script or style, no JS CDN, only the Google Fonts CSS/woff2), `X-Content-Type-Options:
++  nosniff` and `Referrer-Policy: no-referrer`.
++
++**Recorded mode.** `web/recorded.json` is written by `python -m web.record` (no
++model, no network; the embedder loads once): for the four examples plus four
++extra questions (two answerable, two not, half EN and half ES) it stores the
++question, its language and the **real** `hybrid_search` sources. When a real
++generation report exists it also copies that question's `abstain`, `sentences`
++and `sources`; without one the entry keeps `"answer": null` and
++`"status": "retrieval_only"`. Answers from the simulated model are never used.
++If `/api/ask` times out (30 s), fails with 503 or a network error — or
++generation is off — the page replays the recorded entry for that exact
++question, labelled "Recorded answer (no live model)", behind a discreet
++recorded-mode banner.
++
++Regenerate the metrics and the recording:
++
++```bash
++.venv/bin/python -m eval --strict --json | sed -n '/^{/,$p' > eval/reports/retrieval.json
++.venv/bin/python -m web.record      # rewrites web/recorded.json
++```
++
++![Web interface, dark theme, after an English example](patches/opencode/diag/f3-desktop.png)
++
+ ## Status
+ 
+ Phase 2: generation with verified citations, abstention and the API. After
+ dropping the alphabetical index (1143 pages read, 1 index page excluded, 45
+
+> build · deepseek-v4.1-flash
+[0m← [0mEdit README.md
+Index: README.md
+===================================================================
+--- README.md
++++ README.md
+@@ -1,9 +1,10 @@
+ # grounded-rag
+ 
+ A grounded RAG assistant over the official **PostgreSQL 17** documentation.
+-Phase 2 (this repo state) adds **answers with server-verified citations,
+-abstention and a small HTTP API** on top of the phase 1 index. Ingestion,
++Phase 2 added **answers with server-verified citations, abstention and a small
++HTTP API** on top of the phase 1 index; phase 3 adds the bilingual web interface
++in `web/`, which keeps working without a model through a recorded set. Ingestion,
+ embeddings, retrieval and retrieval evaluation still run offline; a real answer
+ needs an OpenAI-compatible endpoint and an API key, and nothing else does.
+ 
+ | Path | Purpose |
+
+> build · deepseek-v4.1-flash
+[0m← [0mEdit README.md
+Index: README.md
+===================================================================
+--- README.md
++++ README.md
+@@ -49,9 +49,10 @@
+ .venv/bin/python -m eval --file eval/dev_es.jsonl --compare
+ .venv/bin/python -m generation.calibrate                    # abstention threshold (retrieval only)
+ .venv/bin/python -m eval --generate                         # 80 questions, needs an API key
+ .venv/bin/python -m eval --generate --mock --limit 5        # offline pipeline check
+-.venv/bin/python -m app                                     # API on 127.0.0.1:8790
++.venv/bin/python -m app                                     # API + web UI on 127.0.0.1:8790
++.venv/bin/python -m web.record                              # rewrite web/recorded.json (offline mode)
+ .venv/bin/python -m pytest -q
+ ```
+ 
+ `ingest` flags: `--skip-download` (reuse `data/html`), `--skip-embed` (lexical
+
+> build · deepseek-v4.1-flash
+[0m$ [0mcd /home/capw/projects/grounded-rag && kill $(cat /tmp/opencode/f3-app.pid) 2>/dev/null; sleep 4; PID=$(ss -ltnp 2>/dev/null | grep 8792 | grep -o 'pid=[0-9]*' | cut -d= -f2); if [ -n "$PID" ]; then kill $PID; sleep 3; fi; (ss -ltnp 2>/dev/null | grep 8792 && echo 'STILL LISTENING') || echo 'port 8792 free'; free -m | sed -n 1,2p; echo '--- app log tail ---'; tail -6 patches/opencode/diag/f3-app.log
+port 8792 free
+               total        used        free      shared  buff/cache   available
+Mem:            5924        3539        1037         255        1902        2385
+--- app log tail ---
+INFO:     127.0.0.1:46674 - "GET /recorded.json HTTP/1.1" 200 OK
+INFO:     127.0.0.1:46678 - "GET /api/metrics HTTP/1.1" 200 OK
+INFO:     Shutting down
+INFO:     Waiting for application shutdown.
+INFO:     Application shutdown complete.
+INFO:     Finished server process [1006693]
+> build · deepseek-v4.1-flash
+[0m$ [0mcd /home/capw/projects/grounded-rag && { echo ''; echo '== host and shutdown (appended after the browser run)'; echo "free -m before lifting the app: available 2356 MB of 5924 MB (before the first start)"; echo "app: GROUNDED_RAG_GENERATION=off GROUNDED_RAG_IP_SALT=f3 .venv/bin/python -m app --port 8792"; echo "app log: patches/opencode/diag/f3-app.log"; echo "app stopped: $(date -u +%Y-%m-%dT%H:%M:%SZ)"; echo "port 8792 after shutdown: free (ss -ltnp)"; echo "free -m after shutdown: available $(free -m | awk '/^Mem:/{print $7}') MB"; echo ''; echo 'note: the citation, loading and hover/focus/Escape checks use a Playwright-staged'; echo '/api/ask response (real quotes from the PostgreSQL 17 corpus) because this box has no'; echo 'real generation report and no model key; every other page state is the real server output.'; } >> patches/opencode/diag/f3-browser.log && tail -14 patches/opencode/diag/f3-browser.log
+console errors across all pages: 0
+horizontal scroll at 360 px: no
+
+== host and shutdown (appended after the browser run)
+free -m before lifting the app: available 2356 MB of 5924 MB (before the first start)
+app: GROUNDED_RAG_GENERATION=off GROUNDED_RAG_IP_SALT=f3 .venv/bin/python -m app --port 8792
+app log: patches/opencode/diag/f3-app.log
+app stopped: 2026-10-29T01:54:26Z
+port 8792 after shutdown: free (ss -ltnp)
+free -m after shutdown: available 2417 MB
+
+note: the citation, loading and hover/focus/Escape checks use a Playwright-staged
+/api/ask response (real quotes from the PostgreSQL 17 corpus) because this box has no
+real generation report and no model key; every other page state is the real server output.
+> build · deepseek-v4.1-flash
+[0m$ [0mcd /home/capw/projects/grounded-rag && .venv/bin/python -m pytest -q 2>&1 | tee patches/opencode/diag/f3-pytest.log | tail -6 && echo '--- git status ---' && git status --short
+tests/test_app.py::test_health
+  /home/capw/projects/grounded-rag/.venv/lib/python3.12/site-packages/fastapi/testclient.py:1: StarletteDeprecationWarning: Using `httpx` with `starlette.testclient` is deprecated; install `httpx2` instead.
+    from starlette.testclient import TestClient as TestClient  # noqa
+
+-- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html
+229 passed, 1 warning in 2.85s
+--- git status ---
+ M README.md
+ M app/main.py
+ M eval/generate.py
+?? app/metrics.py
+?? eval/reports/
+?? patches/opencode/08-fase3-interfaz.md
+?? patches/opencode/diag/f3-abstain.png
+?? patches/opencode/diag/f3-app.log
+?? patches/opencode/diag/f3-browser.log
+?? patches/opencode/diag/f3-citation.png
+?? patches/opencode/diag/f3-contrast.log
+?? patches/opencode/diag/f3-desktop.png
+?? patches/opencode/diag/f3-eval-retrieval.log
+?? patches/opencode/diag/f3-mobile.png
+?? patches/opencode/diag/f3-opencode-run.log
+?? patches/opencode/diag/f3-pytest.log
+?? patches/opencode/diag/f3b-opencode-run.log
+?? patches/opencode/diag/f3c-opencode-run.log
+?? tests/test_web.py
+?? web/
+> build · deepseek-v4.1-flash
+[0m$ [0mcd /home/capw/projects/grounded-rag && git status --short --untracked-files=all web/ eval/reports/ && echo '--- keys ---' && grep -o 'data-i18n="[^"]*"' web/index.html | sort -u && echo '--- js check ---' && node --check web/app.js && echo OK && .venv/bin/python -c "
+import json;d=json.load(open('web/recorded.json'));print(d['generated_at'], d['report'], len(d['entries']), sorted({e['status'] for e in d['entries']}), sorted({e['source'] for e in d['entries']}))
+print([ (e['id'], e['lang'], e['status'], len(e['sources'])) for e in d['entries']])"
+?? eval/reports/retrieval.json
+?? web/__init__.py
+?? web/app.css
+?? web/app.js
+?? web/index.html
+?? web/record.py
+?? web/recorded.json
+--- keys ---
+data-i18n="aria.lang"
+data-i18n="aria.theme"
+data-i18n="form.ask"
+data-i18n="form.examples"
+data-i18n="form.heading"
+data-i18n="form.hint"
+data-i18n="form.label"
+data-i18n="form.placeholder"
+data-i18n="metrics.explain"
+data-i18n="metrics.heading"
+data-i18n="metrics.unavailable"
+data-i18n="repo"
+data-i18n="skip"
+data-i18n="subtitle"
+--- js check ---
+OK
+2026-10-29T01:38:09Z None 8 ['retrieval_only'] ['retrieval-only']
+[('a01', 'en', 'retrieval_only', 8), ('a15', 'en', 'retrieval_only', 8), ('a02', 'es', 'retrieval_only', 8), ('a06', 'es', 'retrieval_only', 8), ('a33', 'en', 'retrieval_only', 8), ('a42', 'es', 'retrieval_only', 8), ('u01', 'en', 'retrieval_only', 8), ('u30', 'es', 'retrieval_only', 8)]
+> build · deepseek-v4.1-flash
+[0m$ [0mcd /home/capw/projects/grounded-rag && nohup env GROUNDED_RAG_GENERATION=off GROUNDED_RAG_IP_SALT=f3 .venv/bin/python -m app --port 8792 > /tmp/opencode/f3-app-2.log 2>&1 & echo $! > /tmp/opencode/f3-app-2.pid; sleep 9; curl -s http://127.0.0.1:8792/api/health; echo
+{"status":"ok","generation":false,"llm_configured":false}
+> build · deepseek-v4.1-flash
+[0m$ [0mcd /tmp/opencode && cat > states.js <<'EOF'
+const fs = require('fs');
+const { chromium } = require('/home/capw/tmp/playwright-check/node_modules/playwright');
+const LOG = '/home/capw/projects/grounded-rag/patches/opencode/diag/f3-browser.log';
+const BASE = 'http://127.0.0.1:8792';
+(async () => {
+  const out = [];
+  const browser = await chromium.launch();
+  const ctx = await browser.newContext({ viewport: { width: 1366, height: 900 }, colorScheme: 'dark' });
+  const page = await ctx.newPage();
+  const errors = [];
+  page.on('console', (m) => { if (m.type() === 'error') errors.push(m.text()); });
+  page.on('pageerror', (e) => errors.push('pageerror: ' + e.message));
+  await page.goto(BASE + '/?lang=en', { waitUntil: 'networkidle' });
+
+  async function ask(question) {
+    await page.fill('#question', question);
+    await page.press('#question', 'Enter');
+    await page.waitForFunction(() => {
+      const node = document.querySelector('#result');
+      return node && !node.hidden && node.getAttribute('aria-busy') === 'false';
+    });
+    await page.waitForTimeout(150);
+    return page.evaluate(() => ({
+      cls: document.getElementById('result').className,
+      text: document.getElementById('result').innerText.replace(/\s+/g, ' ').slice(0, 200),
+      chips: Array.from(document.querySelectorAll('#result .chip')).map((c) => c.textContent)
+    }));
+  }
+
+  const missing = await ask('How do I configure the connection pool size for pgBouncer?');
+  out.push('question outside recorded.json -> ' + JSON.stringify(missing));
+
+  let last = null;
+  for (let index = 0; index < 10; index += 1) {
+    last = await ask('What is VACUUM ' + index + '?');
+    if (last.cls.includes('error')) break;
+  }
+  out.push('after exhausting the per-IP limit (10/hour) -> ' + JSON.stringify(last));
+  out.push('console errors: ' + errors.length + (errors.length ? ' -> ' + JSON.stringify(errors) : ''));
+  fs.appendFileSync(LOG, '\n== extra states (second app session, same build)\n' + out.join('\n') + '\n');
+  console.log(out.join('\n'));
+  await browser.close();
+})().catch((e) => { console.error('FAILED: ' + e.stack); process.exit(1); });
+EOF
+node states.js
+question outside recorded.json -> {"cls":"result error","text":"Answer RECORDED ANSWER (NO LIVE MODEL) There is no recorded answer for this question. RECORDED EXAMPLES How do I build an index without blocking writes on the table? What is the difference between jso","chips":["How do I build an index without blocking writes on the table?","What is the difference between json and jsonb?","¿Cómo creo un índice que solo cubra las filas donde una columna no es nula?","¿Qué diferencia hay entre VACUUM y VACUUM FULL?"]}
+after exhausting the per-IP limit (10/hour) -> {"cls":"result error","text":"Answer RECORDED ANSWER (NO LIVE MODEL) There is no recorded answer for this question. RECORDED EXAMPLES How do I build an index without blocking writes on the table? What is the difference between jso","chips":["How do I build an index without blocking writes on the table?","What is the difference between json and jsonb?","¿Cómo creo un índice que solo cubra las filas donde una columna no es nula?","¿Qué diferencia hay entre VACUUM y VACUUM FULL?"]}
+console errors: 0
+> build · deepseek-v4.1-flash
+[0m$ [0mcd /tmp/opencode && cat > states2.js <<'EOF'
+const fs = require('fs');
+const { chromium } = require('/home/capw/tmp/playwright-check/node_modules/playwright');
+const LOG = '/home/capw/projects/grounded-rag/patches/opencode/diag/f3-browser.log';
+const BASE = 'http://127.0.0.1:8792';
+(async () => {
+  const out = [];
+  const browser = await chromium.launch();
+  const ctx = await browser.newContext({ viewport: { width: 1366, height: 900 }, colorScheme: 'dark' });
+  const page = await ctx.newPage();
+  const errors = [];
+  page.on('console', (m) => { if (m.type() === 'error') errors.push(m.text()); });
+  page.on('pageerror', (e) => errors.push('pageerror: ' + e.message));
+  await page.goto(BASE + '/?lang=en', { waitUntil: 'networkidle' });
+
+  async function ask(question) {
+    await page.fill('#question', question);
+    await page.press('#question', 'Enter');
+    await page.waitForFunction(() => {
+      const node = document.querySelector('#result');
+      return node && !node.hidden && node.getAttribute('aria-busy') === 'false';
+    });
+    await page.waitForTimeout(120);
+    return page.evaluate(() => ({
+      cls: document.getElementById('result').className,
+      text: document.getElementById('result').innerText.replace(/\s+/g, ' ').slice(0, 120)
+    }));
+  }
+
+  let hit = null;
+  for (let index = 1; index <= 14; index += 1) {
+    const state = await ask('What does the setting number ' + index + ' control?');
+    if (state.text.includes('Too many')) { hit = { attempt: index, state: state }; break; }
+  }
+  out.push('per-IP limit (10/hour) aggressed from the UI -> ' + JSON.stringify(hit));
+  out.push('console errors: ' + errors.length + (errors.length ? ' -> ' + JSON.stringify(errors) : ''));
+  fs.appendFileSync(LOG, '\n' + out.join('\n') + '\n');
+  console.log(out.join('\n'));
+  await browser.close();
+})().catch((e) => { console.error('FAILED: ' + e.stack); process.exit(1); });
+EOF
+node states2.js
+per-IP limit (10/hour) aggressed from the UI -> {"attempt":9,"state":{"cls":"result error","text":"Too many questions in a short time. Wait a moment and try again."}}
+console errors: 1 -> ["Failed to load resource: the server responded with a status of 429 (Too Many Requests)"]
+> build · deepseek-v4.1-flash
+[0m$ [0mcd /home/capw/projects/grounded-rag && kill $(cat /tmp/opencode/f3-app-2.pid) 2>/dev/null; sleep 4; PID=$(ss -ltnp 2>/dev/null | grep 8792 | grep -o 'pid=[0-9]*' | cut -d= -f2); if [ -n "$PID" ]; then kill $PID; sleep 3; fi; (ss -ltnp 2>/dev/null | grep 8792 && echo STILL) || echo 'port 8792 free'; { echo ''; echo 'second app session (extra states) stopped: '"$(date -u +%Y-%m-%dT%H:%M:%SZ)"; echo "port 8792 after the second shutdown: free (ss -ltnp)"; } >> patches/opencode/diag/f3-browser.log; tail -8 patches/opencode/diag/f3-browser.log
+port 8792 free
+after exhausting the per-IP limit (10/hour) -> {"cls":"result error","text":"Answer RECORDED ANSWER (NO LIVE MODEL) There is no recorded answer for this question. RECORDED EXAMPLES How do I build an index without blocking writes on the table? What is the difference between jso","chips":["How do I build an index without blocking writes on the table?","What is the difference between json and jsonb?","¿Cómo creo un índice que solo cubra las filas donde una columna no es nula?","¿Qué diferencia hay entre VACUUM y VACUUM FULL?"]}
+console errors: 0
+
+per-IP limit (10/hour) aggressed from the UI -> {"attempt":9,"state":{"cls":"result error","text":"Too many questions in a short time. Wait a moment and try again."}}
+console errors: 1 -> ["Failed to load resource: the server responded with a status of 429 (Too Many Requests)"]
+
+second app session (extra states) stopped: 2026-10-29T01:55:51Z
+port 8792 after the second shutdown: free (ss -ltnp)
+> build · deepseek-v4.1-flash
+[0m← [0mEdit patches/opencode/diag/f3-browser.log
+Index: patches/opencode/diag/f3-browser.log
+===================================================================
+--- patches/opencode/diag/f3-browser.log
++++ patches/opencode/diag/f3-browser.log
+@@ -52,9 +52,10 @@
+ real generation report and no model key; every other page state is the real server output.
+ 
+ == extra states (second app session, same build)
+ question outside recorded.json -> {"cls":"result error","text":"Answer RECORDED ANSWER (NO LIVE MODEL) There is no recorded answer for this question. RECORDED EXAMPLES How do I build an index without blocking writes on the table? What is the difference between jso","chips":["How do I build an index without blocking writes on the table?","What is the difference between json and jsonb?","¿Cómo creo un índice que solo cubra las filas donde una columna no es nula?","¿Qué diferencia hay entre VACUUM y VACUUM FULL?"]}
+-after exhausting the per-IP limit (10/hour) -> {"cls":"result error","text":"Answer RECORDED ANSWER (NO LIVE MODEL) There is no recorded answer for this question. RECORDED EXAMPLES How do I build an index without blocking writes on the table? What is the difference between jso","chips":["How do I build an index without blocking writes on the table?","What is the difference between json and jsonb?","¿Cómo creo un índice que solo cubra las filas donde una columna no es nula?","¿Qué diferencia hay entre VACUUM y VACUUM FULL?"]}
++second ask in the same session -> {"cls":"result error","text":"Answer RECORDED ANSWER (NO LIVE MODEL) There is no recorded answer for this question. RECORDED EXAMPLES How do I build an index without blocking writes on the table? What is the difference between jso","chips":["How do I build an index without blocking writes on the table?","What is the difference between json and jsonb?","¿Cómo creo un índice que solo cubra las filas donde una columna no es nula?","¿Qué diferencia hay entre VACUUM y VACUUM FULL?"]}
++(that loop aborted early: the recorded-missing card also carries .result.error; the real 429 probe is the next block)
+ console errors: 0
+ 
+ per-IP limit (10/hour) aggressed from the UI -> {"attempt":9,"state":{"cls":"result error","text":"Too many questions in a short time. Wait a moment and try again."}}
+ console errors: 1 -> ["Failed to load resource: the server responded with a status of 429 (Too Many Requests)"]
+
+> build · deepseek-v4.1-flash
+[0m$ [0mcd /home/capw/projects/grounded-rag && git diff --stat && echo '--- new files ---' && git status --short --untracked-files=all | grep -v 'opencode-run' && echo '--- pytest ---' && tail -2 patches/opencode/diag/f3-pytest.log && echo '--- browser log (head) ---' && head -12 patches/opencode/diag/f3-browser.log
+README.md        | 59 ++++++++++++++++++++++++++++++++++++++++++++++++++++----
+ app/main.py      | 37 ++++++++++++++++++++++++++++++++---
+ eval/generate.py | 16 +++++++++++++++
+ 3 files changed, 105 insertions(+), 7 deletions(-)
+--- new files ---
+ M README.md
+ M app/main.py
+ M eval/generate.py
+?? app/metrics.py
+?? eval/reports/retrieval.json
+?? patches/opencode/08-fase3-interfaz.md
+?? patches/opencode/diag/f3-abstain.png
+?? patches/opencode/diag/f3-app.log
+?? patches/opencode/diag/f3-browser.log
+?? patches/opencode/diag/f3-citation.png
+?? patches/opencode/diag/f3-contrast.log
+?? patches/opencode/diag/f3-desktop.png
+?? patches/opencode/diag/f3-eval-retrieval.log
+?? patches/opencode/diag/f3-mobile.png
+?? patches/opencode/diag/f3-pytest.log
+?? tests/test_web.py
+?? web/__init__.py
+?? web/app.css
+?? web/app.js
+?? web/index.html
+?? web/record.py
+?? web/recorded.json
+--- pytest ---
+-- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html
+229 passed, 1 warning in 2.85s
+--- browser log (head) ---
+
+== desktop 1366x900, dark, ?lang=en, English example
+page state: {"lang":"en","theme":null,"background":"rgb(10, 18, 25)","foreground":"rgb(220, 231, 238)","banner":"Recorded mode: the live model is not available. Answers come from the recorded set.","themeLabel":"Theme: dark","subtitle":"Answers from the PostgreSQL 17 docs, with verifiable citations"}
+Shift+Enter keeps a newline and does not submit: {"value":"first line\nsecond line","counter":"22/500","ariaBusy":"false","resultHidden":true}
+result: {"badge":"Recorded answer (no live model)","resultClass":"result abstain","heading":"Answer","sources":8,"bodyText":"Answer RECORDED ANSWER (NO LIVE MODEL) Live generation is unavailable: these are the sources that would be retrieved Closest match 1 CREATE INDEX https://www.postgresql.org/docs/17/sql-createindex.html#SQL-CREATEINDEX-CO"}
+screenshot: f3-desktop.png ({"w":1366,"h":900})
+console errors: 0
+failed requests (fonts included): 0
+
+== mobile 360x780, light, ?lang=es, Spanish example, full page
+page state: {"lang":"es","theme":null,"background":"rgb(238, 242, 244)","banner":"Modo grabado: el modelo en vivo no está disponible. Las respuestas salen del conjunto grabado.","themeLabel":"Tema: claro","subtitle":"Respuestas desde la documentación de PostgreSQL 17, con citas verificables"}
+widths at 360: {"innerWidth":360,"documentScrollWidth":360,"bodyScrollWidth":360,"documentClientWidth":360,"gutter":"16px"}
+> build · deepseek-v4.1-flash
+## Entregable
+
+### 1. Archivos tocados
+
+**Nuevos**
+| Path | Contenido |
+|---|---|
+| `web/index.html` | página única (encabezado, formulario, resultado, panel de métricas) |
+| `web/app.css` | tokens de dev0p, ambos temas, control-room, responsive |
+| `web/app.js` | i18n EN/ES, tema, fetch, render de respuestas/citas/popovers/métricas, modo grabado |
+| `web/__init__.py`, `web/record.py` | `python -m web.record` (reproductor de `recorded.json`) |
+| `web/recorded.json` | 8 entradas grabadas (ver §3) |
+| `app/metrics.py` | lee `retrieval.json`, `threshold.json` y el último reporte **real** |
+| `eval/reports/retrieval.json` | `python -m eval --strict --json` (versionado, no ignorado por git) |
+| `tests/test_web.py` | 16 tests nuevos |
+| `patches/opencode/diag/f3-*.log`, `f3-*.png` | evidencia |
+
+**Modificados**
+- `app/main.py`: middleware de cabeceras, `GET /api/metrics`, `StaticFiles(directory=web, html=True)` montado **después** de `/api/*`; bloquea `.py`/`.pyc`/`__pycache__` (el módulo del recorder no se sirve).
+- `eval/generate.py`: cada fila del reporte guarda `sentences` (texto + citas `n`/`quote`) y `sources`, para que `web.record` pueda reproducir una respuesta real sin volver a llamar al modelo.
+- `README.md`: sección "Web interface" + filas `app/`/`web/` en la tabla + `python -m web.record`.
+
+Sin commit, push ni deploy (el brief lo prohíbe). Sin tocar `dev0p/`, nginx, systemd ni producción.
+
+### 2. Endpoints nuevos
+- `GET /api/metrics` → `{retrieval, threshold, generation}`:
+  - `retrieval`: `policy`, `questions`, `answerable`, `unanswerable`, `recall@5`, `mrr@8`, `by_lang` (calculado de las filas con la misma definición que `eval`, verificado aparte).
+  - `threshold`: señal, valor, perdidas/abstenidas y la nota de sesgo.
+  - `generation`: `{"status":"pending","reason":"no_real_report","report":null,"simulated_reports":1}` — el mock se cuenta, **nunca** se resume ni se copian sus números.
+- `GET /` y estáticos (`/app.css`, `/app.js`, `/recorded.json`), con `Content-Security-Policy`, `X-Content-Type-Options: nosniff` y `Referrer-Policy: no-referrer` en toda respuesta (API incluida). Sigue en 127.0.0.1.
+
+### 3. `recorded.json`
+Generado con `.venv/bin/python -m web.record` (script reproducible, sin red ni modelo; el embedder se carga una vez). Contiene `generated_at`, `report` (ruta del reporte real usado o `null`) y `entries`: **a01, a15 (EN) + a02, a06 (ES)** como ejemplos, más **a33, a42** respondibles y **u01, u30** no respondibles (4 EN / 4 ES). Cada entrada: `id`, `lang`, `question`, `recorded_at`, `source`, `status`, `sources` (8 fuentes reales de `hybrid_search`, con `n`/`url`/`title`) y `answer`.
+
+Estado actual: `report: null` y las 8 entradas `"status": "retrieval_only"`, `"source": "retrieval-only"`, `"answer": null`, porque **no existe reporte real de generación** (el único en `eval/reports/` es `-generate-mock.json`). `record()` rechaza explícitamente un reporte mock (`ValueError`).
+
+### 4. Tabla de contraste (WCAG 2.1, `f3-contrast.log`)
+| par | oscuro | AA | claro | AA |
+|---|---|---|---|---|
+| texto cuerpo / fondo | 15.01 | ✓ | 15.52 | ✓ |
+| texto / tarjeta | 14.01 | ✓ | 17.49 | ✓ |
+| texto / tarjeta-2 | 13.04 | ✓ | 16.39 | ✓ |
+| muted / fondo · tarjeta · tarjeta-2 | 7.06 · 6.59 · 6.13 | ✓ | 5.45 · 6.14 · 5.75 | ✓ |
+| señal (enlaces) / tarjeta · fondo | 9.44 · 10.11 | ✓ | 5.28 · 4.69 | ✓ |
+| cita sobre signal-soft | 7.44 | ✓ | 4.61 | ✓ |
+| texto del botón (fondo sobre señal) | 10.11 | ✓ | 4.69 | ✓ |
+| ámbar sobre amber-soft · tarjeta | 7.23 · 9.30 | ✓ | 4.63 · 5.30 | ✓ |
+| quote / enlace del popover | 13.04 · 8.79 | ✓ | 16.39 · 4.95 | ✓ |
+
+**0 pares bajo AA 4.5**. Desviación declarada: en tema claro `--signal` pasó de `#0B8378` (4.11) a `#0A796F` y `--amber` de `#A3620B` (4.27) a `#9B5D0A`; el resto de los tokens son los de dev0p.
+
+### 5. pytest
+```
+229 passed, 1 warning in 2.85s
+```
+(`patches/opencode/diag/f3-pytest.log`; los 213 previos siguen verdes + 16 nuevos). Cubre: `/` 200 `text/html` con CSP, `/app.js` y `/app.css`, `/api/*` ganando al mount estático, 404 de estáticos, `.py` no servido, métricas con reportes falsos en `tmp_path` (mock nunca real; real gana; mock sólo contado), esquema de `recorded.json` sin entradas de mock, `build_entry`/`latest_real_report`/rechazo de mock, y que los assets son CSP-limpios (sin `<style>`, `style=`, `on*=`).
+
+### 6. Capturas
+- `patches/opencode/diag/f3-desktop.png` — 1366×900, tema oscuro, ejemplo EN.
+- `patches/opencode/diag/f3-mobile.png` — 360×780, tema claro, `?lang=es`, ejemplo ES, página completa (360×2706).
+- `patches/opencode/diag/f3-abstain.png` — escritorio, pregunta no respondible grabada (u01), borde ámbar 2 px.
+- `patches/opencode/diag/f3-citation.png` — extra: popover de cita abierto (respuesta *staged*, ver §8).
+
+### 7. Log del navegador (`f3-browser.log`)
+- 4 páginas reales: **0 errores de consola**, 0 requests fallidas (fuentes de Google incluidas).
+- 360 px: `documentScrollWidth 360` = `clientWidth 360`, gutter 16 px → sin scroll horizontal (también con el popover abierto: `left 31, right 329, insideViewport true`).
+- `Shift+Enter` conserva el salto y no envía; `aria-busy="true"` + estado "Searching…" durante el pedido y `false` al llegar.
+- Citas: click abre popover con cita textual, título y enlace `target=_blank rel=noopener`; `aria-expanded` alterna; `Esc` cierra y devuelve el foco; foco por teclado y hover también lo muestran.
+- Estados extra: pregunta fuera del set grabado → "There is no recorded answer…" + 4 ejemplos grabados; límite por IP agotado → "Too many questions in a short time." (ese caso, y sólo ése, deja 1 log de red del navegador por el 429).
+- `free -m` antes de levantar: 2356 MB disponibles; app bajada; **puerto 8792 libre** tras cada sesión (`ss -ltnp`).
+
+### 8. No verificado / límites
+- **Sin modelo en vivo ni reporte real de generación** en esta máquina: no se ejercitó `/api/ask` con el modelo, ni la abstención por `threshold`/`model`, ni la reproducción de una respuesta `answered`/`abstained` desde un reporte real. El bloque Generación dice "pendiente: evaluada sólo con modelo simulado" y no muestra números.
+- Los chequeos de citas/popover/carga usaron una respuesta `/api/ask` **staged con Playwright** (citas literales del corpus PG17); está anotado en `f3-browser.log` y en `f3-citation.png`. Todo lo demás es salida real del servidor.
+- `f3-abstain.png` muestra el estado alcanzable sin modelo (borde ámbar + "Live generation is unavailable…" + "Closest match"); la variante `abstain` de una respuesta real usa el mismo contenedor ámbar pero no se pudo capturar.
+- Los estados 422 y 502 de la UI están implementados pero no se provocaron en el navegador (422 es casi inalcanzable con `maxlength=500`); la API sí los cubre en `test_app.py`.
+- El frontend no envía `lang`: el servidor detecta el idioma de la pregunta (decisión para no forzar el idioma del selector sobre preguntas del otro idioma).
+- `retrieval.json` se genera con `.venv/bin/python -m eval --strict --json | sed -n '/^{/,$p' > eval/reports/retrieval.json` (el CLI imprime dos líneas de corpus antes del JSON); receta verificada, y queda sin commitear como el resto.

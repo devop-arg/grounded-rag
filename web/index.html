@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>grounded-rag</title>
+<meta name="description" content="Grounded answers from the PostgreSQL 17 documentation, with server-verified citations.">
+<meta name="color-scheme" content="dark light">
+<meta name="theme-color" content="#0A1219" media="(prefers-color-scheme: dark)">
+<meta name="theme-color" content="#EEF2F4" media="(prefers-color-scheme: light)">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Chakra+Petch:wght@500;600;700&amp;family=Hanken+Grotesk:wght@400;500;600&amp;family=Martian+Mono:wght@400;500&amp;display=swap">
+<link rel="stylesheet" href="/app.css?v=1">
+<script src="/app.js?v=1" defer></script>
+</head>
+<body>
+<a class="skip mono" href="#question" data-i18n="skip">Skip to the question</a>
+
+<header class="bar">
+  <div class="wrap bar-inner">
+    <div class="brand">
+      <p class="logo">grounded<span>-</span>rag</p>
+      <p class="subtitle" data-i18n="subtitle">Answers from the PostgreSQL 17 docs, with verifiable citations</p>
+    </div>
+    <div class="bar-right">
+      <div class="lang" role="group" aria-label="Language" data-i18n="aria.lang" data-i18n-attr="aria-label">
+        <button type="button" data-lang-set="en" aria-pressed="true">EN</button><button type="button" data-lang-set="es" aria-pressed="false">ES</button>
+      </div>
+      <button type="button" class="theme" id="theme-toggle" aria-label="Toggle light or dark theme" data-i18n="aria.theme" data-i18n-attr="aria-label"><span id="theme-label">Theme: dark</span></button>
+      <a class="repo mono" href="https://github.com/devop-arg/grounded-rag" rel="noopener" target="_blank" data-i18n="repo">GitHub</a>
+    </div>
+  </div>
+</header>
+
+<main class="wrap" id="main">
+  <div class="banner" id="banner" hidden>
+    <p class="mono" id="banner-text"></p>
+  </div>
+
+  <section class="panel ask" aria-labelledby="ask-title">
+    <h1 class="tag" id="ask-title" data-i18n="form.heading">Question</h1>
+    <form id="ask-form" novalidate>
+      <label class="sr-only" for="question" data-i18n="form.label">Question</label>
+      <textarea id="question" name="question" rows="3" maxlength="500" autocomplete="off" spellcheck="false" placeholder="Ask about PostgreSQL 17: indexes, vacuum, replication, JSON..." data-i18n="form.placeholder" data-i18n-attr="placeholder" aria-describedby="counter hint"></textarea>
+      <div class="form-row">
+        <span class="mono counter" id="counter">0/500</span>
+        <span class="hint mono" id="hint" data-i18n="form.hint">Enter sends · Shift+Enter adds a line</span>
+        <button type="submit" class="btn" id="ask-button" data-i18n="form.ask">Ask</button>
+      </div>
+    </form>
+    <div class="examples">
+      <p class="tag" data-i18n="form.examples">Examples</p>
+      <div class="chips">
+        <button type="button" class="chip" lang="en" data-example="How do I build an index without blocking writes on the table?">How do I build an index without blocking writes on the table?</button>
+        <button type="button" class="chip" lang="en" data-example="What is the difference between json and jsonb?">What is the difference between json and jsonb?</button>
+        <button type="button" class="chip" lang="es" data-example="¿Cómo convierto un documento JSON en filas y columnas con JSON_TABLE?">¿Cómo convierto un documento JSON en filas y columnas con JSON_TABLE?</button>
+        <button type="button" class="chip" lang="es" data-example="¿Qué diferencia hay entre VACUUM y VACUUM FULL?">¿Qué diferencia hay entre VACUUM y VACUUM FULL?</button>
+      </div>
+    </div>
+  </section>
+
+  <section class="result" id="result" aria-live="polite" aria-busy="false" hidden></section>
+
+  <section class="panel metrics" id="metrics" aria-labelledby="metrics-title">
+    <h2 class="tag" id="metrics-title" data-i18n="metrics.heading">How it is evaluated</h2>
+    <p class="explain" id="metrics-explain" data-i18n="metrics.explain">Hybrid search fuses the lexical (BM25) and vector rankings and returns eight documentation pages. If the top similarity is below the calibrated threshold, the server abstains instead of guessing. Otherwise the model answers from those passages only. Every citation is checked against the passage text on the server, and a sentence without a valid citation is dropped.</p>
+    <div class="metrics-grid" id="metrics-body">
+      <p class="mono muted" data-i18n="metrics.unavailable">Metrics are unavailable.</p>
+    </div>
+  </section>
+</main>
+
+<footer class="wrap foot mono">
+  <p>grounded-rag · PostgreSQL 17 documentation · MIT</p>
+</footer>
+</body>
+</html>

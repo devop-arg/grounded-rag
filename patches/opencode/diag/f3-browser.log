@@ -1,0 +1,75 @@
+
+== desktop 1366x900, dark, ?lang=en, English example
+page state: {"lang":"en","theme":null,"background":"rgb(10, 18, 25)","foreground":"rgb(220, 231, 238)","banner":"Recorded mode: the live model is not available. Answers come from the recorded set.","themeLabel":"Theme: dark","subtitle":"Answers from the PostgreSQL 17 docs, with verifiable citations"}
+Shift+Enter keeps a newline and does not submit: {"value":"first line\nsecond line","counter":"22/500","ariaBusy":"false","resultHidden":true}
+result: {"badge":"Recorded answer (no live model)","resultClass":"result abstain","heading":"Answer","sources":8,"bodyText":"Answer RECORDED ANSWER (NO LIVE MODEL) Live generation is unavailable: these are the sources that would be retrieved Closest match 1 CREATE INDEX https://www.postgresql.org/docs/17/sql-createindex.html#SQL-CREATEINDEX-CO"}
+screenshot: f3-desktop.png ({"w":1366,"h":900})
+console errors: 0
+failed requests (fonts included): 0
+
+== mobile 360x780, light, ?lang=es, Spanish example, full page
+page state: {"lang":"es","theme":null,"background":"rgb(238, 242, 244)","banner":"Modo grabado: el modelo en vivo no está disponible. Las respuestas salen del conjunto grabado.","themeLabel":"Tema: claro","subtitle":"Respuestas desde la documentación de PostgreSQL 17, con citas verificables"}
+widths at 360: {"innerWidth":360,"documentScrollWidth":360,"bodyScrollWidth":360,"documentClientWidth":360,"gutter":"16px"}
+horizontal scroll: no
+screenshot: f3-mobile.png (full page {"width":360,"height":2706})
+console errors: 0
+failed requests (fonts included): 0
+
+== desktop 1366x900, dark: recorded unanswerable question (u01)
+result: {"resultClass":"result abstain","border":"rgb(242, 176, 74) 2px","badge":"Recorded answer (no live model)","text":"Answer RECORDED ANSWER (NO LIVE MODEL) Live generation is unavailable: these are the sources that would be retrieved Closest match 1 19.17. Developer Options https://www.postgresql.org/docs/17/runtime-config-developer.html#RUNTIME-CONFIG-DEVELOPER 2 27.2. The ","sources":8}
+screenshot: f3-abstain.png (1366x900)
+console errors: 0
+
+== loading state (staged slow /api/ask)
+while the request is in flight: {"ariaBusy":"true","status":"Searching the documentation","buttonDisabled":true}
+after the answer arrives: {"ariaBusy":"false","sentences":2,"citations":3}
+console errors: 0
+
+== citations: staged /api/ask (no real generation report on this box)
+citation buttons rendered: 3
+click [1]: {"open":true,"expanded":"true","visible":true,"text":"When this option is used, PostgreSQL will build the index without taking any locks that prevent concurrent inserts, upda","linkrel":"noopener","linktarget":"_blank"}
+screenshot: f3-citation.png (staged answer, popover open)
+Escape: {"open":0,"focusIsCite":true,"expanded":"false"}
+keyboard focus on [4] shows the popover: true
+hover on the third citation shows the popover: true
+popover at 360 px: {"left":31,"right":329,"width":298,"innerWidth":360,"documentScrollWidth":360,"insideViewport":true}
+console errors: 0
+
+== summary
+console errors across all pages: 0
+horizontal scroll at 360 px: no
+
+== host and shutdown (appended after the browser run)
+free -m before lifting the app: available 2356 MB of 5924 MB (before the first start)
+app: GROUNDED_RAG_GENERATION=off GROUNDED_RAG_IP_SALT=f3 .venv/bin/python -m app --port 8792
+app log: patches/opencode/diag/f3-app.log
+app stopped: 2026-10-29T01:54:26Z
+port 8792 after shutdown: free (ss -ltnp)
+free -m after shutdown: available 2417 MB
+
+note: the citation, loading and hover/focus/Escape checks use a Playwright-staged
+/api/ask response (real quotes from the PostgreSQL 17 corpus) because this box has no
+real generation report and no model key; every other page state is the real server output.
+
+== extra states (second app session, same build)
+question outside recorded.json -> {"cls":"result error","text":"Answer RECORDED ANSWER (NO LIVE MODEL) There is no recorded answer for this question. RECORDED EXAMPLES How do I build an index without blocking writes on the table? What is the difference between jso","chips":["How do I build an index without blocking writes on the table?","What is the difference between json and jsonb?","¿Cómo creo un índice que solo cubra las filas donde una columna no es nula?","¿Qué diferencia hay entre VACUUM y VACUUM FULL?"]}
+second ask in the same session -> {"cls":"result error","text":"Answer RECORDED ANSWER (NO LIVE MODEL) There is no recorded answer for this question. RECORDED EXAMPLES How do I build an index without blocking writes on the table? What is the difference between jso","chips":["How do I build an index without blocking writes on the table?","What is the difference between json and jsonb?","¿Cómo creo un índice que solo cubra las filas donde una columna no es nula?","¿Qué diferencia hay entre VACUUM y VACUUM FULL?"]}
+(that loop aborted early: the recorded-missing card also carries .result.error; the real 429 probe is the next block)
+console errors: 0
+
+per-IP limit (10/hour) aggressed from the UI -> {"attempt":9,"state":{"cls":"result error","text":"Too many questions in a short time. Wait a moment and try again."}}
+console errors: 1 -> ["Failed to load resource: the server responded with a status of 429 (Too Many Requests)"]
+
+second app session (extra states) stopped: 2026-10-29T01:55:51Z
+port 8792 after the second shutdown: free (ss -ltnp)
+
+== mobile re-run after the review (brief 09: Spanish example a02 -> a16)
+setup: 360x780, light, ?lang=es, isMobile/hasTouch, deviceScaleFactor 1, full page
+page state: {"lang":"es","background":"rgb(238, 242, 244)","subtitle":"Respuestas desde la documentación de PostgreSQL 17, con citas verificables"}
+chips: ["How do I build an index without blocking writes on the table?","What is the difference between json and jsonb?","¿Cómo convierto un documento JSON en filas y columnas con JSON_TABLE?","¿Qué diferencia hay entre VACUUM y VACUUM FULL?"]
+result: {"resultClass":"result abstain","badge":"Respuesta grabada (sin modelo en vivo)","heading":"Respuesta","question":"¿Cómo convierto un documento JSON en filas y columnas con JSON_TABLE?","sources":8,"firstSource":"1 9.16. JSON Functions and Operators https://www.postgresql.org/docs/17/functions-json.html#FUNCTIONS-SQLJSON-TABLE","widths":{"innerWidth":360,"documentScrollWidth":360,"bodyScrollWidth":360,"documentClientWidth":360,"gutter":"16px"}}
+horizontal scroll: no
+screenshot: f3-mobile.png (full page {"width":360,"height":2714})  [was 360x2706 with a02]
+console errors: 0
+failed requests (fonts included): 0
+app stopped: 2026-10-29T02:02Z - port 8792 after shutdown: free (ss -ltnp)
