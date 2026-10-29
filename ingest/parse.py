@@ -66,6 +66,9 @@ class Page:
     page_file: str
     page_title: str
     units: list[Unit] = field(default_factory=list)
+    #: The alphabetical index of the manual (``bookindex.html``): parsed for the
+    #: crawl, never chunked (see :func:`ingest.chunk.page_chunks`).
+    is_index: bool = False
 
     @property
     def n_words(self) -> int:
@@ -261,6 +264,23 @@ def page_title_of(soup: BeautifulSoup, page_file: str) -> str:
     return page_file.removesuffix(".html")
 
 
+def is_book_index(soup: BeautifulSoup, page_file: str) -> bool:
+    """True for the manual's alphabetical index (``bookindex.html``).
+
+    The index is fetched as a crawl seed but must not become retrieval chunks:
+    its 27 fragments are ``term, page`` links and match almost any query.  The
+    rule is the file name plus the DocBook-XSL shape of the body: an
+    alphabetical index is a ``div.index`` made of ``div.indexdiv`` letter
+    sections (with a ``p.indexdiv-quicklinks`` A-Z bar).
+    """
+    if page_file == "bookindex.html":
+        return True
+    if soup.find("p", class_="indexdiv-quicklinks") is not None:
+        return True
+    index = soup.find("div", class_="index")
+    return index is not None and index.find("div", class_="indexdiv") is not None
+
+
 def parse_html(html: str, page_file: str) -> Page | None:
     """Parse one documentation page. Returns ``None`` for TOC-only pages."""
     soup = BeautifulSoup(html, "lxml")
@@ -269,6 +289,7 @@ def parse_html(html: str, page_file: str) -> Page | None:
         link.decompose()
     root = doc_root(soup)
     title = page_title_of(soup, page_file)
+    is_index = is_book_index(soup, page_file)
     units = extract_units(root)
 
     if not units:
@@ -283,7 +304,7 @@ def parse_html(html: str, page_file: str) -> Page | None:
         if blocks:
             units = [Unit(anchor=anchor, title=title, path=[title], blocks=blocks)]
 
-    page = Page(page_file=page_file, page_title=title, units=units)
+    page = Page(page_file=page_file, page_title=title, units=units, is_index=is_index)
     if page.n_words < 40:
         return None
     return page

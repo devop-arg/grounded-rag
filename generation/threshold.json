@@ -1,0 +1,24 @@
+{
+  "signal": "vector_cosine",
+  "value": 0.820859,
+  "answerable_lost": 2,
+  "answerable_total": 50,
+  "unanswerable_abstained": 10,
+  "unanswerable_total": 30,
+  "max_lost": 2,
+  "calibrated_on": "eval/questions.jsonl",
+  "calibrated_at": "2026-10-29T01:19:35Z",
+  "note": "calibrated on the same 80-question eval set used for reporting: optimistically biased",
+  "signals": {
+    "vector_cosine": {
+      "threshold": 0.820859,
+      "answerable_lost": 2,
+      "unanswerable_abstained": 10
+    },
+    "rrf": {
+      "threshold": 0.016392,
+      "answerable_lost": 0,
+      "unanswerable_abstained": 0
+    }
+  }
+}
