@@ -130,6 +130,56 @@ def test_index_has_the_expected_fts_tokenizer(tmp_path) -> None:
     assert "porter unicode61 remove_diacritics 2" in sql
 
 
+def test_index_has_a_stemless_fts_table(tmp_path) -> None:
+    store = SqliteNumpyStore.build(
+        CHUNKS,
+        index_path=tmp_path / "index.sqlite",
+        vectors_path=tmp_path / "vectors.npy",
+        vector_ids_path=tmp_path / "vector_ids.json",
+    )
+    with sqlite3.connect(store.index_path) as conn:
+        (sql,) = conn.execute("SELECT sql FROM sqlite_master WHERE name = 'chunks_fts_plain'").fetchone()
+
+    assert "tokenize='unicode61 remove_diacritics 2'" in sql
+    assert "porter" not in sql
+
+
+def test_plain_mode_ranks_by_bm25_without_stemming(store: SqliteNumpyStore) -> None:
+    results = store.lexical("partial index", 5, mode="plain")
+
+    assert results
+    assert results[0][0] == "a.html#A#0"
+    scores = [score for _, score in results]
+    assert scores == sorted(scores, reverse=True)
+
+
+def test_stem_and_plain_modes_disagree_on_word_forms(store: SqliteNumpyStore) -> None:
+    # "defining" only reaches "defined" through the porter stemmer ("defin").
+    assert store.lexical("defining", 5, mode="stem")[0][0] == "a.html#A#0"
+    assert store.lexical("defining", 5, mode="plain") == []
+
+
+def test_unknown_lexical_mode_raises(store: SqliteNumpyStore) -> None:
+    with pytest.raises(ValueError):
+        store.lexical("partial index", 5, mode="trigram")
+
+
+def test_missing_plain_table_raises_a_helpful_error(tmp_path) -> None:
+    store = SqliteNumpyStore.build(
+        CHUNKS,
+        index_path=tmp_path / "index.sqlite",
+        vectors_path=tmp_path / "vectors.npy",
+        vector_ids_path=tmp_path / "vector_ids.json",
+    )
+    with sqlite3.connect(store.index_path) as conn:
+        conn.execute("DROP TABLE chunks_fts_plain")
+
+    assert store.lexical("partial index", 5)[0][0] == "a.html#A#0"  # stemmed index still works
+    with pytest.raises(RuntimeError, match="reuse-vectors"):
+        store.lexical("partial index", 5, mode="plain")
+
+
+
 def test_build_without_vectors_still_serves_lexical(tmp_path) -> None:
     store = SqliteNumpyStore.build(
         CHUNKS,

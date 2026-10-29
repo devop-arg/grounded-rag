@@ -2,6 +2,8 @@
 
 from __future__ import annotations
 
+import pytest
+
 from retrieval.fusion import rank_map, rrf_fuse
 
 
@@ -53,3 +55,34 @@ def test_k_parameter_changes_the_weights() -> None:
 
 def test_rank_map() -> None:
     assert rank_map(["a", ("b", 0.9)]) == {"a": 1, "b": 2}
+
+
+def test_weights_default_to_one_each() -> None:
+    assert rrf_fuse([["a"], ["b"]]) == rrf_fuse([["a"], ["b"]], weights=[1.0, 1.0])
+
+
+def test_weight_scales_a_whole_list() -> None:
+    fused = dict(rrf_fuse([["lex"], ["vec"]], weights=[0.5, 1.0]))
+
+    assert fused["vec"] == 1 / 61
+    assert fused["lex"] == 0.5 / 61
+
+
+def test_zero_weight_removes_a_list_from_the_ranking() -> None:
+    fused = rrf_fuse([["lex"], ["vec"]], weights=[0.0, 1.0])
+
+    assert fused == [("vec", 1 / 61)]
+
+
+def test_lower_lexical_weight_lets_the_vector_list_win() -> None:
+    unweighted = [doc_id for doc_id, _ in rrf_fuse([["a_lex"], ["b_vec"]])]
+    weighted = [doc_id for doc_id, _ in rrf_fuse([["a_lex"], ["b_vec"]], weights=[0.3, 1.0])]
+
+    assert unweighted[0] == "a_lex"  # tie on score, broken by id
+    assert weighted[0] == "b_vec"
+
+
+def test_weights_must_match_the_number_of_lists() -> None:
+    with pytest.raises(ValueError):
+        rrf_fuse([["a"], ["b"]], weights=[1.0])
+

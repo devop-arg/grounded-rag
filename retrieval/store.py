@@ -3,8 +3,9 @@
 pgvector is not available here (it would need sudo / a PostgreSQL extension),
 so the two retrieval signals live behind one small interface:
 
-* ``data/index.sqlite``: ``chunks`` table plus an FTS5 table over page title,
-  section path and chunk text, ranked with ``bm25()``.
+* ``data/index.sqlite``: ``chunks`` table plus two FTS5 tables over page title,
+  section path and chunk text, ranked with ``bm25()``: ``chunks_fts`` (porter
+  stemmer, English-oriented) and ``chunks_fts_plain`` (no stemming).
 * ``data/vectors.npy`` (float32, L2 normalized) + ``data/vector_ids.json``:
   dense vectors searched with a dot product.
 """
@@ -27,7 +28,19 @@ VECTOR_IDS_PATH = DATA_DIR / "vector_ids.json"
 CHUNKS_PATH = DATA_DIR / "chunks.jsonl"
 
 TOKEN_RE = re.compile(r"\w+", re.UNICODE)
+#: English porter stemmer (the original index).  It also folds Spanish tokens onto
+#: English stems — ``las`` and ``la`` both become ``la`` — which is the noise the
+#: plain index exists to avoid.
 FTS_TOKENIZER = "porter unicode61 remove_diacritics 2"
+#: No stemming: the second index, used for non-English queries.
+FTS_TOKENIZER_PLAIN = "unicode61 remove_diacritics 2"
+
+#: ``mode`` -> (table, tokenizer)
+FTS_TABLES = {
+    "stem": ("chunks_fts", FTS_TOKENIZER),
+    "plain": ("chunks_fts_plain", FTS_TOKENIZER_PLAIN),
+}
+LEXICAL_MODES = tuple(FTS_TABLES)
 
 SCHEMA = """
 CREATE TABLE chunks (
@@ -46,7 +59,14 @@ CREATE VIRTUAL TABLE chunks_fts USING fts5(
     page_title,
     section_path,
     text,
-    tokenize='{tokenizer}'
+    tokenize='{stem_tokenizer}'
+);
+CREATE VIRTUAL TABLE chunks_fts_plain USING fts5(
+    chunk_id UNINDEXED,
+    page_title,
+    section_path,
+    text,
+    tokenize='{plain_tokenizer}'
 );
 """
 
@@ -54,7 +74,7 @@ CREATE VIRTUAL TABLE chunks_fts USING fts5(
 class Store(Protocol):
     """Interface shared by index backends."""
 
-    def lexical(self, query: str, k: int) -> list[tuple[str, float]]: ...  # (chunk_id, score)
+    def lexical(self, query: str, k: int, mode: str = "stem") -> list[tuple[str, float]]: ...  # (chunk_id, score)
 
     def vector(self, qvec: np.ndarray, k: int) -> list[tuple[str, float]]: ...
 
@@ -110,7 +130,9 @@ class SqliteNumpyStore:
 
         conn = sqlite3.connect(tmp_path)
         try:
-            conn.executescript(SCHEMA.format(tokenizer=FTS_TOKENIZER))
+            conn.executescript(
+                SCHEMA.format(stem_tokenizer=FTS_TOKENIZER, plain_tokenizer=FTS_TOKENIZER_PLAIN)
+            )
             with conn:
                 for rowid, chunk in enumerate(chunks, start=1):
                     conn.execute(
@@ -128,18 +150,20 @@ class SqliteNumpyStore:
                             chunk["n_words"],
                         ),
                     )
-                    conn.execute(
-                        "INSERT INTO chunks_fts (rowid, chunk_id, page_title, section_path, text)"
-                        " VALUES (?, ?, ?, ?, ?)",
-                        (
-                            rowid,
-                            chunk["id"],
-                            chunk["page_title"],
-                            " > ".join(chunk["section_path"]),
-                            chunk["text"],
-                        ),
-                    )
-            conn.execute("INSERT INTO chunks_fts (chunks_fts) VALUES ('optimize')")
+                    for table, _ in FTS_TABLES.values():
+                        conn.execute(
+                            f"INSERT INTO {table} (rowid, chunk_id, page_title, section_path, text)"
+                            " VALUES (?, ?, ?, ?, ?)",
+                            (
+                                rowid,
+                                chunk["id"],
+                                chunk["page_title"],
+                                " > ".join(chunk["section_path"]),
+                                chunk["text"],
+                            ),
+                        )
+            for table, _ in FTS_TABLES.values():
+                conn.execute(f"INSERT INTO {table} ({table}) VALUES ('optimize')")
             conn.commit()
         finally:
             conn.close()
@@ -172,16 +196,28 @@ class SqliteNumpyStore:
         return int(count)
 
     # ------------------------------------------------------------------ query
-    def lexical(self, query: str, k: int) -> list[tuple[str, float]]:
+    def lexical(self, query: str, k: int, mode: str = "stem") -> list[tuple[str, float]]:
+        """BM25 lexical search over the stemmed (``"stem"``) or plain (``"plain"``) index."""
+        if mode not in FTS_TABLES:
+            raise ValueError(f"unknown lexical mode {mode!r} (expected one of {LEXICAL_MODES})")
+        table = FTS_TABLES[mode][0]
         match = fts_query(query)
         if not match or k <= 0:
             return []
         with closing(sqlite3.connect(self.index_path)) as conn:
-            rows = conn.execute(
-                "SELECT chunk_id, bm25(chunks_fts) FROM chunks_fts WHERE chunks_fts MATCH ?"
-                " ORDER BY bm25(chunks_fts) LIMIT ?",
-                (match, k),
-            ).fetchall()
+            try:
+                rows = conn.execute(
+                    f"SELECT chunk_id, bm25({table}) FROM {table} WHERE {table} MATCH ?"
+                    f" ORDER BY bm25({table}) LIMIT ?",
+                    (match, k),
+                ).fetchall()
+            except sqlite3.OperationalError as error:
+                if "no such table" not in str(error):
+                    raise
+                raise RuntimeError(
+                    f"index {self.index_path} has no {table} table (it predates the plain index);"
+                    " rebuild it with `python -m ingest --skip-download --reuse-vectors`"
+                ) from error
         # bm25() returns negative scores, smaller is better: flip the sign.
         return [(chunk_id, -float(score)) for chunk_id, score in rows]
 

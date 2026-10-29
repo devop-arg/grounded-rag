@@ -1,0 +1,19 @@
+== expected URLs in eval/dev_es.jsonl vs data/chunks.jsonl ==
+corpus: 1098 page URLs, 1867 chunk URLs; questions: 16 (12 es, 4 en)
+OK  [d01] (es, anchor) https://www.postgresql.org/docs/17/indexes-partial.html#INDEXES-PARTIAL
+OK  [d02] (es, anchor) https://www.postgresql.org/docs/17/mvcc-intro.html#MVCC-INTRO
+OK  [d03] (es, anchor) https://www.postgresql.org/docs/17/sql-grant.html#SQL-GRANT-DESCRIPTION
+OK  [d04] (es, page) https://www.postgresql.org/docs/17/sql-copy.html
+OK  [d05] (es, anchor) https://www.postgresql.org/docs/17/datatype-json.html#JSON-INDEXING
+OK  [d06] (es, anchor) https://www.postgresql.org/docs/17/ddl-partitioning.html#DDL-PARTITIONING-DECLARATIVE
+OK  [d07] (es, anchor) https://www.postgresql.org/docs/17/using-explain.html#USING-EXPLAIN-ANALYZE
+OK  [d08] (es, anchor) https://www.postgresql.org/docs/17/wal-intro.html#WAL-INTRO
+OK  [d09] (es, anchor) https://www.postgresql.org/docs/17/routine-vacuuming.html#AUTOVACUUM
+OK  [d10] (es, page) https://www.postgresql.org/docs/17/sql-createextension.html
+OK  [d11] (es, anchor) https://www.postgresql.org/docs/17/trigger-definition.html#TRIGGER-DEFINITION
+OK  [d12] (es, anchor) https://www.postgresql.org/docs/17/textsearch-controls.html#TEXTSEARCH-CONTROLS
+OK  [d13] (en, anchor) https://www.postgresql.org/docs/17/using-explain.html#USING-EXPLAIN-BASICS
+OK  [d14] (en, anchor) https://www.postgresql.org/docs/17/indexes-multicolumn.html#INDEXES-MULTICOLUMN
+OK  [d15] (en, anchor) https://www.postgresql.org/docs/17/routine-vacuuming.html#AUTOVACUUM
+OK  [d16] (en, anchor) https://www.postgresql.org/docs/17/ddl-priv.html#DDL-PRIV
+summary: 16 ok, 0 missing

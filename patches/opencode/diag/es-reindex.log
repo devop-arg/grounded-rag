@@ -1,0 +1,64 @@
+== reindex: .venv/bin/python -m ingest --reuse-vectors ==  (2026-10-28T21:56:59-03:00)
+
+-- sha256 data/vectors.npy BEFORE --
+a9f253d3d122c41cbe0b51f089d0203546e8452b7177e536594dd7eb7e32f139  data/vectors.npy
+636cb873a24145cb7252a29e236a7727f303b6a222df2818ad1bc5db2fd103d2  data/vector_ids.json
+
+-- backup reference (data/backup-fase1/SHA256SUMS) --
+636cb873a24145cb7252a29e236a7727f303b6a222df2818ad1bc5db2fd103d2  data/backup-fase1/vector_ids.json
+a9f253d3d122c41cbe0b51f089d0203546e8452b7177e536594dd7eb7e32f139  data/backup-fase1/vectors.npy
+
+index: 2835 chunks indexed in 1.5s from chunks.jsonl (vectors reused: 2835 x 384)
+{
+  "version": "17.11",
+  "docs_source": "https://www.postgresql.org/docs/17/",
+  "tarball": {
+    "name": "postgresql-17.11.tar.bz2",
+    "sha256": "dd27f2b3c59e73ed14aa3324901242bf69a032a6347805f274e6260322d42979",
+    "bytes": 21787224
+  },
+  "pages": 1143,
+  "pages_read": 1143,
+  "pages_used": 1098,
+  "pages_discarded": 45,
+  "chunks": 2835,
+  "words": {
+    "min": 2,
+    "median": 415,
+    "max": 883,
+    "mean": 376.1
+  },
+  "seconds": {
+    "download": 7.32,
+    "parse_chunk": 33.28,
+    "embed": 2003.93,
+    "index": 1.47
+  },
+  "seconds_total": 2048.99,
+  "index_bytes": {
+    "chunks.jsonl": 7862073,
+    "index.sqlite": 38793216,
+    "vectors.npy": 4354688,
+    "vector_ids.json": 129793
+  },
+  "available_mb_at_embed": 2348,
+  "embedding_model": "intfloat/multilingual-e5-small",
+  "vectors_reused": true
+}
+exit code: 0
+
+-- sha256 data/vectors.npy AFTER --
+a9f253d3d122c41cbe0b51f089d0203546e8452b7177e536594dd7eb7e32f139  data/vectors.npy
+636cb873a24145cb7252a29e236a7727f303b6a222df2818ad1bc5db2fd103d2  data/vector_ids.json
+
+-- backup directory integrity (data/backup-fase1, never written) --
+data/backup-fase1/chunks.jsonl: OK
+data/backup-fase1/index.sqlite: OK
+data/backup-fase1/ingest_stats.json: OK
+data/backup-fase1/vector_ids.json: OK
+data/backup-fase1/vectors.npy: OK
+
+-- index state --
+chunks_fts: CREATE VIRTUAL TABLE chunks_fts USING fts5( chunk_id UNINDEXED, page_title, section_path, text, tokenize='porter unicode61 remove_diacritics 2' )
+chunks_fts_plain: CREATE VIRTUAL TABLE chunks_fts_plain USING fts5( chunk_id UNINDEXED, page_title, section_path, text, tokenize='unicode61 remove_diacritics 2' )
+rows (chunks, chunks_fts, chunks_fts_plain): 2835 2835 2835
