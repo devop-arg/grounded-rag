@@ -14,7 +14,7 @@ only the generation step talks to a model endpoint.
 | `retrieval/` | SQLite FTS5 + numpy vector store, weighted RRF fusion, `hybrid_search` |
 | `generation/` | config, prompt, OpenAI-compatible client, citation validation, threshold |
 | `app/` | FastAPI: `POST /api/ask`, `GET /api/health`, `GET /api/metrics`, static `web/` |
-| `web/` | the UI (HTML/CSS/vanilla JS), `recorded.json` and its recorder `web/record.py` |
+| `web/` | the UI (HTML/CSS/vanilla JS), `examples.json` (the eight example questions, EN/ES), `recorded.json` and its recorder `web/record.py` |
 | `eval/` | recall@5 / MRR, plus `--generate` answer/citation/abstention metrics |
 | `tests/` | unit tests (no network, no model) |
 | `data/` | generated: raw tarball, HTML pages, `chunks.jsonl`, index, stats, `usage.sqlite` |
@@ -245,17 +245,33 @@ address when the proxy sets that header.
   else.
 * `GET /api/health` → `{status, generation, llm_configured, budget}`.
 * `GET /api/metrics` → `{retrieval, threshold, generation, budget}` for the
-  "How it is evaluated" panel; `threshold` is the one the configuration uses
-  (local or remote index) and carries the index it belongs to.
+  "How it is evaluated" panel. Every block follows the index the configuration
+  uses and carries it as `index` (`"local"` or `"remote"`), with the report it
+  came from: local → `eval/reports/retrieval.json` and the newest
+  `<date>-generate.json`; remote → the newest `<date>-compare-remote.json` (the
+  combination that run chose) and the newest `<date>-generate-remote.json`. The
+  panel never quotes the other index, and the "Why RAG" figures (recall@5 and
+  valid citations) are rendered from this same response.
 * `GET /` serves the web UI: an EN/ES and light/dark page with the question
   form, the citations of every sentence (hover, focus or tap to read the verbatim
-  quote) and the evaluation panel. If the model is unavailable, if generation is
-  off, if the request fails or if the monthly budget is spent, the page switches
-  to **recorded mode** and replays an answer recorded from `web/recorded.json`,
+  quote) and the evaluation panel. The eight example chips come from
+  `web/examples.json` and follow the active language; the page also walks through
+  one worked example step by step and explains why it is RAG and not a search
+  engine. The first visit picks the language from `?lang=en|es`, then from the
+  key the page stores (`grounded-rag.lang`), then from `dev0p-lang` of
+  dev0p.com on the same origin, and English otherwise; choosing a language in
+  the page stores it, and everything that is not the manual or the model output
+  follows the active one (`<html lang>`, title, description, footer, labels,
+  placeholders, banners, errors and the evaluation panel). If the model is
+  unavailable, if generation is off, if the request fails or if the monthly
+  budget is spent, the page switches to **recorded mode** and replays an answer
+  recorded from `web/recorded.json`,
   behind a short banner. Regenerate that file with `python -m web.record` (no
   model, no network): it replays `--from-report <real *-generate.json>` when one
   exists (the remote run of the day wins over the local one), otherwise it
-  records the retrieved sources only.
+  records the retrieved sources only. `--live` fills the remaining examples with
+  a real answer, one model call each, capped by `--max-cost` (default US$ 0.05);
+  without the flag the model is never called.
 
 Every response carries `Content-Security-Policy` (no inline script or style, no
 JS CDN), `X-Content-Type-Options: nosniff` and `Referrer-Policy: no-referrer`.
