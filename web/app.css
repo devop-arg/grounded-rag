@@ -105,16 +105,54 @@ textarea::placeholder{color:var(--muted)}
 /* metrics */
 .metrics{margin-top:16px;margin-bottom:36px;padding:16px}
 .explain{margin-top:8px;max-width:82ch;font-size:14px;color:var(--muted)}
-.metrics-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:12px;margin-top:14px;min-width:0}
+.metrics-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,300px),1fr));gap:12px;margin-top:14px;min-width:0}
+.metrics-grid .source{grid-column:1/-1;margin:0 0 -2px;font-size:11px;letter-spacing:.04em;text-transform:uppercase}
 .metric{min-width:0;padding:12px 14px;border:1px solid var(--line);border-radius:3px;background:var(--panel-2)}
 .metric.pending{border-left:2px solid var(--amber)}
 .metric h3{font-family:var(--mono);font-size:10.5px;font-weight:500;letter-spacing:.12em;text-transform:uppercase;color:var(--muted)}
-.metric dl{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,max-content);gap:4px 10px;margin:10px 0 0;font-size:13px}
+.metric dl{display:grid;grid-template-columns:minmax(min-content,1fr) minmax(0,max-content);gap:4px 10px;margin:10px 0 0;font-size:13px}
 .metric dl:empty{display:none}
-.metric dt{color:var(--muted);min-width:0;overflow-wrap:anywhere}
-.metric dd{margin:0;font-family:var(--mono);font-size:12px;text-align:right;overflow-wrap:anywhere}
+.metric dt{color:var(--muted);min-width:0;overflow-wrap:break-word}
+.metric dd{margin:0;font-family:var(--mono);font-size:12px;text-align:right;overflow-wrap:normal}
 .metric .note{margin-top:10px;font-size:11.5px;color:var(--muted);overflow-wrap:anywhere}
 .metric .sub{margin-top:10px;padding-top:8px;border-top:1px solid var(--line)}
+
+/* how it works (the pipeline, one step at a time) */
+.how{margin-top:16px;padding:16px}
+.how-head{display:flex;flex-wrap:wrap;align-items:flex-start;justify-content:space-between;gap:10px 16px}
+.how-intro{min-width:0;flex:1 1 auto}
+.how-pause{font-family:var(--mono);font-size:11px;min-height:36px;padding:0 12px;background:transparent;border:1px solid var(--line);border-radius:3px;color:var(--muted);cursor:pointer}
+.how-pause:hover{color:var(--fg);border-color:var(--signal)}
+.how-pause[aria-pressed="true"]{background:var(--signal-soft);border-color:var(--signal);color:var(--signal)}
+.how-track{list-style:none;margin:16px 0 0;padding:0;display:grid;gap:10px;min-width:0}
+.how-step{display:grid;grid-template-columns:auto minmax(0,1fr);gap:4px 12px;padding:12px 14px;background:var(--panel-2);border:1px solid var(--line);border-left:2px solid var(--line);border-radius:3px;min-width:0;opacity:1;animation:how-step 21s linear infinite}
+.how-step:nth-child(1){animation-delay:0s}
+.how-step:nth-child(2){animation-delay:3s}
+.how-step:nth-child(3){animation-delay:6s}
+.how-step:nth-child(4){animation-delay:9s}
+.how-step:nth-child(5){animation-delay:12s}
+.how-step:nth-child(6){animation-delay:15s}
+.how-step:nth-child(7){animation-delay:18s}
+.how.is-paused .how-step{animation-play-state:paused}
+@keyframes how-step{0%{opacity:.5;border-left-color:var(--line)}5%{opacity:1;border-left-color:var(--signal)}13%{opacity:1;border-left-color:var(--signal)}18%{opacity:.5;border-left-color:var(--line)}100%{opacity:.5;border-left-color:var(--line)}}
+.how-n{align-self:start;font-family:var(--mono);font-size:10.5px;color:var(--signal);border:1px solid var(--line);border-radius:2px;padding:1px 5px}
+.how-body{min-width:0}
+.how-body h3{font-size:14.5px}
+.how-body p{margin-top:6px;font-size:13.5px;color:var(--muted);overflow-wrap:anywhere}
+.how-artifact{margin-top:8px;padding:8px 10px;background:var(--panel);border-left:2px solid var(--signal);border-radius:2px;color:var(--fg);font-size:11.5px;overflow-wrap:anywhere}
+.how-artifact.how-rejected{border-left-color:var(--amber)}
+.how-cite{font-family:var(--mono);font-size:11px;background:var(--signal-soft);color:var(--signal);border:1px solid var(--line);border-radius:2px;padding:0 4px}
+.how-drop{display:inline-block;margin-left:6px;font-family:var(--mono);font-size:10px;letter-spacing:.08em;text-transform:uppercase;color:var(--amber);background:var(--amber-soft);border:1px solid var(--amber);border-radius:2px;padding:0 5px}
+.how-note{margin-top:12px;color:var(--muted)}
+
+/* why rag and not a search engine */
+.why{margin-top:16px;padding:16px}
+.why-list{margin:14px 0 0;padding-left:18px;display:grid;gap:8px;max-width:84ch}
+.why-list li{font-size:14px;overflow-wrap:anywhere}
+.why-list li::marker{color:var(--signal)}
+.why-note{display:flex;flex-wrap:wrap;align-items:baseline;gap:6px 14px;margin-top:14px;padding-top:12px;border-top:1px solid var(--line);color:var(--muted)}
+.why-note a{color:var(--signal);text-decoration:none;border-bottom:1px solid transparent}
+.why-note a:hover{border-bottom-color:var(--signal)}
 
 .foot{border-top:1px solid var(--line);padding-block:14px 28px;margin-top:8px;color:var(--muted);font-size:11px}
 
@@ -126,5 +164,14 @@ textarea::placeholder{color:var(--muted)}
   .counter{order:1}
   .card{padding:14px}
   .sentence{font-size:15.5px}
+  .how,.why{padding:14px}
+  .how-head{flex-direction:column}
+  .how-pause{width:100%}
+}
+@media (prefers-reduced-motion:reduce){
+  /* No motion: every step of the pipeline is readable at once, the toggle is moot. */
+  .how-step{animation:none;opacity:1;border-left-color:var(--line)}
+  .how-pause{display:none}
 }
 @media (prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
+

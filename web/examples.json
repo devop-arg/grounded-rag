@@ -1,0 +1,29 @@
+{
+  "version": 1,
+  "topics": [
+    {
+      "key": "index-without-blocking-writes",
+      "eval": {"en": "a01"},
+      "en": "How do I build an index without blocking writes on the table?",
+      "es": "¿Cómo construyo un índice sin bloquear las escrituras en la tabla?"
+    },
+    {
+      "key": "json-vs-jsonb",
+      "eval": {"en": "a15"},
+      "en": "What is the difference between json and jsonb?",
+      "es": "¿Qué diferencia hay entre json y jsonb?"
+    },
+    {
+      "key": "json-table",
+      "eval": {"es": "a16"},
+      "en": "How do I turn a JSON document into rows and columns with JSON_TABLE?",
+      "es": "¿Cómo convierto un documento JSON en filas y columnas con JSON_TABLE?"
+    },
+    {
+      "key": "vacuum-vs-vacuum-full",
+      "eval": {"es": "a06"},
+      "en": "What is the difference between VACUUM and VACUUM FULL?",
+      "es": "¿Qué diferencia hay entre VACUUM y VACUUM FULL?"
+    }
+  ]
+}

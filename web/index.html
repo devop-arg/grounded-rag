@@ -11,8 +11,8 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Chakra+Petch:wght@500;600;700&amp;family=Hanken+Grotesk:wght@400;500;600&amp;family=Martian+Mono:wght@400;500&amp;display=swap">
-<link rel="stylesheet" href="app.css?v=1">
-<script src="app.js?v=1" defer></script>
+<link rel="stylesheet" href="app.css?v=3">
+<script src="app.js?v=3" defer></script>
 </head>
 <body>
 <a class="skip mono" href="#question" data-i18n="skip">Skip to the question</a>
@@ -51,16 +51,94 @@
     </form>
     <div class="examples">
       <p class="tag" data-i18n="form.examples">Examples</p>
-      <div class="chips">
-        <button type="button" class="chip" lang="en" data-example="How do I build an index without blocking writes on the table?">How do I build an index without blocking writes on the table?</button>
-        <button type="button" class="chip" lang="en" data-example="What is the difference between json and jsonb?">What is the difference between json and jsonb?</button>
-        <button type="button" class="chip" lang="es" data-example="¿Cómo convierto un documento JSON en filas y columnas con JSON_TABLE?">¿Cómo convierto un documento JSON en filas y columnas con JSON_TABLE?</button>
-        <button type="button" class="chip" lang="es" data-example="¿Qué diferencia hay entre VACUUM y VACUUM FULL?">¿Qué diferencia hay entre VACUUM y VACUUM FULL?</button>
-      </div>
+      <div class="chips" id="examples-chips"></div>
     </div>
   </section>
 
   <section class="result" id="result" aria-live="polite" aria-busy="false" hidden></section>
+
+  <section class="panel how" id="how" aria-labelledby="how-title">
+    <div class="how-head">
+      <div class="how-intro">
+        <h2 class="tag" id="how-title" data-i18n="how.heading">How it works</h2>
+        <p class="explain" data-i18n="how.lead">One real question, step by step: from the Spanish question to the verified citations.</p>
+      </div>
+      <button type="button" class="how-pause" id="how-pause" aria-pressed="false" data-i18n="how.pause">Pause</button>
+    </div>
+    <ol class="how-track" id="how-track">
+      <li class="how-step">
+        <span class="how-n mono" aria-hidden="true">1</span>
+        <div class="how-body">
+          <h3 data-i18n="how.s1.title">The question</h3>
+          <p data-i18n="how.s1.text">A question in Spanish arrives from the page and is answered in Spanish.</p>
+          <p class="how-artifact mono" lang="es">¿Qué diferencia hay entre VACUUM y VACUUM FULL?</p>
+        </div>
+      </li>
+      <li class="how-step">
+        <span class="how-n mono" aria-hidden="true">2</span>
+        <div class="how-body">
+          <h3 data-i18n="how.s2.title">Translation for the lexical search only</h3>
+          <p data-i18n="how.s2.text">The English wording feeds the full-text index; the vector search and the prompt keep the original question, so the answer comes back in Spanish.</p>
+          <p class="how-artifact mono" lang="en">difference between VACUUM and VACUUM FULL</p>
+        </div>
+      </li>
+      <li class="how-step">
+        <span class="how-n mono" aria-hidden="true">3</span>
+        <div class="how-body">
+          <h3 data-i18n="how.s3.title">Hybrid search</h3>
+          <p data-i18n="how.s3.text">Full-text and embeddings rank the manual on their own, and weighted reciprocal rank fusion merges both lists into one.</p>
+          <p class="how-artifact mono" data-i18n="how.s3.artifact">BM25 20 · cosine 20 · RRF 1</p>
+        </div>
+      </li>
+      <li class="how-step">
+        <span class="how-n mono" aria-hidden="true">4</span>
+        <div class="how-body">
+          <h3 data-i18n="how.s4.title">Eight pages of the manual</h3>
+          <p data-i18n="how.s4.text">The eight best pages of the PostgreSQL 17 manual are sent to the model, never two slots for the same page.</p>
+          <p class="how-artifact mono" data-i18n="how.s4.artifact">PostgreSQL 17 · 8 pages</p>
+        </div>
+      </li>
+      <li class="how-step">
+        <span class="how-n mono" aria-hidden="true">5</span>
+        <div class="how-body">
+          <h3 data-i18n="how.s5.title">The model writes sentences with quotes</h3>
+          <p data-i18n="how.s5.text">Every sentence must carry a verbatim quote from the page it cites, numbered like the sources.</p>
+          <p class="how-artifact" lang="es">VACUUM FULL reescribe la tabla en un archivo nuevo. <span class="how-cite mono">[1]</span></p>
+        </div>
+      </li>
+      <li class="how-step">
+        <span class="how-n mono" aria-hidden="true">6</span>
+        <div class="how-body">
+          <h3 data-i18n="how.s6.title">The server verifies every quote</h3>
+          <p data-i18n="how.s6.text">Each quote is checked against the passage text; a sentence whose quote is not there is dropped before anyone sees it.</p>
+          <p class="how-artifact how-rejected"><span lang="es">VACUUM FULL no necesita espacio extra en disco.</span> <span class="how-cite mono">[1]</span> <span class="how-drop mono" data-i18n="how.s6.drop">quote not found: dropped</span></p>
+        </div>
+      </li>
+      <li class="how-step">
+        <span class="how-n mono" aria-hidden="true">7</span>
+        <div class="how-body">
+          <h3 data-i18n="how.s7.title">Answer or abstention</h3>
+          <p data-i18n="how.s7.text">What survives becomes the answer with its numbered citations and page links. If nothing survives, the server abstains instead of guessing.</p>
+          <p class="how-artifact mono"><span class="how-cite">[1]</span> <span class="how-cite">[2]</span> · <span data-i18n="how.s7.abstain">abstain</span></p>
+        </div>
+      </li>
+    </ol>
+    <p class="how-note mono" data-i18n="how.note">The animation is decoration: with reduced motion every step is shown at once.</p>
+  </section>
+
+  <section class="panel why" id="why" aria-labelledby="why-title">
+    <h2 class="tag" id="why-title" data-i18n="why.heading">Why RAG and not a search engine?</h2>
+    <p class="explain" data-i18n="why.lead">A search engine returns links and leaves the reading to you. This assistant returns a sentence you can check.</p>
+    <ul class="why-list">
+      <li data-i18n="why.p1">It answers from one authorised, versioned source: the PostgreSQL 17 documentation, with no other versions and no blogs mixed in.</li>
+      <li data-i18n="why.p2">Every statement carries its verbatim quote and the link to the page, so it can be verified in one click.</li>
+      <li data-i18n="why.p3">It abstains when the documentation does not cover the question, instead of inventing an answer.</li>
+      <li data-i18n="why.p4">It works over private or internal documentation that a public search engine never indexes.</li>
+      <li data-i18n="why.p5">It synthesises several pages into a single answer instead of handing back a list of links.</li>
+      <li data-i18n="why.p6">The quality is measured on a public set: the exact figures are in the evaluation panel below and in the repository.</li>
+    </ul>
+    <p class="why-note mono"><span data-i18n="why.note">Measured on a public evaluation set.</span> <a class="repo" href="https://github.com/devop-arg/grounded-rag#evaluation" rel="noopener" target="_blank" data-i18n="why.link">Evaluation in the repository</a></p>
+  </section>
 
   <section class="panel metrics" id="metrics" aria-labelledby="metrics-title">
     <h2 class="tag" id="metrics-title" data-i18n="metrics.heading">How it is evaluated</h2>
@@ -72,7 +150,7 @@
 </main>
 
 <footer class="wrap foot mono">
-  <p>grounded-rag · PostgreSQL 17 documentation · MIT</p>
+  <p data-i18n="foot.note">grounded-rag · PostgreSQL 17 documentation · MIT</p>
 </footer>
 </body>
 </html>
